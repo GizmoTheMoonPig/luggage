@@ -1,22 +1,23 @@
 package com.gizmo.luggage;
 
 import com.gizmo.luggage.entity.LuggageEntity;
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 
-public class LuggageMenu extends AbstractContainerMenu {
+public class LuggageMenu extends Container {
 
-	private final Container luggageContainer;
+	private final IInventory luggageContainer;
 	private final LuggageEntity luggage;
 	private final int containerRows;
 
-	public LuggageMenu(int id, Inventory inventory, Container container, LuggageEntity luggage) {
-		super(MenuType.GENERIC_9x6, id);
+	public LuggageMenu(int id, PlayerInventory inventory, IInventory container, LuggageEntity luggage) {
+		super(ContainerType.GENERIC_9x6, id);
 		checkContainerSize(container, luggage.hasExtendedInventory()  ? 54 : 27);
 		this.luggageContainer = container;
 		this.luggage = luggage;
@@ -43,7 +44,7 @@ public class LuggageMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public boolean stillValid(Player player) {
+	public boolean stillValid(PlayerEntity player) {
 		return !this.luggage.hasInventoryChanged(this.luggageContainer) &&
 				this.luggageContainer.stillValid(player) &&
 				this.luggage.isAlive() &&
@@ -51,7 +52,7 @@ public class LuggageMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public ItemStack quickMoveStack(Player player, int id) {
+	public ItemStack quickMoveStack(PlayerEntity player, int id) {
 		ItemStack itemstack = ItemStack.EMPTY;
 		Slot slot = this.slots.get(id);
 		if (slot.hasItem()) {
@@ -76,20 +77,20 @@ public class LuggageMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public void removed(Player player) {
+	public void removed(PlayerEntity player) {
 		super.removed(player);
 		this.luggageContainer.stopOpen(player);
 	}
 
 	public static class LuggageSlot extends Slot {
 
-		public LuggageSlot(Container container, int slot, int x, int y) {
+		public LuggageSlot(IInventory container, int slot, int x, int y) {
 			super(container, slot, x, y);
 		}
 
 		@Override
 		public boolean mayPlace(ItemStack stack) {
-			return !stack.is(Registries.ItemRegistry.LUGGAGE.get());
+			return !(stack.getItem() == Registries.ItemRegistry.LUGGAGE.get()) && !(stack.getItem() == Items.SHULKER_BOX);
 		}
 	}
 }

@@ -2,28 +2,27 @@ package com.gizmo.luggage.client;
 
 import com.gizmo.luggage.entity.LuggageEntity;
 import com.gizmo.luggage.Registries;
-import com.mojang.blaze3d.platform.Lighting;
+import net.minecraft.client.renderer.RenderHelper;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.item.ItemStack;
 
-public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
+public class LuggageItemRenderer extends ItemStackTileEntityRenderer {
 
 	public LuggageItemRenderer() {
-		super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void renderByItem(ItemStack stack, ItemTransforms.TransformType type, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-		if(stack.is(Registries.ItemRegistry.LUGGAGE.get())) {
+	public void renderByItem(ItemStack stack, ItemCameraTransforms.TransformType type, MatrixStack ms, IRenderTypeBuffer buffer, int light, int overlay) {
+		if(stack.getItem() == Registries.ItemRegistry.LUGGAGE.get()) {
 			assert Minecraft.getInstance().level != null;
 			LuggageEntity entity = Registries.EntityRegistry.LUGGAGE.get().create(Minecraft.getInstance().level);
 			if (entity != null) {
@@ -37,27 +36,27 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 				ms.translate(-0.5F, -0.2F, 0.0F);
 				ms.scale(0.8F, 0.8F, 0.8F);
 				ms.mulPose(quaternion);
-				if(type == ItemTransforms.TransformType.GUI) {
+				if(type == ItemCameraTransforms.TransformType.GUI) {
 					ms.mulPose(Vector3f.XP.rotationDegrees(20));
 					ms.mulPose(Vector3f.YP.rotationDegrees(45));
 					ms.mulPose(Vector3f.ZP.rotationDegrees(0));
 				}
-				EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+				EntityRendererManager entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
 				quaternion1.conj();
 				entityrenderdispatcher.overrideCameraOrientation(quaternion1);
 				entityrenderdispatcher.setRenderShadow(false);
-				MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
+				IRenderTypeBuffer.Impl source = Minecraft.getInstance().renderBuffers().bufferSource();
 				RenderSystem.runAsFancy(() ->
-						entityrenderdispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, partialTicksForRender, ms, source, type == ItemTransforms.TransformType.GUI ? 15728880 : light));
+						entityrenderdispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, partialTicksForRender, ms, source, type == ItemCameraTransforms.TransformType.GUI ? 15728880 : light));
 				source.endBatch();
 				entityrenderdispatcher.setRenderShadow(true);
-				entity.setYRot(0.0F);
-				entity.setXRot(0.0F);
+				entity.yRot = 0.0F;
+				entity.xRot = 0.0F;
 				entity.yBodyRot = 0.0F;
 				entity.yHeadRotO = 0.0F;
 				entity.yHeadRot = 0.0F;
-				RenderSystem.applyModelViewMatrix();
-				Lighting.setupFor3DItems();
+				//RenderSystem.applyModelViewMatrix();
+				RenderHelper.setupFor3DItems();
 			}
 		}
 	}

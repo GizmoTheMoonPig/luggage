@@ -2,6 +2,5 @@
 @ParametersAreNonnullByDefault
 package com.gizmo.luggage;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
-
+import mcp.MethodsReturnNonnullByDefault;
 import javax.annotation.ParametersAreNonnullByDefault;

@@ -1,22 +1,21 @@
 package com.gizmo.luggage.client;
 
-import com.gizmo.luggage.entity.LuggageEntity;
 import com.gizmo.luggage.LuggageMenu;
+import com.gizmo.luggage.entity.LuggageEntity;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class LuggageScreen extends AbstractContainerScreen<LuggageMenu> {
+public class LuggageScreen extends ContainerScreen<LuggageMenu> {
 	private static final ResourceLocation CONTAINER_BACKGROUND = new ResourceLocation("textures/gui/container/generic_54.png");
 	private final int containerRows;
 
-	public LuggageScreen(LuggageMenu menu, Inventory inventory, LuggageEntity entity) {
+	public LuggageScreen(LuggageMenu menu, PlayerInventory inventory, LuggageEntity entity) {
 		super(menu, inventory, entity.getDisplayName());
 		this.passEvents = false;
 		this.containerRows = entity.hasExtendedInventory() ? 6 : 3;
@@ -24,16 +23,15 @@ public class LuggageScreen extends AbstractContainerScreen<LuggageMenu> {
 		this.inventoryLabelY = this.imageHeight - 94;
 	}
 
-	public void render(PoseStack ms, int x, int y, float partialTicks) {
+	public void render(MatrixStack ms, int x, int y, float partialTicks) {
 		this.renderBackground(ms);
 		super.render(ms, x, y, partialTicks);
 		this.renderTooltip(ms, x, y);
 	}
 
-	protected void renderBg(PoseStack ms, float partialTicks, int x, int y) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		RenderSystem.setShaderTexture(0, CONTAINER_BACKGROUND);
+	protected void renderBg(MatrixStack ms, float partialTicks, int x, int y) {
+		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+		this.minecraft.getTextureManager().bind(CONTAINER_BACKGROUND);
 		int i = (this.width - this.imageWidth) / 2;
 		int j = (this.height - this.imageHeight) / 2;
 		this.blit(ms, i, j, 0, 0, this.imageWidth, this.containerRows * 18 + 17);

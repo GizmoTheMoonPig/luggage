@@ -1,14 +1,14 @@
 package com.gizmo.luggage.entity;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.pathfinding.PathNavigator;
+import net.minecraft.world.IWorldReader;
+import net.minecraft.block.LeavesBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.pathfinding.PathNodeType;
+import net.minecraft.pathfinding.WalkNodeProcessor;
 
 import java.util.EnumSet;
 
@@ -17,9 +17,9 @@ import java.util.EnumSet;
 public class LuggageFollowOwnerGoal extends Goal {
 	private final LuggageEntity luggage;
 	private LivingEntity owner;
-	private final LevelReader level;
+	private final IWorldReader level;
 	private final double speedModifier;
-	private final PathNavigation navigation;
+	private final PathNavigator navigation;
 	private int timeToRecalcPath;
 	private final float stopDistance;
 	private final float startDistance;
@@ -63,20 +63,20 @@ public class LuggageFollowOwnerGoal extends Goal {
 
 	public void start() {
 		this.timeToRecalcPath = 0;
-		this.oldWaterCost = this.luggage.getPathfindingMalus(BlockPathTypes.WATER);
-		this.luggage.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+		this.oldWaterCost = this.luggage.getPathfindingMalus(PathNodeType.WATER);
+		this.luggage.setPathfindingMalus(PathNodeType.WATER, 0.0F);
 	}
 
 	public void stop() {
 		this.owner = null;
 		this.navigation.stop();
-		this.luggage.setPathfindingMalus(BlockPathTypes.WATER, this.oldWaterCost);
+		this.luggage.setPathfindingMalus(PathNodeType.WATER, this.oldWaterCost);
 	}
 
 	public void tick() {
 		this.luggage.getLookControl().setLookAt(this.owner, 10.0F, (float)this.luggage.getMaxHeadXRot());
 		if (--this.timeToRecalcPath <= 0) {
-			this.timeToRecalcPath = this.adjustedTickDelay(10);
+			this.timeToRecalcPath = 10;
 			if (!this.luggage.isLeashed() && !this.luggage.isPassenger()) {
 				//1600 = 40 blocks
 				if (this.luggage.distanceToSqr(this.owner) >= 1600.0D) {
@@ -110,15 +110,15 @@ public class LuggageFollowOwnerGoal extends Goal {
 		} else if (!this.canTeleportTo(new BlockPos(x, y, z))) {
 			return false;
 		} else {
-			this.luggage.moveTo((double)x + 0.5D, y, (double)z + 0.5D, this.luggage.getYRot(), this.luggage.getXRot());
+			this.luggage.moveTo((double)x + 0.5D, y, (double)z + 0.5D, this.luggage.yRot, this.luggage.xRot);
 			this.navigation.stop();
 			return true;
 		}
 	}
 
 	private boolean canTeleportTo(BlockPos pos) {
-		BlockPathTypes blockpathtypes = WalkNodeEvaluator.getBlockPathTypeStatic(this.level, pos.mutable());
-		if (blockpathtypes != BlockPathTypes.WALKABLE) {
+		PathNodeType blockpathtypes = WalkNodeProcessor.getBlockPathTypeStatic(this.level, pos.mutable());
+		if (blockpathtypes != PathNodeType.WALKABLE) {
 			return false;
 		} else {
 			BlockState blockstate = this.level.getBlockState(pos.below());

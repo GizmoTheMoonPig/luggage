@@ -2,12 +2,12 @@ package com.gizmo.luggage;
 
 import com.gizmo.luggage.entity.LuggageEntity;
 import com.gizmo.luggage.network.LuggageNetworkHandler;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.item.ItemExpireEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -39,11 +39,22 @@ public class Luggage {
 
 	@Mod.EventBusSubscriber(modid = Luggage.ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 	public static class ForgeEvents {
+
+		@SubscribeEvent
+		public static void noLuggageDespawn(ItemExpireEvent event) {
+			if(event.getEntityItem().getItem().getItem() == Registries.ItemRegistry.LUGGAGE.get()) {
+				event.setExtraLife(Integer.MAX_VALUE);
+			}
+		}
+
 		@SubscribeEvent
 		public static void neverKillLuggage(EntityJoinWorldEvent event) {
-			if(event.getEntity() instanceof ItemEntity item && item.getItem().is(Registries.ItemRegistry.LUGGAGE.get()) && item.getItem().getOrCreateTag().contains("Inventory")) {
-				item.setInvulnerable(true);
-				item.setUnlimitedLifetime();
+			if(event.getEntity() instanceof ItemEntity) {
+				ItemEntity item = (ItemEntity) event.getEntity();
+				if (item.getItem().getItem() == Registries.ItemRegistry.LUGGAGE.get() && item.getItem().getOrCreateTag().contains("Inventory")) {
+					item.setInvulnerable(true);
+					item.setExtendedLifetime();
+				}
 			}
 		}
 	}

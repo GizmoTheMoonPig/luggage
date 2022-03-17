@@ -1,10 +1,10 @@
 package com.gizmo.luggage.network;
 
 import com.gizmo.luggage.client.ClientEvents;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -18,12 +18,12 @@ public class OpenLuggageScreenPacket {
 		this.entityId = entityId;
 	}
 
-	public OpenLuggageScreenPacket(FriendlyByteBuf buf) {
+	public OpenLuggageScreenPacket(PacketBuffer buf) {
 		this.containerId = buf.readUnsignedByte();
 		this.entityId = buf.readInt();
 	}
 
-	public void encode(FriendlyByteBuf buf) {
+	public void encode(PacketBuffer buf) {
 		buf.writeByte(this.containerId);
 		buf.writeInt(this.entityId);
 	}
