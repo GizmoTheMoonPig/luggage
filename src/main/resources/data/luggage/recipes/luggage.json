@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "/d/",
+    "/c/",
+    "///"
+  ],
+  "key": {
+    "/": {
+      "tag": "forge:rods/wooden"
+    },
+    "c": {
+      "tag": "forge:chests/wooden"
+    },
+    "d": {
+      "tag": "forge:gems/diamond"
+    }
+  },
+  "result": {
+    "item": "luggage:luggage"
+  }
+}

@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+license = "The MIT License (MIT)"
+
+[[mods]]
+modId = "luggage"
+version = "${file.jarVersion}"
+displayName = "Luggage"
+logoFile = "luggage.png"
+credits = "Original Luggage done by Openblocks, recreated from scratch by me"
+authors = "GizmoTheMoonPig"
+description = '''
+Brings back the Luggage entity from Openblocks.
+'''
+
+[[dependencies.luggage]]
+modId = "forge"
+mandatory = true
+versionRange = "[40,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.luggage]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.18,1.19)"
+ordering = "NONE"
+side = "BOTH"
