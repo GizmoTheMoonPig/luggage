@@ -30,6 +30,7 @@ public class Registries {
 		public static final SoundEvent LUGGAGE_EAT_FOOD = createEvent("entity.luggage.luggage.eat_food");
 		public static final SoundEvent LUGGAGE_EAT_ITEM = createEvent("entity.luggage.luggage.eat_item");
 		public static final SoundEvent LUGGAGE_STEP = createEvent("entity.luggage.luggage.step");
+		public static final SoundEvent WHISTLE = createEvent("entity.luggage.player.whistle");
 
 		private static SoundEvent createEvent(String sound) {
 			ResourceLocation name = new ResourceLocation(Luggage.ID, sound);
@@ -37,7 +38,7 @@ public class Registries {
 		}
 
 		static void registerSounds(RegistryEvent.Register<SoundEvent> event) {
-			event.getRegistry().registerAll(LUGGAGE_EAT_FOOD, LUGGAGE_EAT_ITEM, LUGGAGE_STEP);
+			event.getRegistry().registerAll(LUGGAGE_EAT_FOOD, LUGGAGE_EAT_ITEM, LUGGAGE_STEP, WHISTLE);
 		}
 	}
 }
