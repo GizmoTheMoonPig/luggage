@@ -3,9 +3,12 @@ package com.gizmo.luggage;
 import com.gizmo.luggage.client.LuggageItemRenderer;
 import com.gizmo.luggage.entity.LuggageEntity;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -47,6 +50,19 @@ public class LuggageItem extends Item {
 	@Override
 	public boolean canFitInsideContainerItems() {
 		return false;
+	}
+
+	@Override
+	public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> stacks) {
+		super.fillItemCategory(tab, stacks);
+
+		if(allowdedIn(tab)) {
+			ItemStack item = new ItemStack(this);
+			CompoundTag tag = new CompoundTag();
+			tag.putBoolean("Extended", true);
+			item.setTag(tag);
+			stacks.add(item);
+		}
 	}
 
 	@Override
