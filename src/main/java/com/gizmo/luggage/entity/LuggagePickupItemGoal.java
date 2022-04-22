@@ -85,6 +85,7 @@ public class LuggagePickupItemGoal extends Goal {
 					}
 
 					this.luggage.onItemPickup(this.targetItem);
+					this.luggage.gameEvent(GameEvent.EAT, this.luggage.blockPosition());
 					this.luggage.take(this.targetItem, item.getCount());
 					ItemStack consumedStack = simplecontainer.addItem(item);
 					if (consumedStack.isEmpty()) {

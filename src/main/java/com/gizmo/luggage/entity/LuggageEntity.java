@@ -329,6 +329,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 				} else {
 					this.playSound(SoundEvents.CHEST_OPEN, 0.5f, this.random.nextFloat() * 0.1f + 0.9f);
 					if (!level.isClientSide) {
+					level.gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
 						ServerPlayer sp = (ServerPlayer) player;
 						if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
 
@@ -396,6 +397,11 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	@Override
 	public boolean canBeLeashed(Player player) {
 		return false;
+	}
+
+	@Override
+	public boolean isSteppingCarefully() {
+		return true;
 	}
 
 	@Override
