@@ -16,8 +16,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -27,7 +29,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
@@ -40,6 +44,7 @@ import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -402,11 +407,46 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	}
 
 	@Override
+	public void knockback(double x, double y, double z) {}
+
+	@Override
+	protected void pushEntities() {}
+
+	@Override
+	public boolean addEffect(MobEffectInstance instance, @Nullable Entity entity) {
+		return false;
+	}
+
+	@Override
+	public boolean causeFallDamage(float dist, float mult, DamageSource source) {
+		return false;
+	}
+
+	@Override
+	public void checkDespawn() {}
+
+	@Override
 	public void kill() {
 		this.getInventory().removeAllItems().forEach(this::spawnAtLocation);
 		this.spawnAnim();
 		this.playSound(Registries.SoundRegistry.LUGGAGE_KILLED, 2.0F, 1.0F);
 		this.remove(RemovalReason.KILLED);
+	}
+
+	@Override
+	public boolean attackable() {
+		return false;
+	}
+
+	@Override
+	public boolean isAffectedByPotions() {
+		return false;
+	}
+
+	@Nullable
+	@Override
+	public ItemStack getPickResult() {
+		return new ItemStack(Registries.ItemRegistry.LUGGAGE.get());
 	}
 
 	@Override
@@ -427,6 +467,11 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	@Override
 	public boolean canBeLeashed(Player player) {
 		return false;
+	}
+
+	@Override
+	public boolean isIgnoringBlockTriggers() {
+		return true;
 	}
 
 	@Override
