@@ -89,7 +89,7 @@ public class LuggageMenu extends AbstractContainerMenu {
 
 		@Override
 		public boolean mayPlace(ItemStack stack) {
-			return !stack.is(Registries.ItemRegistry.LUGGAGE.get());
+			return !stack.is(Registries.ItemRegistry.LUGGAGE.get()) && stack.getItem().canFitInsideContainerItems();
 		}
 	}
 }

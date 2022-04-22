@@ -7,6 +7,7 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
@@ -66,7 +67,7 @@ public class LuggagePickupItemGoal extends Goal {
 	@Override
 	public void tick() {
 		super.tick();
-		if (!luggage.level.isClientSide) {
+		if (!this.luggage.level.isClientSide()) {
 			if (this.targetItem != null && this.luggage.distanceToSqr(this.targetItem.position()) < 2.5D) {
 				ItemStack item = this.targetItem.getItem();
 				if (this.luggage.getInventory().canAddItem(this.targetItem.getItem())) {

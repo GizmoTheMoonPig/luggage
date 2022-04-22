@@ -74,7 +74,6 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		this.goalSelector.addGoal(0, new FloatGoal(this));
 		this.goalSelector.addGoal(1, new LuggagePickupItemGoal(this));
 		this.goalSelector.addGoal(2, new LuggageFollowOwnerGoal(this, 1.1D, 7.0F, 1.0F, false));
-
 	}
 
 	@Override
@@ -342,7 +341,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 			if (stack.isEmpty()) {
 				if (player.isShiftKeyDown()) {
-					if (!level.isClientSide) {
+					if (!level.isClientSide()) {
 						ItemStack luggageItem = this.convertToItem();
 						if (player.getInventory().add(luggageItem)) {
 							this.discard();

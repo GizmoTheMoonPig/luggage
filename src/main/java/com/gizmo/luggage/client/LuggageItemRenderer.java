@@ -1,7 +1,7 @@
 package com.gizmo.luggage.client;
 
-import com.gizmo.luggage.entity.LuggageEntity;
 import com.gizmo.luggage.Registries;
+import com.gizmo.luggage.entity.LuggageEntity;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -23,7 +23,7 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void renderByItem(ItemStack stack, ItemTransforms.TransformType type, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-		if(stack.is(Registries.ItemRegistry.LUGGAGE.get())) {
+		if (stack.is(Registries.ItemRegistry.LUGGAGE.get())) {
 			assert Minecraft.getInstance().level != null;
 			LuggageEntity entity = Registries.EntityRegistry.LUGGAGE.get().create(Minecraft.getInstance().level);
 			if (entity != null) {
@@ -37,7 +37,7 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 				ms.translate(-0.5F, -0.2F, 0.0F);
 				ms.scale(0.8F, 0.8F, 0.8F);
 				ms.mulPose(quaternion);
-				if(type == ItemTransforms.TransformType.GUI) {
+				if (type == ItemTransforms.TransformType.GUI) {
 					ms.mulPose(Vector3f.XP.rotationDegrees(20));
 					ms.mulPose(Vector3f.YP.rotationDegrees(45));
 					ms.mulPose(Vector3f.ZP.rotationDegrees(0));

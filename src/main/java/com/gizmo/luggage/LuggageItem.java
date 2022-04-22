@@ -30,7 +30,7 @@ public class LuggageItem extends Item {
 		HitResult result = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
 		if (result.getType() == HitResult.Type.BLOCK) {
 			Vec3 blockPos = result.getLocation();
-			if (!level.isClientSide) {
+			if (!level.isClientSide()) {
 				LuggageEntity luggage = Registries.EntityRegistry.LUGGAGE.get().create(level);
 				if(luggage != null){
 					luggage.moveTo(blockPos);
@@ -42,7 +42,7 @@ public class LuggageItem extends Item {
 					player.getItemInHand(hand).shrink(1);
 				}
 			}
-			return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
+			return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
 		}
 		return InteractionResultHolder.pass(player.getItemInHand(hand));
 	}
