@@ -380,6 +380,14 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	}
 
 	@Override
+	public void kill() {
+		this.getInventory().removeAllItems().forEach(this::spawnAtLocation);
+		this.spawnAnim();
+		this.playSound(Registries.SoundRegistry.LUGGAGE_KILLED, 2.0F, 1.0F);
+		this.remove(RemovalReason.KILLED);
+	}
+
+	@Override
 	protected float getWaterSlowDown() {
 		return 0.95F;
 	}

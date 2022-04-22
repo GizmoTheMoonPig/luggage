@@ -27,6 +27,7 @@ public class Registries {
 	}
 
 	public static class SoundRegistry {
+		public static final SoundEvent LUGGAGE_KILLED = createEvent("entity.luggage.luggage.killed");
 		public static final SoundEvent LUGGAGE_EAT_FOOD = createEvent("entity.luggage.luggage.eat_food");
 		public static final SoundEvent LUGGAGE_EAT_ITEM = createEvent("entity.luggage.luggage.eat_item");
 		public static final SoundEvent LUGGAGE_STEP = createEvent("entity.luggage.luggage.step");

@@ -1,6 +1,7 @@
 {
 	"entity.luggage.luggage.eat_food": { "subtitle": "subtitles.luggage.entity.luggage.eat_food", "sounds": ["luggage:luggage_eat_food"] },
 	"entity.luggage.luggage.eat_item": { "subtitle": "subtitles.luggage.entity.luggage.eat_item", "sounds": ["luggage:luggage_eat_item"] },
+	"entity.luggage.luggage.killed": { "subtitle": "subtitles.luggage.entity.luggage.killed", "sounds": ["luggage:luggage_killed"] },
 	"entity.luggage.luggage.step": { "subtitle": "subtitles.block.generic.footsteps", "sounds": ["luggage:luggage_step"] },
 	"entity.luggage.player.whistle": { "subtitle": "subtitles.luggage.entity.player.whistle", "sounds": ["luggage:whistle"] }
 }
