@@ -52,8 +52,8 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 	private SimpleContainer inventory;
 	private LazyOptional<?> itemHandler = null;
-	public int lastSound = 0;
-	public boolean tryingToFetchItem;
+	private int soundCooldown = 15;
+	private boolean tryingToFetchItem;
 
 	public LuggageEntity(EntityType<? extends PathfinderMob> type, Level level) {
 		super(type, level);
@@ -305,10 +305,28 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	//                   MISC                   //
 	//------------------------------------------//
 
+	public boolean isTryingToFetchItem() {
+		return this.tryingToFetchItem;
+	}
+
+	public void setTryingToFetchItem(boolean fetch) {
+		this.tryingToFetchItem = fetch;
+	}
+
+	public int getSoundCooldown() {
+		return this.soundCooldown;
+	}
+
+	public void setSoundCooldown(int cooldown) {
+		this.soundCooldown = cooldown;
+	}
+
 	@Override
 	public void aiStep() {
 		super.aiStep();
-		this.lastSound++;
+		if(this.soundCooldown > 0) {
+			this.soundCooldown--;
+		}
 	}
 
 	@Override
@@ -327,9 +345,13 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 						}
 					}
 				} else {
-					this.playSound(SoundEvents.CHEST_OPEN, 0.5f, this.random.nextFloat() * 0.1f + 0.9f);
-					if (!level.isClientSide) {
 					level.gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
+					//prevents sound from playing 4 times (twice on server only). Apparently interactAt fires 4 times????
+					if(this.soundCooldown == 0) {
+						this.playSound(SoundEvents.CHEST_OPEN, 0.5f, this.random.nextFloat() * 0.1f + 0.9f);
+						this.soundCooldown = 5;
+					}
+					if (!level.isClientSide()) {
 						ServerPlayer sp = (ServerPlayer) player;
 						if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
 

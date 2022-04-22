@@ -43,7 +43,7 @@ public class LuggageFollowOwnerGoal extends Goal {
 			return false;
 		} else if (livingentity.isSpectator()) {
 			return false;
-		} else if (this.luggage.tryingToFetchItem) {
+		} else if (this.luggage.isTryingToFetchItem()) {
 			return false;
 		} else if (this.luggage.distanceToSqr(livingentity) < (double)(this.startDistance * this.startDistance)) {
 			return false;

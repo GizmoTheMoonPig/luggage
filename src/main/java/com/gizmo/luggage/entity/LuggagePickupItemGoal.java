@@ -54,13 +54,13 @@ public class LuggagePickupItemGoal extends Goal {
 	public void start() {
 		if (this.targetItem != null) {
 			this.navigation.moveTo(this.targetItem, 1.2D);
-			this.luggage.tryingToFetchItem = true;
+			this.luggage.setTryingToFetchItem(true);
 		}
 	}
 
 	@Override
 	public void stop() {
-		this.luggage.tryingToFetchItem = false;
+		this.luggage.setTryingToFetchItem(false);
 	}
 
 	@Override
@@ -70,11 +70,11 @@ public class LuggagePickupItemGoal extends Goal {
 			if (this.targetItem != null && this.luggage.distanceToSqr(this.targetItem.position()) < 2.5D) {
 				ItemStack item = this.targetItem.getItem();
 				if (this.luggage.getInventory().canAddItem(this.targetItem.getItem())) {
-					if (this.luggage.lastSound > 15) {
+					if (this.luggage.getSoundCooldown() == 0) {
 						boolean isFood = item.isEdible();
 						this.luggage.playSound(isFood ? Registries.SoundRegistry.LUGGAGE_EAT_FOOD : Registries.SoundRegistry.LUGGAGE_EAT_ITEM,
 								0.5F, 1.0F + (this.luggage.getRandom().nextFloat() * 0.2F));
-						this.luggage.lastSound = 0;
+						this.luggage.setSoundCooldown(15);
 					}
 
 					//stole this from Villager.pickUpItem lol
