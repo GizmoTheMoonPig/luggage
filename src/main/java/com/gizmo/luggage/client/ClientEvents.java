@@ -2,6 +2,7 @@ package com.gizmo.luggage.client;
 
 
 import com.gizmo.luggage.Luggage;
+import com.gizmo.luggage.LuggageItem;
 import com.gizmo.luggage.LuggageMenu;
 import com.gizmo.luggage.Registries;
 import com.gizmo.luggage.entity.LuggageEntity;
@@ -18,13 +19,13 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.lwjgl.glfw.GLFW;
 
 @Mod.EventBusSubscriber(modid = Luggage.ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -53,6 +54,8 @@ public class ClientEvents {
 				GLFW.GLFW_KEY_GRAVE_ACCENT,
 				"key.categories.misc");
 		ClientRegistry.registerKeyBinding(getWhistleKey());
+
+		MinecraftForgeClient.registerTooltipComponentFactory(LuggageItem.Tooltip.class, LuggageTooltipComponent::new);
 	}
 
 	//I hate this with a burning passion

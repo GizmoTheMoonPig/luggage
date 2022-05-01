@@ -5,9 +5,12 @@ import com.gizmo.luggage.entity.LuggageEntity;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.tooltip.BundleTooltip;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -16,8 +19,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.IItemRenderProperties;
+import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class LuggageItem extends Item {
 
@@ -32,13 +39,13 @@ public class LuggageItem extends Item {
 			Vec3 blockPos = result.getLocation();
 			if (!level.isClientSide()) {
 				LuggageEntity luggage = Registries.EntityRegistry.LUGGAGE.get().create(level);
-				if(luggage != null){
+				if (luggage != null) {
 					luggage.moveTo(blockPos);
 					luggage.tame(player);
 					luggage.restoreFromStack(player.getItemInHand(hand));
 					level.addFreshEntity(luggage);
 				}
-				if(!player.getAbilities().instabuild) {
+				if (!player.getAbilities().instabuild) {
 					player.getItemInHand(hand).shrink(1);
 				}
 			}
@@ -52,11 +59,28 @@ public class LuggageItem extends Item {
 		return false;
 	}
 
+	public static Stream<ItemStack> getContentsForToolTip(ItemStack stack) {
+		CompoundTag compoundtag = stack.getTag();
+		if (compoundtag == null) {
+			return Stream.empty();
+		} else {
+			ListTag listtag = compoundtag.getList("Inventory", 10);
+			return listtag.stream().map(CompoundTag.class::cast).map(ItemStack::of);
+		}
+	}
+
+	@Override
+	public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
+		NonNullList<ItemStack> nonnulllist = NonNullList.create();
+		getContentsForToolTip(stack).forEach(nonnulllist::add);
+		return nonnulllist.isEmpty() ? Optional.empty() : Optional.of(new Tooltip(nonnulllist, stack));
+	}
+
 	@Override
 	public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> stacks) {
 		super.fillItemCategory(tab, stacks);
 
-		if(allowdedIn(tab)) {
+		if (allowdedIn(tab)) {
 			ItemStack item = new ItemStack(this);
 			CompoundTag tag = new CompoundTag();
 			tag.putBoolean("Extended", true);
@@ -73,5 +97,9 @@ public class LuggageItem extends Item {
 				return new LuggageItemRenderer();
 			}
 		});
+	}
+
+	public record Tooltip(NonNullList<ItemStack> stacks, ItemStack stack) implements TooltipComponent {
+
 	}
 }
