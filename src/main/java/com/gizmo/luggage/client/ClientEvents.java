@@ -81,7 +81,7 @@ public class ClientEvents {
 
 		@SubscribeEvent
 		public static void callTheCreatures(InputEvent.KeyInputEvent event) {
-			if (getWhistleKey().consumeClick() && Minecraft.getInstance().player != null) {
+			if (getWhistleKey().consumeClick() && event.getAction() != GLFW.GLFW_REPEAT && Minecraft.getInstance().player != null) {
 				Minecraft.getInstance().player.playSound(Registries.SoundRegistry.WHISTLE, 1.0F, 1.0F);
 				LuggageNetworkHandler.CHANNEL.sendToServer(new CallLuggagePetsPacket(Minecraft.getInstance().player.getId()));
 			}
