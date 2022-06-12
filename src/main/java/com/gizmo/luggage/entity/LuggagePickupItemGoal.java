@@ -73,7 +73,7 @@ public class LuggagePickupItemGoal extends Goal {
 				if (this.luggage.getInventory().canAddItem(this.targetItem.getItem())) {
 					if (this.luggage.getSoundCooldown() == 0) {
 						boolean isFood = item.isEdible();
-						this.luggage.playSound(isFood ? Registries.SoundRegistry.LUGGAGE_EAT_FOOD : Registries.SoundRegistry.LUGGAGE_EAT_ITEM,
+						this.luggage.playSound(isFood ? Registries.SoundRegistry.LUGGAGE_EAT_FOOD.get() : Registries.SoundRegistry.LUGGAGE_EAT_ITEM.get(),
 								0.5F, 1.0F + (this.luggage.getRandom().nextFloat() * 0.2F));
 						this.luggage.setSoundCooldown(15);
 					}
@@ -86,7 +86,7 @@ public class LuggagePickupItemGoal extends Goal {
 					}
 
 					this.luggage.onItemPickup(this.targetItem);
-					this.luggage.gameEvent(GameEvent.EAT, this.luggage.blockPosition());
+					this.luggage.gameEvent(GameEvent.EAT, this.luggage);
 					this.luggage.take(this.targetItem, item.getCount());
 					ItemStack consumedStack = simplecontainer.addItem(item);
 					if (consumedStack.isEmpty()) {

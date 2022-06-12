@@ -7,7 +7,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -27,19 +26,18 @@ public class Registries {
 	}
 
 	public static class SoundRegistry {
-		public static final SoundEvent LUGGAGE_KILLED = createEvent("entity.luggage.luggage.killed");
-		public static final SoundEvent LUGGAGE_EAT_FOOD = createEvent("entity.luggage.luggage.eat_food");
-		public static final SoundEvent LUGGAGE_EAT_ITEM = createEvent("entity.luggage.luggage.eat_item");
-		public static final SoundEvent LUGGAGE_STEP = createEvent("entity.luggage.luggage.step");
-		public static final SoundEvent WHISTLE = createEvent("entity.luggage.player.whistle");
 
-		private static SoundEvent createEvent(String sound) {
+		public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Luggage.ID);
+
+		public static final RegistryObject<SoundEvent> LUGGAGE_KILLED = createEvent("entity.luggage.luggage.killed");
+		public static final RegistryObject<SoundEvent> LUGGAGE_EAT_FOOD = createEvent("entity.luggage.luggage.eat_food");
+		public static final RegistryObject<SoundEvent> LUGGAGE_EAT_ITEM = createEvent("entity.luggage.luggage.eat_item");
+		public static final RegistryObject<SoundEvent> LUGGAGE_STEP = createEvent("entity.luggage.luggage.step");
+		public static final RegistryObject<SoundEvent> WHISTLE = createEvent("entity.luggage.player.whistle");
+
+		private static RegistryObject<SoundEvent> createEvent(String sound) {
 			ResourceLocation name = new ResourceLocation(Luggage.ID, sound);
-			return new SoundEvent(name).setRegistryName(name);
-		}
-
-		static void registerSounds(RegistryEvent.Register<SoundEvent> event) {
-			event.getRegistry().registerAll(LUGGAGE_EAT_FOOD, LUGGAGE_EAT_ITEM, LUGGAGE_STEP, WHISTLE);
+			return SOUNDS.register(sound, () -> new SoundEvent(name));
 		}
 	}
 }
