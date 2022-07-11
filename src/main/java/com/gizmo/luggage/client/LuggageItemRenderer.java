@@ -7,6 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -14,18 +15,14 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.item.ItemStack;
 
-public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
-
-	public LuggageItemRenderer() {
-		super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
-	}
+public class LuggageItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void renderByItem(ItemStack stack, ItemTransforms.TransformType type, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-		if (stack.is(Registries.ItemRegistry.LUGGAGE.get())) {
+	public void render(ItemStack stack, ItemTransforms.TransformType type, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
+		if (stack.is(Registries.ItemRegistry.LUGGAGE)) {
 			assert Minecraft.getInstance().level != null;
-			LuggageEntity entity = Registries.EntityRegistry.LUGGAGE.get().create(Minecraft.getInstance().level);
+			LuggageEntity entity = Registries.EntityRegistry.LUGGAGE.create(Minecraft.getInstance().level);
 			if (entity != null) {
 				entity.setExtendedInventory(stack.getOrCreateTag().getBoolean("Extended"));
 				float partialTicks = Minecraft.getInstance().getFrameTime();

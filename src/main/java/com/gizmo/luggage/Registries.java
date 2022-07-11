@@ -1,29 +1,26 @@
 package com.gizmo.luggage;
 
 import com.gizmo.luggage.entity.LuggageEntity;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 public class Registries {
 
 	public static class ItemRegistry {
-		public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Luggage.ID);
+		public static void register() {}
 
-		public static final RegistryObject<Item> LUGGAGE = ITEMS.register("luggage", () -> new LuggageItem(new Item.Properties().fireResistant().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS)));
+		public static final Item LUGGAGE = Registry.register(Registry.ITEM, new ResourceLocation(Luggage.ID, "luggage"), new LuggageItem(new Item.Properties().fireResistant().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS)));
 	}
 
 	public static class EntityRegistry {
-		public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, Luggage.ID);
+		public static void register() {}
 
-		public static final RegistryObject<EntityType<LuggageEntity>> LUGGAGE = ENTITIES.register("luggage", () -> EntityType.Builder.of(LuggageEntity::new, MobCategory.MONSTER).fireImmune().sized(0.75F, 0.75F).build("luggage:luggage"));
+		public static final EntityType<LuggageEntity> LUGGAGE = Registry.register(Registry.ENTITY_TYPE, new ResourceLocation(Luggage.ID, "luggage"), EntityType.Builder.of(LuggageEntity::new, MobCategory.MONSTER).fireImmune().sized(0.75F, 0.75F).build("luggage:luggage"));
 	}
 
 	public static class SoundRegistry {
@@ -35,11 +32,11 @@ public class Registries {
 
 		private static SoundEvent createEvent(String sound) {
 			ResourceLocation name = new ResourceLocation(Luggage.ID, sound);
-			return new SoundEvent(name).setRegistryName(name);
+			return Registry.register(Registry.SOUND_EVENT, name, new SoundEvent(name));
 		}
 
-		static void registerSounds(RegistryEvent.Register<SoundEvent> event) {
-			event.getRegistry().registerAll(LUGGAGE_EAT_FOOD, LUGGAGE_EAT_ITEM, LUGGAGE_STEP, WHISTLE);
+		static void registerSounds() {
+
 		}
 	}
 }

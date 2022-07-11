@@ -2,10 +2,10 @@ package com.gizmo.luggage.entity;
 
 import com.gizmo.luggage.LuggageMenu;
 import com.gizmo.luggage.Registries;
-import com.gizmo.luggage.network.LuggageNetworkHandler;
 import com.gizmo.luggage.network.OpenLuggageScreenPacket;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -31,13 +31,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.entity.player.PlayerContainerEvent;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,6 +38,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+@SuppressWarnings("UnstableApiUsage")
 public class LuggageEntity extends PathfinderMob implements OwnableEntity, ContainerListener {
 
 	private static final EntityDataAccessor<Boolean> EXTENDED = SynchedEntityData.defineId(LuggageEntity.class, EntityDataSerializers.BOOLEAN);
@@ -52,7 +46,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	protected static final EntityDataAccessor<Optional<UUID>> OWNER_ID = SynchedEntityData.defineId(LuggageEntity.class, EntityDataSerializers.OPTIONAL_UUID);
 
 	private SimpleContainer inventory;
-	private LazyOptional<?> itemHandler = null;
+	private InventoryStorage itemHandler = null;
 	private int soundCooldown = 15;
 	private boolean tryingToFetchItem;
 
@@ -154,7 +148,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 	private ItemStack convertToItem() {
 
-		ItemStack luggageItem = new ItemStack(Registries.ItemRegistry.LUGGAGE.get());
+		ItemStack luggageItem = new ItemStack(Registries.ItemRegistry.LUGGAGE);
 		CompoundTag tag = new CompoundTag();
 
 		if(this.hasExtendedInventory()) {
@@ -179,7 +173,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 	public void restoreFromStack(@Nonnull ItemStack stack) {
 		//im not this stupid, but just in case
-		if (!stack.is(Registries.ItemRegistry.LUGGAGE.get())) return;
+		if (!stack.is(Registries.ItemRegistry.LUGGAGE)) return;
 
 		CompoundTag tag = stack.getTag();
 
@@ -219,7 +213,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		}
 
 		this.inventory.addListener(this);
-		this.itemHandler = LazyOptional.of(() -> new InvWrapper(this.inventory));
+		this.itemHandler = InventoryStorage.of(this.inventory, null);
 	}
 
 	public SimpleContainer getInventory() {
@@ -244,22 +238,8 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		return this.inventory != container;
 	}
 
-	@Nonnull
-	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
-		if (this.isAlive() && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && itemHandler != null)
-			return itemHandler.cast();
-		return super.getCapability(capability, facing);
-	}
-
-	@Override
-	public void invalidateCaps() {
-		super.invalidateCaps();
-		if (itemHandler != null) {
-			LazyOptional<?> oldHandler = itemHandler;
-			itemHandler = null;
-			oldHandler.invalidate();
-		}
+	public InventoryStorage getStorage() {
+		return itemHandler;
 	}
 
 	//------------------------------------------//
@@ -357,10 +337,10 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 						if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
 
 						sp.nextContainerCounter();
-						LuggageNetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sp), new OpenLuggageScreenPacket(sp.containerCounter, this.getId()));
+						ServerPlayNetworking.send(sp, OpenLuggageScreenPacket.getID(), new OpenLuggageScreenPacket(sp.containerCounter, this.getId()).encode());
 						sp.containerMenu = new LuggageMenu(sp.containerCounter, sp.getInventory(), this.inventory, this);
 						sp.initMenu(sp.containerMenu);
-						MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
+//						MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
 					}
 				}
 			}
@@ -442,7 +422,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	@Nullable
 	@Override
 	public ItemStack getPickResult() {
-		return new ItemStack(Registries.ItemRegistry.LUGGAGE.get());
+		return new ItemStack(Registries.ItemRegistry.LUGGAGE);
 	}
 
 	@Override

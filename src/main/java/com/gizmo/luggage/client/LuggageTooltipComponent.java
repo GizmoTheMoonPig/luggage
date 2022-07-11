@@ -3,6 +3,8 @@ package com.gizmo.luggage.client;
 import com.gizmo.luggage.LuggageItem;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -11,8 +13,6 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 //Modified version of ClientBundleTooltip
 public class LuggageTooltipComponent implements ClientTooltipComponent {
@@ -100,7 +100,7 @@ public class LuggageTooltipComponent implements ClientTooltipComponent {
 		return this.extended ? 6 : 3;
 	}
 
-	@OnlyIn(Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	enum Texture {
 		SLOT(0, 0, 18, 20),
 		BORDER_VERTICAL(0, 18, 1, 20),

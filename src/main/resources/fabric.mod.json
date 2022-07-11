@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "luggage",
+  "version": "${version}",
+
+  "name": "Luggage",
+  "description": "Brings back the Luggage entity from Openblocks.",
+  "authors": [
+    "GizmoTheMoonPig",
+    "AlphaMode (Fabric)"
+  ],
+  "contact": {
+    "issues": "https://github.com/GizmoTheMoonPig/luggage/issues",
+    "sources": "https://github.com/GizmoTheMoonPig/luggage"
+  },
+
+  "license": "MIT",
+  "icon": "luggage.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.gizmo.luggage.Luggage"
+    ],
+    "client": [
+      "com.gizmo.luggage.client.ClientEvents"
+    ]
+  },
+  "accessWidener": "luggage.accesswidener"
+}
