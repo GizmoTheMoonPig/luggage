@@ -76,7 +76,7 @@ public class LuggageItem extends Item {
 	public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> stacks) {
 		super.fillItemCategory(tab, stacks);
 
-		if (allowdedIn(tab)) {
+		if (allowedIn(tab)) {
 			ItemStack item = new ItemStack(this);
 			CompoundTag tag = new CompoundTag();
 			tag.putBoolean("Extended", true);

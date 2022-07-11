@@ -405,7 +405,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	public void kill() {
 		this.getInventory().removeAllItems().forEach(this::spawnAtLocation);
 		this.spawnAnim();
-		this.playSound(Registries.SoundRegistry.LUGGAGE_KILLED, 2.0F, 1.0F);
+		this.playSound(Registries.SoundRegistry.LUGGAGE_KILLED.get(), 2.0F, 1.0F);
 		this.remove(RemovalReason.KILLED);
 	}
 
@@ -457,6 +457,6 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 	@Override
 	protected void playStepSound(BlockPos pos, BlockState state) {
-		this.playSound(Registries.SoundRegistry.LUGGAGE_STEP, 0.15F, 0.7F + (random.nextFloat() * 0.5F));
+		this.playSound(Registries.SoundRegistry.LUGGAGE_STEP.get(), 0.05F, 0.7F + (random.nextFloat() * 0.5F));
 	}
 }

@@ -82,7 +82,7 @@ public class ClientEvents implements ClientModInitializer {
 
 		public static void callTheCreatures(Minecraft client) {
 			if (getWhistleKey().consumeClick() && Minecraft.getInstance().player != null) {
-				Minecraft.getInstance().player.playSound(Registries.SoundRegistry.WHISTLE, 1.0F, 1.0F);
+				Minecraft.getInstance().player.playSound(Registries.SoundRegistry.WHISTLE.get(), 1.0F, 1.0F);
 				ClientPlayNetworking.send(CallLuggagePetsPacket.getID(), new CallLuggagePetsPacket(Minecraft.getInstance().player.getId()).encode());
 			}
 		}

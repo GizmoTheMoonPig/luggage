@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 
 public class Luggage implements ModInitializer {
-    public static final String ID = "luggage";
+	public static final String ID = "luggage";
 
 	@Override
 	public void onInitialize() {
@@ -29,7 +29,7 @@ public class Luggage implements ModInitializer {
 
 	public static class FabricEvents {
 		public static void neverKillLuggage(Entity entity, ServerLevel world) {
-			if(entity instanceof ItemEntity item && item.getItem().is(Registries.ItemRegistry.LUGGAGE) && item.getItem().getOrCreateTag().contains("Inventory")) {
+			if (entity instanceof ItemEntity item && item.getItem().is(Registries.ItemRegistry.LUGGAGE) && item.getItem().getOrCreateTag().contains("Inventory")) {
 				item.setInvulnerable(true);
 				item.setUnlimitedLifetime();
 			}
