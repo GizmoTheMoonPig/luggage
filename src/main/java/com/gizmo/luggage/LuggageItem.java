@@ -1,8 +1,6 @@
 package com.gizmo.luggage;
 
-import com.gizmo.luggage.client.LuggageItemRenderer;
 import com.gizmo.luggage.entity.LuggageEntity;
-import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -25,7 +23,6 @@ public class LuggageItem extends Item {
 
 	public LuggageItem(Properties properties) {
 		super(properties);
-		BuiltinItemRendererRegistry.INSTANCE.register(this, new LuggageItemRenderer());
 	}
 
 	@Override
