@@ -38,21 +38,23 @@ dependencies {
 
 loom.accessWidenerPath = file("src/main/resources/luggage.accesswidener")
 
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : "Luggage",
-                "Specification-Vendor"    : "GizmoTheMoonPig",
-                "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : "Luggage",
-                "Implementation-Version"  : "1.3.2",
-                "Implementation-Vendor"   : "GizmoTheMoonPig",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
     }
 }
 
-jar.finalizedBy('reobfJar')
+java {
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}"}
+    }
+}
 
 publishing {
     publications {
