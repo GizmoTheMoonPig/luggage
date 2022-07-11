@@ -18,6 +18,7 @@ import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -27,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 
@@ -45,8 +47,8 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 	private SimpleContainer inventory;
 	private InventoryStorage itemHandler = null;
-	public int lastSound = 0;
-	public boolean tryingToFetchItem;
+	private int soundCooldown = 15;
+	private boolean tryingToFetchItem;
 
 	public LuggageEntity(EntityType<? extends PathfinderMob> type, Level level) {
 		super(type, level);
@@ -55,6 +57,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		this.setPathfindingMalus(BlockPathTypes.FENCE, -1.0F);
 		this.setPathfindingMalus(BlockPathTypes.COCOA, -1.0F);
 		this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+		this.setPathfindingMalus(BlockPathTypes.UNPASSABLE_RAIL, 0.0F);
 	}
 
 	@Override
@@ -62,7 +65,6 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		this.goalSelector.addGoal(0, new FloatGoal(this));
 		this.goalSelector.addGoal(1, new LuggagePickupItemGoal(this));
 		this.goalSelector.addGoal(2, new LuggageFollowOwnerGoal(this, 1.1D, 7.0F, 1.0F, false));
-
 	}
 
 	@Override
@@ -284,10 +286,28 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	//                   MISC                   //
 	//------------------------------------------//
 
+	public boolean isTryingToFetchItem() {
+		return this.tryingToFetchItem;
+	}
+
+	public void setTryingToFetchItem(boolean fetch) {
+		this.tryingToFetchItem = fetch;
+	}
+
+	public int getSoundCooldown() {
+		return this.soundCooldown;
+	}
+
+	public void setSoundCooldown(int cooldown) {
+		this.soundCooldown = cooldown;
+	}
+
 	@Override
 	public void aiStep() {
 		super.aiStep();
-		this.lastSound++;
+		if(this.soundCooldown > 0) {
+			this.soundCooldown--;
+		}
 	}
 
 	@Override
@@ -298,7 +318,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 			if (stack.isEmpty()) {
 				if (player.isShiftKeyDown()) {
-					if (!level.isClientSide) {
+					if (!level.isClientSide()) {
 						ItemStack luggageItem = this.convertToItem();
 						if (player.getInventory().add(luggageItem)) {
 							this.discard();
@@ -306,8 +326,13 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 						}
 					}
 				} else {
-					this.playSound(SoundEvents.CHEST_OPEN, 0.5f, this.random.nextFloat() * 0.1f + 0.9f);
-					if (!level.isClientSide) {
+					level.gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
+					//prevents sound from playing 4 times (twice on server only). Apparently interactAt fires 4 times????
+					if(this.soundCooldown == 0) {
+						this.playSound(SoundEvents.CHEST_OPEN, 0.5f, this.random.nextFloat() * 0.1f + 0.9f);
+						this.soundCooldown = 5;
+					}
+					if (!level.isClientSide()) {
 						ServerPlayer sp = (ServerPlayer) player;
 						if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
 
@@ -358,6 +383,49 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	}
 
 	@Override
+	public void knockback(double x, double y, double z) {}
+
+	@Override
+	protected void pushEntities() {}
+
+	@Override
+	public boolean addEffect(MobEffectInstance instance, @Nullable Entity entity) {
+		return false;
+	}
+
+	@Override
+	public boolean causeFallDamage(float dist, float mult, DamageSource source) {
+		return false;
+	}
+
+	@Override
+	public void checkDespawn() {}
+
+	@Override
+	public void kill() {
+		this.getInventory().removeAllItems().forEach(this::spawnAtLocation);
+		this.spawnAnim();
+		this.playSound(Registries.SoundRegistry.LUGGAGE_KILLED, 2.0F, 1.0F);
+		this.remove(RemovalReason.KILLED);
+	}
+
+	@Override
+	public boolean attackable() {
+		return false;
+	}
+
+	@Override
+	public boolean isAffectedByPotions() {
+		return false;
+	}
+
+	@Nullable
+	@Override
+	public ItemStack getPickResult() {
+		return new ItemStack(Registries.ItemRegistry.LUGGAGE.get());
+	}
+
+	@Override
 	protected float getWaterSlowDown() {
 		return 0.95F;
 	}
@@ -375,6 +443,16 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	@Override
 	public boolean canBeLeashed(Player player) {
 		return false;
+	}
+
+	@Override
+	public boolean isIgnoringBlockTriggers() {
+		return true;
+	}
+
+	@Override
+	public boolean isSteppingCarefully() {
+		return true;
 	}
 
 	@Override

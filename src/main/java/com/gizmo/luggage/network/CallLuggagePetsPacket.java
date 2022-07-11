@@ -40,7 +40,7 @@ public class CallLuggagePetsPacket {
 					player.getLevel().getAllEntities().forEach(luggageIHope -> {
 						if(luggageIHope instanceof LuggageEntity luggage && luggage.getOwner() != null && luggage.getOwner().is(player.getLevel().getEntity(message.playerId))) {
 							luggage.moveTo(player.position());
-							if(luggage.tryingToFetchItem) luggage.tryingToFetchItem = false;
+							if(luggage.isTryingToFetchItem()) luggage.setTryingToFetchItem(false);
 						}
 					});
 				}

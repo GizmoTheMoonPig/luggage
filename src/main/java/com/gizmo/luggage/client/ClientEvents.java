@@ -2,6 +2,7 @@ package com.gizmo.luggage.client;
 
 
 import com.gizmo.luggage.Luggage;
+import com.gizmo.luggage.LuggageItem;
 import com.gizmo.luggage.LuggageMenu;
 import com.gizmo.luggage.Registries;
 import com.gizmo.luggage.entity.LuggageEntity;
@@ -46,6 +47,8 @@ public class ClientEvents implements ClientModInitializer {
 				"key.categories.misc");
 		KeyBindingHelper.registerKeyBinding(getWhistleKey());
 
+		MinecraftForgeClient.registerTooltipComponentFactory(LuggageItem.Tooltip.class, LuggageTooltipComponent::new);
+
 		registerLayers();
 		registerEntityRenderer();
 
@@ -73,7 +76,7 @@ public class ClientEvents implements ClientModInitializer {
 	public static class ClientFabricEvents {
 
 		public static void callTheCreatures(Minecraft client) {
-			if (getWhistleKey().consumeClick() && Minecraft.getInstance().player != null) {
+			if (getWhistleKey().consumeClick() && event.getAction() != GLFW.GLFW_REPEAT && Minecraft.getInstance().player != null) {
 				Minecraft.getInstance().player.playSound(Registries.SoundRegistry.WHISTLE, 1.0F, 1.0F);
 				ClientPlayNetworking.send(CallLuggagePetsPacket.getID(), new CallLuggagePetsPacket(Minecraft.getInstance().player.getId()).encode());
 			}

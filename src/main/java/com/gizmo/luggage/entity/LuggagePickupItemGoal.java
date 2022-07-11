@@ -7,6 +7,7 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
@@ -54,27 +55,27 @@ public class LuggagePickupItemGoal extends Goal {
 	public void start() {
 		if (this.targetItem != null) {
 			this.navigation.moveTo(this.targetItem, 1.2D);
-			this.luggage.tryingToFetchItem = true;
+			this.luggage.setTryingToFetchItem(true);
 		}
 	}
 
 	@Override
 	public void stop() {
-		this.luggage.tryingToFetchItem = false;
+		this.luggage.setTryingToFetchItem(false);
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
-		if (!luggage.level.isClientSide) {
+		if (!this.luggage.level.isClientSide()) {
 			if (this.targetItem != null && this.luggage.distanceToSqr(this.targetItem.position()) < 2.5D) {
 				ItemStack item = this.targetItem.getItem();
 				if (this.luggage.getInventory().canAddItem(this.targetItem.getItem())) {
-					if (this.luggage.lastSound > 15) {
+					if (this.luggage.getSoundCooldown() == 0) {
 						boolean isFood = item.isEdible();
 						this.luggage.playSound(isFood ? Registries.SoundRegistry.LUGGAGE_EAT_FOOD : Registries.SoundRegistry.LUGGAGE_EAT_ITEM,
 								0.5F, 1.0F + (this.luggage.getRandom().nextFloat() * 0.2F));
-						this.luggage.lastSound = 0;
+						this.luggage.setSoundCooldown(15);
 					}
 
 					//stole this from Villager.pickUpItem lol
@@ -85,6 +86,7 @@ public class LuggagePickupItemGoal extends Goal {
 					}
 
 					this.luggage.onItemPickup(this.targetItem);
+					this.luggage.gameEvent(GameEvent.EAT, this.luggage.blockPosition());
 					this.luggage.take(this.targetItem, item.getCount());
 					ItemStack consumedStack = simplecontainer.addItem(item);
 					if (consumedStack.isEmpty()) {
