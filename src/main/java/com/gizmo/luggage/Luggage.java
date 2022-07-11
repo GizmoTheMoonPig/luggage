@@ -2,44 +2,34 @@ package com.gizmo.luggage;
 
 import com.gizmo.luggage.entity.LuggageEntity;
 import com.gizmo.luggage.network.LuggageNetworkHandler;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-@Mod(Luggage.ID)
-@Mod.EventBusSubscriber(modid = Luggage.ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class Luggage {
+public class Luggage implements ModInitializer {
 	public static final String ID = "luggage";
 
-	public Luggage() {
-		IEventBus modbus = FMLJavaModLoadingContext.get().getModEventBus();
-		modbus.addListener(this::setup);
-		Registries.EntityRegistry.ENTITIES.register(modbus);
-		Registries.ItemRegistry.ITEMS.register(modbus);
-		Registries.SoundRegistry.SOUNDS.register(modbus);
-		MinecraftForge.EVENT_BUS.register(this);
-	}
-
-	private void setup(FMLCommonSetupEvent event) {
+	@Override
+	public void onInitialize() {
+		Registries.EntityRegistry.register();
+		Registries.ItemRegistry.register();
+		Registries.SoundRegistry.registerSounds();
 		LuggageNetworkHandler.init();
+		addAttributes();
+
+		ServerEntityEvents.ENTITY_LOAD.register(FabricEvents::neverKillLuggage);
 	}
 
-	@SubscribeEvent
-	public static void addAttributes(EntityAttributeCreationEvent event) {
-		event.put(Registries.EntityRegistry.LUGGAGE.get(), LuggageEntity.registerAttributes().build());
+	public static void addAttributes() {
+		FabricDefaultAttributeRegistry.register(Registries.EntityRegistry.LUGGAGE, LuggageEntity.registerAttributes());
 	}
 
-	@Mod.EventBusSubscriber(modid = Luggage.ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-	public static class ForgeEvents {
-		@SubscribeEvent
-		public static void neverKillLuggage(EntityJoinWorldEvent event) {
-			if (event.getEntity() instanceof ItemEntity item && item.getItem().is(Registries.ItemRegistry.LUGGAGE.get()) && item.getItem().getOrCreateTag().contains("Inventory")) {
+	public static class FabricEvents {
+		public static void neverKillLuggage(Entity entity, ServerLevel world) {
+			if (entity instanceof ItemEntity item && item.getItem().is(Registries.ItemRegistry.LUGGAGE) && item.getItem().getOrCreateTag().contains("Inventory")) {
 				item.setInvulnerable(true);
 				item.setUnlimitedLifetime();
 			}

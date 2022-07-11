@@ -2,14 +2,13 @@ package com.gizmo.luggage;
 
 import com.gizmo.luggage.client.LuggageItemRenderer;
 import com.gizmo.luggage.entity.LuggageEntity;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.tooltip.BundleTooltip;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -18,18 +17,15 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.IItemRenderProperties;
-import org.apache.commons.lang3.tuple.Pair;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class LuggageItem extends Item {
 
 	public LuggageItem(Properties properties) {
 		super(properties);
+		BuiltinItemRendererRegistry.INSTANCE.register(this, new LuggageItemRenderer());
 	}
 
 	@Override
@@ -38,7 +34,7 @@ public class LuggageItem extends Item {
 		if (result.getType() == HitResult.Type.BLOCK) {
 			Vec3 blockPos = result.getLocation();
 			if (!level.isClientSide()) {
-				LuggageEntity luggage = Registries.EntityRegistry.LUGGAGE.get().create(level);
+				LuggageEntity luggage = Registries.EntityRegistry.LUGGAGE.create(level);
 				if (luggage != null) {
 					luggage.moveTo(blockPos);
 					luggage.tame(player);
@@ -87,16 +83,6 @@ public class LuggageItem extends Item {
 			item.setTag(tag);
 			stacks.add(item);
 		}
-	}
-
-	@Override
-	public void initializeClient(Consumer<IItemRenderProperties> consumer) {
-		consumer.accept(new IItemRenderProperties() {
-			@Override
-			public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
-				return new LuggageItemRenderer();
-			}
-		});
 	}
 
 	public record Tooltip(NonNullList<ItemStack> stacks, ItemStack stack) implements TooltipComponent {

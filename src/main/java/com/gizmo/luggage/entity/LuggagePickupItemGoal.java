@@ -36,7 +36,7 @@ public class LuggagePickupItemGoal extends Goal {
 		List<ItemEntity> items = this.luggage.level.getEntitiesOfClass(ItemEntity.class, this.luggage.getBoundingBox().inflate(16.0D), item ->
 				(item.isOnGround() || item.isInWater()) &&
 						this.luggage.getInventory().canAddItem(item.getItem()) &&
-						!item.getItem().is(Registries.ItemRegistry.LUGGAGE.get()));
+						!item.getItem().is(Registries.ItemRegistry.LUGGAGE));
 		items.sort(Comparator.comparingDouble(this.luggage::distanceToSqr));
 
 		if (!items.isEmpty()) {
@@ -73,7 +73,7 @@ public class LuggagePickupItemGoal extends Goal {
 				if (this.luggage.getInventory().canAddItem(this.targetItem.getItem())) {
 					if (this.luggage.getSoundCooldown() == 0) {
 						boolean isFood = item.isEdible();
-						this.luggage.playSound(isFood ? Registries.SoundRegistry.LUGGAGE_EAT_FOOD.get() : Registries.SoundRegistry.LUGGAGE_EAT_ITEM.get(),
+						this.luggage.playSound(isFood ? Registries.SoundRegistry.LUGGAGE_EAT_FOOD : Registries.SoundRegistry.LUGGAGE_EAT_ITEM,
 								0.5F, 1.0F + (this.luggage.getRandom().nextFloat() * 0.2F));
 						this.luggage.setSoundCooldown(15);
 					}

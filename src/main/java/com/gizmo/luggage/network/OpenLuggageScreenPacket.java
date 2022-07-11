@@ -1,12 +1,13 @@
 package com.gizmo.luggage.network;
 
+import com.gizmo.luggage.Luggage;
 import com.gizmo.luggage.client.ClientEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
-
-import java.util.function.Supplier;
+import net.minecraft.resources.ResourceLocation;
 
 public class OpenLuggageScreenPacket {
 
@@ -23,16 +24,23 @@ public class OpenLuggageScreenPacket {
 		this.entityId = buf.readInt();
 	}
 
-	public void encode(FriendlyByteBuf buf) {
+	public FriendlyByteBuf encode() {
+		FriendlyByteBuf buf = PacketByteBufs.create();
 		buf.writeByte(this.containerId);
 		buf.writeInt(this.entityId);
+		return buf;
+	}
+
+	public static ResourceLocation getID() {
+		return new ResourceLocation(Luggage.ID, "open_luggage_screen_packet");
 	}
 
 	public static class Handler {
 
-		public static boolean onMessage(OpenLuggageScreenPacket message, Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> {
-				DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientEvents.handlePacket(message));
+		public static boolean onMessage(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
+			OpenLuggageScreenPacket message = new OpenLuggageScreenPacket(buf);
+			client.execute(() -> {
+				ClientEvents.handlePacket(message);
 			});
 			return true;
 		}
