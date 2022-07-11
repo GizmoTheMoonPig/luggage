@@ -35,7 +35,7 @@ public class LuggagePickupItemGoal extends Goal {
 		List<ItemEntity> items = this.luggage.level.getEntitiesOfClass(ItemEntity.class, this.luggage.getBoundingBox().inflate(16.0D), item ->
 				(item.isOnGround() || item.isInWater()) &&
 						this.luggage.getInventory().canAddItem(item.getItem()) &&
-						!item.getItem().is(Registries.ItemRegistry.LUGGAGE.get()));
+						!item.getItem().is(Registries.ItemRegistry.LUGGAGE));
 		items.sort(Comparator.comparingDouble(this.luggage::distanceToSqr));
 
 		if (!items.isEmpty()) {

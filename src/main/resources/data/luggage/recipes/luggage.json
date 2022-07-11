@@ -7,13 +7,13 @@
   ],
   "key": {
     "/": {
-      "tag": "forge:rods/wooden"
+      "tag": "c:rods/wooden"
     },
     "c": {
-      "tag": "forge:chests/wooden"
+      "tag": "c:chests/wooden"
     },
     "d": {
-      "tag": "forge:gems/diamond"
+      "tag": "c:gems/diamond"
     }
   },
   "result": {
