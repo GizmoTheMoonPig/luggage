@@ -25,15 +25,13 @@ public class Registries {
 
 	public static class SoundRegistry {
 
-		public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Luggage.ID);
+		public static final SoundEvent LUGGAGE_KILLED = createEvent("entity.luggage.luggage.killed");
+		public static final SoundEvent LUGGAGE_EAT_FOOD = createEvent("entity.luggage.luggage.eat_food");
+		public static final SoundEvent LUGGAGE_EAT_ITEM = createEvent("entity.luggage.luggage.eat_item");
+		public static final SoundEvent LUGGAGE_STEP = createEvent("entity.luggage.luggage.step");
+		public static final SoundEvent WHISTLE = createEvent("entity.luggage.player.whistle");
 
-		public static final RegistryObject<SoundEvent> LUGGAGE_KILLED = createEvent("entity.luggage.luggage.killed");
-		public static final RegistryObject<SoundEvent> LUGGAGE_EAT_FOOD = createEvent("entity.luggage.luggage.eat_food");
-		public static final RegistryObject<SoundEvent> LUGGAGE_EAT_ITEM = createEvent("entity.luggage.luggage.eat_item");
-		public static final RegistryObject<SoundEvent> LUGGAGE_STEP = createEvent("entity.luggage.luggage.step");
-		public static final RegistryObject<SoundEvent> WHISTLE = createEvent("entity.luggage.player.whistle");
-
-		private static RegistryObject<SoundEvent> createEvent(String sound) {
+		private static SoundEvent createEvent(String sound) {
 			ResourceLocation name = new ResourceLocation(Luggage.ID, sound);
 			return Registry.register(Registry.SOUND_EVENT, name, new SoundEvent(name));
 		}

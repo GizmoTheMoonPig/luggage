@@ -73,7 +73,7 @@ public class LuggagePickupItemGoal extends Goal {
 				if (this.luggage.getInventory().canAddItem(this.targetItem.getItem())) {
 					if (this.luggage.getSoundCooldown() == 0) {
 						boolean isFood = item.isEdible();
-						this.luggage.playSound(isFood ? Registries.SoundRegistry.LUGGAGE_EAT_FOOD.get() : Registries.SoundRegistry.LUGGAGE_EAT_ITEM.get(),
+						this.luggage.playSound(isFood ? Registries.SoundRegistry.LUGGAGE_EAT_FOOD : Registries.SoundRegistry.LUGGAGE_EAT_ITEM,
 								0.5F, 1.0F + (this.luggage.getRandom().nextFloat() * 0.2F));
 						this.luggage.setSoundCooldown(15);
 					}
