@@ -25,7 +25,6 @@ public class LuggageItem extends Item {
 
 	public LuggageItem(Properties properties) {
 		super(properties);
-		BuiltinItemRendererRegistry.INSTANCE.register(this, new LuggageItemRenderer());
 	}
 
 	@Override

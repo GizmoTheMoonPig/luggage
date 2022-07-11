@@ -13,6 +13,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
@@ -58,6 +59,8 @@ public class ClientEvents implements ClientModInitializer {
 		registerEntityRenderer();
 
 		ClientTickEvents.END_CLIENT_TICK.register(ClientFabricEvents::callTheCreatures);
+
+		BuiltinItemRendererRegistry.INSTANCE.register(Registries.ItemRegistry.LUGGAGE, new LuggageItemRenderer());
 	}
 
 	//I hate this with a burning passion
