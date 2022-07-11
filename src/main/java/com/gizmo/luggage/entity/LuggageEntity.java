@@ -422,7 +422,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	@Nullable
 	@Override
 	public ItemStack getPickResult() {
-		return new ItemStack(Registries.ItemRegistry.LUGGAGE.get());
+		return new ItemStack(Registries.ItemRegistry.LUGGAGE);
 	}
 
 	@Override

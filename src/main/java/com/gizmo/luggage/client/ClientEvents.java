@@ -15,6 +15,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -47,7 +48,11 @@ public class ClientEvents implements ClientModInitializer {
 				"key.categories.misc");
 		KeyBindingHelper.registerKeyBinding(getWhistleKey());
 
-		MinecraftForgeClient.registerTooltipComponentFactory(LuggageItem.Tooltip.class, LuggageTooltipComponent::new);
+		TooltipComponentCallback.EVENT.register(data -> {
+			if (data instanceof LuggageItem.Tooltip tooltip)
+				return new LuggageTooltipComponent(tooltip);
+			return null;
+		});
 
 		registerLayers();
 		registerEntityRenderer();
@@ -76,7 +81,7 @@ public class ClientEvents implements ClientModInitializer {
 	public static class ClientFabricEvents {
 
 		public static void callTheCreatures(Minecraft client) {
-			if (getWhistleKey().consumeClick() && event.getAction() != GLFW.GLFW_REPEAT && Minecraft.getInstance().player != null) {
+			if (getWhistleKey().consumeClick() && Minecraft.getInstance().player != null) {
 				Minecraft.getInstance().player.playSound(Registries.SoundRegistry.WHISTLE, 1.0F, 1.0F);
 				ClientPlayNetworking.send(CallLuggagePetsPacket.getID(), new CallLuggagePetsPacket(Minecraft.getInstance().player.getId()).encode());
 			}
