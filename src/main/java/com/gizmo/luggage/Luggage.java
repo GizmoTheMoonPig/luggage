@@ -5,7 +5,7 @@ import com.gizmo.luggage.network.LuggageNetworkHandler;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -38,7 +38,7 @@ public class Luggage {
 	@Mod.EventBusSubscriber(modid = Luggage.ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 	public static class ForgeEvents {
 		@SubscribeEvent
-		public static void neverKillLuggage(EntityJoinWorldEvent event) {
+		public static void neverKillLuggage(EntityJoinLevelEvent event) {
 			if (event.getEntity() instanceof ItemEntity item && item.getItem().is(Registries.ItemRegistry.LUGGAGE.get()) && item.getItem().getOrCreateTag().contains("Inventory")) {
 				item.setInvulnerable(true);
 				item.setUnlimitedLifetime();

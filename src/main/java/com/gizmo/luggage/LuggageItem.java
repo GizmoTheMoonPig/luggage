@@ -9,7 +9,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.tooltip.BundleTooltip;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -18,10 +17,8 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.IItemRenderProperties;
-import org.apache.commons.lang3.tuple.Pair;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -90,10 +87,11 @@ public class LuggageItem extends Item {
 	}
 
 	@Override
-	public void initializeClient(Consumer<IItemRenderProperties> consumer) {
-		consumer.accept(new IItemRenderProperties() {
+	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+		consumer.accept(new IClientItemExtensions() {
+
 			@Override
-			public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
+			public BlockEntityWithoutLevelRenderer getCustomRenderer() {
 				return new LuggageItemRenderer();
 			}
 		});

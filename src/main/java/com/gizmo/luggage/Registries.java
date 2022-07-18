@@ -20,7 +20,7 @@ public class Registries {
 	}
 
 	public static class EntityRegistry {
-		public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, Luggage.ID);
+		public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, Luggage.ID);
 
 		public static final RegistryObject<EntityType<LuggageEntity>> LUGGAGE = ENTITIES.register("luggage", () -> EntityType.Builder.of(LuggageEntity::new, MobCategory.MONSTER).fireImmune().sized(0.75F, 0.75F).build("luggage:luggage"));
 	}

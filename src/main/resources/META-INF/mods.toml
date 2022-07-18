@@ -16,7 +16,7 @@ Brings back the Luggage entity from Openblocks.
 [[dependencies.luggage]]
 modId = "forge"
 mandatory = true
-versionRange = "[41,)"
+versionRange = "[41.0.94,)"
 ordering = "NONE"
 side = "BOTH"
 
