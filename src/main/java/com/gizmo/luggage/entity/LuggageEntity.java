@@ -46,7 +46,6 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	protected static final EntityDataAccessor<Optional<UUID>> OWNER_ID = SynchedEntityData.defineId(LuggageEntity.class, EntityDataSerializers.OPTIONAL_UUID);
 
 	private SimpleContainer inventory;
-	private InventoryStorage itemHandler = null;
 	private int soundCooldown = 15;
 	private boolean tryingToFetchItem;
 
@@ -213,7 +212,6 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		}
 
 		this.inventory.addListener(this);
-		this.itemHandler = InventoryStorage.of(this.inventory, null);
 	}
 
 	public SimpleContainer getInventory() {
@@ -236,10 +234,6 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 	public boolean hasInventoryChanged(Container container) {
 		return this.inventory != container;
-	}
-
-	public InventoryStorage getStorage() {
-		return itemHandler;
 	}
 
 	//------------------------------------------//
