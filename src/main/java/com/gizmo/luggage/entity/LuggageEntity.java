@@ -76,9 +76,9 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	@Override
 	protected void defineSynchedData() {
 		super.defineSynchedData();
-		this.entityData.define(EXTENDED, false);
-		this.entityData.define(OWNER_ID, Optional.empty());
-		this.entityData.define(TAME_FLAGS, (byte) 0);
+		this.getEntityData().define(EXTENDED, false);
+		this.getEntityData().define(OWNER_ID, Optional.empty());
+		this.getEntityData().define(TAME_FLAGS, (byte) 0);
 	}
 
 	public static AttributeSupplier.Builder registerAttributes() {
@@ -188,8 +188,8 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		}
 
 		if (tag != null && tag.contains("Inventory")) {
-			inventory.fromTag(tag.getList("Inventory", 10));
-			if (inventory.getContainerSize() > 27) {
+			this.inventory.fromTag(tag.getList("Inventory", 10));
+			if (this.inventory.getContainerSize() > 27) {
 				this.setExtendedInventory(true);
 			}
 		}
@@ -231,7 +231,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	}
 
 	public void setExtendedInventory(boolean extended) {
-		this.entityData.set(EXTENDED, extended);
+		this.getEntityData().set(EXTENDED, extended);
 		this.createInventory();
 	}
 
@@ -247,17 +247,17 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	@Nonnull
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
-		if (this.isAlive() && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && itemHandler != null)
-			return itemHandler.cast();
+		if (this.isAlive() && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && this.itemHandler != null)
+			return this.itemHandler.cast();
 		return super.getCapability(capability, facing);
 	}
 
 	@Override
 	public void invalidateCaps() {
 		super.invalidateCaps();
-		if (itemHandler != null) {
-			LazyOptional<?> oldHandler = itemHandler;
-			itemHandler = null;
+		if (this.itemHandler != null) {
+			LazyOptional<?> oldHandler = this.itemHandler;
+			this.itemHandler = null;
 			oldHandler.invalidate();
 		}
 	}
@@ -282,18 +282,18 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	public LivingEntity getOwner() {
 		try {
 			UUID uuid = this.getOwnerUUID();
-			return uuid == null ? null : this.level.getPlayerByUUID(uuid);
+			return uuid == null ? null : this.getLevel().getPlayerByUUID(uuid);
 		} catch (IllegalArgumentException illegalargumentexception) {
 			return null;
 		}
 	}
 
 	public void setTame(boolean p_21836_) {
-		byte b0 = this.entityData.get(TAME_FLAGS);
+		byte b0 = this.getEntityData().get(TAME_FLAGS);
 		if (p_21836_) {
-			this.entityData.set(TAME_FLAGS, (byte) (b0 | 4));
+			this.getEntityData().set(TAME_FLAGS, (byte) (b0 | 4));
 		} else {
-			this.entityData.set(TAME_FLAGS, (byte) (b0 & -5));
+			this.getEntityData().set(TAME_FLAGS, (byte) (b0 & -5));
 		}
 	}
 
@@ -336,32 +336,30 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 			ItemStack stack = player.getItemInHand(hand);
 			if (stack.is(Items.NAME_TAG)) return InteractionResult.PASS;
 
-			if (stack.isEmpty()) {
-				if (player.isShiftKeyDown()) {
-					if (!level.isClientSide()) {
-						ItemStack luggageItem = this.convertToItem();
-						if (player.getInventory().add(luggageItem)) {
-							this.discard();
-							this.playSound(SoundEvents.ITEM_PICKUP, 0.5f, this.random.nextFloat() * 0.1f + 0.9f);
-						}
+			if (player.isShiftKeyDown()) {
+				if (!this.getLevel().isClientSide()) {
+					ItemStack luggageItem = this.convertToItem();
+					if (player.getInventory().add(luggageItem)) {
+						this.discard();
+						this.playSound(SoundEvents.ITEM_PICKUP, 0.5f, this.getRandom().nextFloat() * 0.1f + 0.9f);
 					}
-				} else {
-					level.gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
-					//prevents sound from playing 4 times (twice on server only). Apparently interactAt fires 4 times????
-					if(this.soundCooldown == 0) {
-						this.playSound(SoundEvents.CHEST_OPEN, 0.5f, this.random.nextFloat() * 0.1f + 0.9f);
-						this.soundCooldown = 5;
-					}
-					if (!level.isClientSide()) {
-						ServerPlayer sp = (ServerPlayer) player;
-						if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
+				}
+			} else {
+				this.getLevel().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
+				//prevents sound from playing 4 times (twice on server only). Apparently interactAt fires 4 times????
+				if(this.soundCooldown == 0) {
+					this.playSound(SoundEvents.CHEST_OPEN, 0.5f, this.getRandom().nextFloat() * 0.1f + 0.9f);
+					this.soundCooldown = 5;
+				}
+				if (!this.getLevel().isClientSide()) {
+					ServerPlayer sp = (ServerPlayer) player;
+					if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
 
-						sp.nextContainerCounter();
-						LuggageNetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sp), new OpenLuggageScreenPacket(sp.containerCounter, this.getId()));
-						sp.containerMenu = new LuggageMenu(sp.containerCounter, sp.getInventory(), this.inventory, this);
-						sp.initMenu(sp.containerMenu);
-						MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
-					}
+					sp.nextContainerCounter();
+					LuggageNetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sp), new OpenLuggageScreenPacket(sp.containerCounter, this.getId()));
+					sp.containerMenu = new LuggageMenu(sp.containerCounter, sp.getInventory(), this.inventory, this);
+					sp.initMenu(sp.containerMenu);
+					MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
 				}
 			}
 		}
@@ -477,6 +475,6 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 	@Override
 	protected void playStepSound(BlockPos pos, BlockState state) {
-		this.playSound(Registries.SoundRegistry.LUGGAGE_STEP.get(), 0.05F, 0.7F + (random.nextFloat() * 0.5F));
+		this.playSound(Registries.SoundRegistry.LUGGAGE_STEP.get(), 0.05F, 0.7F + (this.getRandom().nextFloat() * 0.5F));
 	}
 }
