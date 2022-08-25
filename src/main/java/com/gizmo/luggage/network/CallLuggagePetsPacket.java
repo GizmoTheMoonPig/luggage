@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 public class CallLuggagePetsPacket {
 
-	private int playerId;
+	private final int playerId;
 
 	public CallLuggagePetsPacket(int playerId) {
 		this.playerId = playerId;
@@ -27,15 +27,20 @@ public class CallLuggagePetsPacket {
 		public static boolean onMessage(CallLuggagePetsPacket message, Supplier<NetworkEvent.Context> ctx) {
 			ctx.get().enqueueWork(() -> {
 				ServerPlayer player = ctx.get().getSender();
-				if(player != null) {
+				if (player != null) {
 					player.getLevel().getAllEntities().forEach(luggageIHope -> {
-						if(luggageIHope instanceof LuggageEntity luggage && luggage.getOwner() != null && luggage.getOwner().is(player.getLevel().getEntity(message.playerId))) {
+						if (luggageIHope instanceof LuggageEntity luggage && luggage.getOwner() != null && luggage.getOwner().is(player.getLevel().getEntity(message.playerId))) {
+							luggage.stopRiding();
 							luggage.moveTo(player.position());
-							if(luggage.isTryingToFetchItem()) luggage.setTryingToFetchItem(false);
+							if (luggage.isTryingToFetchItem()) luggage.setTryingToFetchItem(false);
+							// 10 second cooldown between trying to fetch items
+							luggage.setFetchCooldown(200);
+							luggage.setChilling(false);
 						}
 					});
 				}
 			});
+			ctx.get().setPacketHandled(true);
 			return true;
 		}
 	}

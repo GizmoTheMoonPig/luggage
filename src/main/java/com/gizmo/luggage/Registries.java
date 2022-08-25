@@ -33,7 +33,8 @@ public class Registries {
 		public static final RegistryObject<SoundEvent> LUGGAGE_EAT_FOOD = createEvent("entity.luggage.luggage.eat_food");
 		public static final RegistryObject<SoundEvent> LUGGAGE_EAT_ITEM = createEvent("entity.luggage.luggage.eat_item");
 		public static final RegistryObject<SoundEvent> LUGGAGE_STEP = createEvent("entity.luggage.luggage.step");
-		public static final RegistryObject<SoundEvent> WHISTLE = createEvent("entity.luggage.player.whistle");
+		public static final RegistryObject<SoundEvent> WHISTLE_CALL = createEvent("entity.luggage.player.whistle_call");
+		public static final RegistryObject<SoundEvent> WHISTLE_WAIT = createEvent("entity.luggage.player.whistle_wait");
 
 		private static RegistryObject<SoundEvent> createEvent(String sound) {
 			ResourceLocation name = new ResourceLocation(Luggage.ID, sound);

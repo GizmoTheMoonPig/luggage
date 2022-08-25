@@ -17,7 +17,8 @@ public class LuggageNetworkHandler {
 	@SuppressWarnings("UnusedAssignment")
 	public static void init() {
 		int id = 0;
-		CHANNEL.messageBuilder(CallLuggagePetsPacket.class, id++).encoder(CallLuggagePetsPacket::encode).decoder(CallLuggagePetsPacket::new).consumerMainThread(CallLuggagePetsPacket.Handler::onMessage).add();
-		CHANNEL.messageBuilder(OpenLuggageScreenPacket.class, id++).encoder(OpenLuggageScreenPacket::encode).decoder(OpenLuggageScreenPacket::new).consumerMainThread(OpenLuggageScreenPacket.Handler::onMessage).add();
+		CHANNEL.registerMessage(id++, CallLuggagePetsPacket.class, CallLuggagePetsPacket::encode, CallLuggagePetsPacket::new, CallLuggagePetsPacket.Handler::onMessage);
+		CHANNEL.registerMessage(id++, OpenLuggageScreenPacket.class, OpenLuggageScreenPacket::encode, OpenLuggageScreenPacket::new, OpenLuggageScreenPacket.Handler::onMessage);
+		CHANNEL.registerMessage(id++, SitNearbyLuggagesPacket.class, SitNearbyLuggagesPacket::encode, SitNearbyLuggagesPacket::new, SitNearbyLuggagesPacket.Handler::onMessage);
 	}
 }
