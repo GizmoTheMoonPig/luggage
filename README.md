@@ -1,7 +1,7 @@
 # Luggage
 
 ---
-[![Curseforge](http://cf.way2muchnoise.eu/full_594709_downloads.svg)](https://minecraft.curseforge.com/projects/luggage) [![Curseforge](http://cf.way2muchnoise.eu/versions/For%20MC_594709_all.svg)](https://minecraft.curseforge.com/projects/luggage)
+[![Curseforge](http://cf.way2muchnoise.eu/full_594709_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/luggage) [![Curseforge](http://cf.way2muchnoise.eu/versions/For%20MC_594709_all.svg)](https://www.curseforge.com/minecraft/mc-mods/luggage)
 
 ## About the Mod:
 
