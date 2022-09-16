@@ -1,6 +1,7 @@
 package com.gizmo.luggage.client;
 
 import com.gizmo.luggage.LuggageItem;
+import com.gizmo.luggage.entity.LuggageEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
@@ -21,7 +22,7 @@ public class LuggageTooltipComponent implements ClientTooltipComponent {
 
 	public LuggageTooltipComponent(LuggageItem.Tooltip tooltip) {
 		this.items = tooltip.stacks();
-		this.extended = tooltip.stack().getTag() != null && tooltip.stack().getTag().getBoolean("Extended");
+		this.extended = tooltip.stack().getTag() != null && tooltip.stack().getTag().getBoolean(LuggageEntity.EXTENDED_TAG);
 	}
 
 	//slots * slot height + padding

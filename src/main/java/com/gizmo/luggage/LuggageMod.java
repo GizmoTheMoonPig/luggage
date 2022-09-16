@@ -39,7 +39,8 @@ public class LuggageMod {
 	public static class ForgeEvents {
 		@SubscribeEvent
 		public static void neverKillLuggage(EntityJoinLevelEvent event) {
-			if (event.getEntity() instanceof ItemEntity item && item.getItem().is(Registries.ItemRegistry.LUGGAGE.get()) && item.getItem().getOrCreateTag().contains("Inventory")) {
+			if (event.getEntity() instanceof ItemEntity item && item.getItem().is(Registries.ItemRegistry.LUGGAGE.get()) &&
+					item.getItem().getTag() != null && item.getItem().getTag().contains(LuggageEntity.INVENTORY_TAG)) {
 				item.setInvulnerable(true);
 				item.setUnlimitedLifetime();
 			}
