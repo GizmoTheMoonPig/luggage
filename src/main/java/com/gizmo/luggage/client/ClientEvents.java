@@ -1,6 +1,6 @@
 package com.gizmo.luggage.client;
 
-import com.gizmo.luggage.Luggage;
+import com.gizmo.luggage.LuggageMod;
 import com.gizmo.luggage.LuggageItem;
 import com.gizmo.luggage.Registries;
 import com.gizmo.luggage.entity.LuggageEntity;
@@ -28,10 +28,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
 
-@Mod.EventBusSubscriber(modid = Luggage.ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = LuggageMod.ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientEvents {
 
-	public static final ModelLayerLocation LUGGAGE = new ModelLayerLocation(new ResourceLocation(Luggage.ID, "luggage"), "main");
+	public static final ModelLayerLocation LUGGAGE = new ModelLayerLocation(new ResourceLocation(LuggageMod.ID, "luggage"), "main");
 	private static KeyMapping callKey;
 	private static KeyMapping waitKey;
 
@@ -78,7 +78,7 @@ public class ClientEvents {
 		return waitKey;
 	}
 
-	@Mod.EventBusSubscriber(modid = Luggage.ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
+	@Mod.EventBusSubscriber(modid = LuggageMod.ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 	public static class ClientForgeEvents {
 
 		@SubscribeEvent
