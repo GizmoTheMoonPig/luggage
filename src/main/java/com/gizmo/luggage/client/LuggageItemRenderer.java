@@ -24,7 +24,9 @@ public class LuggageItemRenderer implements BuiltinItemRendererRegistry.DynamicI
 			assert Minecraft.getInstance().level != null;
 			LuggageEntity entity = Registries.EntityRegistry.LUGGAGE.create(Minecraft.getInstance().level);
 			if (entity != null) {
-				entity.setExtendedInventory(stack.getOrCreateTag().getBoolean("Extended"));
+				if(stack.getTag() != null) {
+					entity.setExtendedInventory(stack.getTag().getBoolean(LuggageEntity.EXTENDED_TAG));
+				}
 				float partialTicks = Minecraft.getInstance().getFrameTime();
 				Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0F);
 				Quaternion quaternion1 = Vector3f.XP.rotationDegrees(20.0F);

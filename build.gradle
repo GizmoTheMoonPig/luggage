@@ -6,7 +6,7 @@ plugins {
     id 'org.quiltmc.quilt-mappings-on-loom' version '4.+'
 }
 
-version = '1.5'
+version = '1.5.1'
 group = 'com.gizmo.luggage'
 archivesBaseName = 'luggage'
 
@@ -51,10 +51,23 @@ java {
 }
 
 jar {
+    manifest {
+        attributes([
+                "Specification-Title"     : "Luggage",
+                "Specification-Vendor"    : "GizmoTheMoonPig",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : "Luggage",
+                "Implementation-Version"  : "1.5.1",
+                "Implementation-Vendor"   : "GizmoTheMoonPig",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}"}
     }
 }
+
+jar.finalizedBy('remapJar')
 
 publishing {
     publications {

@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-@Environment(EnvType.CLIENT)
 public class LuggageScreen extends AbstractContainerScreen<LuggageMenu> {
 	private static final ResourceLocation CONTAINER_BACKGROUND = new ResourceLocation("textures/gui/container/generic_54.png");
 	private final int containerRows;

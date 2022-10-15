@@ -47,6 +47,9 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	protected static final EntityDataAccessor<Byte> TAME_FLAGS = SynchedEntityData.defineId(LuggageEntity.class, EntityDataSerializers.BYTE);
 	protected static final EntityDataAccessor<Optional<UUID>> OWNER_ID = SynchedEntityData.defineId(LuggageEntity.class, EntityDataSerializers.OPTIONAL_UUID);
 
+	public static final String INVENTORY_TAG = "Inventory";
+	public static final String EXTENDED_TAG = "Extended";
+
 	private SimpleContainer inventory;
 	private int soundCooldown = 15;
 	private int fetchCooldown = 0;
@@ -68,7 +71,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	protected void registerGoals() {
 		this.goalSelector.addGoal(0, new FloatGoal(this));
 		this.goalSelector.addGoal(1, new LuggagePickupItemGoal(this));
-		this.goalSelector.addGoal(2, new LuggageFollowOwnerGoal(this, 1.1D, 7.0F, 1.0F, false));
+		this.goalSelector.addGoal(2, new LuggageFollowOwnerGoal(this, 1.1D, 7.0F, 1.0F));
 	}
 
 	@Override
@@ -94,7 +97,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		super.addAdditionalSaveData(tag);
 		ListTag listtag = new ListTag();
 
-		tag.putBoolean("Extended", this.hasExtendedInventory());
+		tag.putBoolean(EXTENDED_TAG, this.hasExtendedInventory());
 
 		for (int i = 0; i < this.inventory.getContainerSize(); ++i) {
 			ItemStack itemstack = this.inventory.getItem(i);
@@ -118,7 +121,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		super.readAdditionalSaveData(tag);
 		ListTag listtag = tag.getList("Items", 10);
 
-		this.setExtendedInventory(tag.getBoolean("Extended"));
+		this.setExtendedInventory(tag.getBoolean(EXTENDED_TAG));
 
 		for (int i = 0; i < listtag.size(); ++i) {
 			CompoundTag compoundtag = listtag.getCompound(i);
@@ -156,11 +159,11 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		CompoundTag tag = new CompoundTag();
 
 		if (this.hasExtendedInventory()) {
-			tag.putBoolean("Extended", this.hasExtendedInventory());
+			tag.putBoolean(EXTENDED_TAG, this.hasExtendedInventory());
 		}
 
 		if (!this.inventory.isEmpty()) {
-			tag.put("Inventory", this.inventory.createTag());
+			tag.put(INVENTORY_TAG, this.inventory.createTag());
 		}
 
 		if (!tag.isEmpty()) {
@@ -181,12 +184,12 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 		CompoundTag tag = stack.getTag();
 
-		if (tag != null && tag.contains("Extended")) {
-			this.setExtendedInventory(tag.getBoolean("Extended"));
+		if (tag != null && tag.contains(EXTENDED_TAG)) {
+			this.setExtendedInventory(tag.getBoolean(EXTENDED_TAG));
 		}
 
-		if (tag != null && tag.contains("Inventory")) {
-			this.inventory.fromTag(tag.getList("Inventory", 10));
+		if (tag != null && tag.contains(INVENTORY_TAG)) {
+			this.inventory.fromTag(tag.getList(INVENTORY_TAG, 10));
 			if (this.inventory.getContainerSize() > 27) {
 				this.setExtendedInventory(true);
 			}

@@ -57,7 +57,7 @@ public class LuggageItem extends Item {
 		if (compoundtag == null) {
 			return Stream.empty();
 		} else {
-			ListTag listtag = compoundtag.getList("Inventory", 10);
+			ListTag listtag = compoundtag.getList(LuggageEntity.INVENTORY_TAG, 10);
 			return listtag.stream().map(CompoundTag.class::cast).map(ItemStack::of);
 		}
 	}
@@ -76,7 +76,7 @@ public class LuggageItem extends Item {
 		if (allowedIn(tab)) {
 			ItemStack item = new ItemStack(this);
 			CompoundTag tag = new CompoundTag();
-			tag.putBoolean("Extended", true);
+			tag.putBoolean(LuggageEntity.EXTENDED_TAG, true);
 			item.setTag(tag);
 			stacks.add(item);
 		}

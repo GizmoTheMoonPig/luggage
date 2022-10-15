@@ -7,8 +7,6 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
@@ -29,16 +27,14 @@ public class LuggageFollowOwnerGoal extends Goal {
 	private final float stopDistance;
 	private final float startDistance;
 	private float oldWaterCost;
-	private final boolean canFly;
 
-	public LuggageFollowOwnerGoal(LuggageEntity luggage, double speed, float startDist, float stopDist, boolean fly) {
+	public LuggageFollowOwnerGoal(LuggageEntity luggage, double speed, float startDist, float stopDist) {
 		this.luggage = luggage;
 		this.level = luggage.level;
 		this.speedModifier = speed;
 		this.navigation = luggage.getNavigation();
 		this.startDistance = startDist;
 		this.stopDistance = stopDist;
-		this.canFly = fly;
 		this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
 	}
 
@@ -139,13 +135,8 @@ public class LuggageFollowOwnerGoal extends Goal {
 		if (blockpathtypes != BlockPathTypes.WALKABLE) {
 			return false;
 		} else {
-			BlockState blockstate = this.level.getBlockState(pos.below());
-			if (!this.canFly && blockstate.getBlock() instanceof LeavesBlock) {
-				return false;
-			} else {
-				BlockPos blockpos = pos.subtract(this.luggage.blockPosition());
-				return this.level.noCollision(this.luggage, this.luggage.getBoundingBox().move(blockpos));
-			}
+			BlockPos blockpos = pos.subtract(this.luggage.blockPosition());
+			return this.level.noCollision(this.luggage, this.luggage.getBoundingBox().move(blockpos));
 		}
 	}
 

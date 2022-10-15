@@ -1,6 +1,6 @@
 package com.gizmo.luggage.client;
 
-import com.gizmo.luggage.Luggage;
+import com.gizmo.luggage.LuggageMod;
 import com.gizmo.luggage.LuggageItem;
 import com.gizmo.luggage.Registries;
 import com.gizmo.luggage.entity.LuggageEntity;
@@ -27,7 +27,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class ClientEvents implements ClientModInitializer {
 
-	public static final ModelLayerLocation LUGGAGE = new ModelLayerLocation(new ResourceLocation(Luggage.ID, "luggage"), "main");
+	public static final ModelLayerLocation LUGGAGE = new ModelLayerLocation(new ResourceLocation(LuggageMod.ID, "luggage"), "main");
 	private static KeyMapping callKey;
 	private static KeyMapping waitKey;
 
