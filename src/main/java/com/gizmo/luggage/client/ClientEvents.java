@@ -74,6 +74,8 @@ public class ClientEvents implements ClientModInitializer {
 				return new LuggageTooltipComponent(tooltip);
 			return null;
 		});
+
+		BuiltinItemRendererRegistry.INSTANCE.register(Registries.ItemRegistry.LUGGAGE, new LuggageItemRenderer());
 	}
 
 	public static class ClientFabricEvents {

@@ -1,7 +1,7 @@
 package com.gizmo.luggage.network;
 
-import com.gizmo.luggage.Luggage;
 import com.gizmo.luggage.LuggageMenu;
+import com.gizmo.luggage.LuggageMod;
 import com.gizmo.luggage.client.LuggageScreen;
 import com.gizmo.luggage.entity.LuggageEntity;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -37,7 +37,7 @@ public class OpenLuggageScreenPacket {
 	}
 
 	public static ResourceLocation getID() {
-		return new ResourceLocation(Luggage.ID, "open_luggage_screen_packet");
+		return new ResourceLocation(LuggageMod.ID, "open_luggage_screen_packet");
 	}
 
 	public static class Handler {

@@ -14,13 +14,13 @@ public class Registries {
 	public static class ItemRegistry {
 		public static void register() {}
 
-		public static final Item LUGGAGE = Registry.register(Registry.ITEM, new ResourceLocation(Luggage.ID, "luggage"), new LuggageItem(new Item.Properties().fireResistant().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS)));
+		public static final Item LUGGAGE = Registry.register(Registry.ITEM, new ResourceLocation(LuggageMod.ID, "luggage"), new LuggageItem(new Item.Properties().fireResistant().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS)));
 	}
 
 	public static class EntityRegistry {
 		public static void register() {}
 
-		public static final EntityType<LuggageEntity> LUGGAGE = Registry.register(Registry.ENTITY_TYPE, new ResourceLocation(Luggage.ID, "luggage"), EntityType.Builder.of(LuggageEntity::new, MobCategory.MONSTER).fireImmune().sized(0.75F, 0.75F).build("luggage:luggage"));
+		public static final EntityType<LuggageEntity> LUGGAGE = Registry.register(Registry.ENTITY_TYPE, new ResourceLocation(LuggageMod.ID, "luggage"), EntityType.Builder.of(LuggageEntity::new, MobCategory.MONSTER).fireImmune().sized(0.75F, 0.75F).build("luggage:luggage"));
 	}
 
 	public static class SoundRegistry {
@@ -33,7 +33,7 @@ public class Registries {
 		public static final SoundEvent WHISTLE_WAIT = createEvent("entity.luggage.player.whistle_wait");
 
 		private static SoundEvent createEvent(String sound) {
-			ResourceLocation name = new ResourceLocation(Luggage.ID, sound);
+			ResourceLocation name = new ResourceLocation(LuggageMod.ID, sound);
 			return Registry.register(Registry.SOUND_EVENT, name, new SoundEvent(name));
 		}
 

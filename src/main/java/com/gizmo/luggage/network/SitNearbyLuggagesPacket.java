@@ -1,6 +1,6 @@
 package com.gizmo.luggage.network;
 
-import com.gizmo.luggage.Luggage;
+import com.gizmo.luggage.LuggageMod;
 import com.gizmo.luggage.entity.LuggageEntity;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -25,7 +25,7 @@ public class SitNearbyLuggagesPacket {
 	}
 
 	public static ResourceLocation getID() {
-		return new ResourceLocation(Luggage.ID, "sit_nearby_luggage_packet");
+		return new ResourceLocation(LuggageMod.ID, "sit_nearby_luggage_packet");
 	}
 
 	public static class Handler {

@@ -22,7 +22,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.gizmo.luggage.Luggage"
+      "com.gizmo.luggage.LuggageMod"
     ],
     "client": [
       "com.gizmo.luggage.client.ClientEvents"

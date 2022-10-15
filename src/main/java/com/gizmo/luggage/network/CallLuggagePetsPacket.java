@@ -1,6 +1,6 @@
 package com.gizmo.luggage.network;
 
-import com.gizmo.luggage.Luggage;
+import com.gizmo.luggage.LuggageMod;
 import com.gizmo.luggage.entity.LuggageEntity;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -22,7 +22,7 @@ public class CallLuggagePetsPacket {
 	}
 
 	public static ResourceLocation getID() {
-		return new ResourceLocation(Luggage.ID, "call_luggage_packet");
+		return new ResourceLocation(LuggageMod.ID, "call_luggage_packet");
 	}
 
 	public static class Handler {
