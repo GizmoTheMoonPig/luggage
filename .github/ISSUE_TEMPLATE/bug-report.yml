@@ -1,0 +1,49 @@
+name: Bug Report
+description: Create an issue about a bug
+labels: [bug]
+body:
+  - type: input
+    attributes:
+      label: Forge or Fabric
+      description: Are you using the Forge or Fabric version of the mod? Both versions are worked on by different people so its important to know the difference.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Mod Version
+      description: What version of the mod are you running? Please note "latest" is NOT a version. Specifics are important!
+      placeholder: "Example: 1.5"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Client Log
+      description: A **[Gist](https://gist.github.com/)** link to the full game log. This can be found in the game files under the `logs` folder. Though not necessary, a client log can help diagnose an issue better in case a bug is caused by a reported error. Provide the `latest.log` or `debug.log` file as a Gist as soon as you find the bug, as these files are reset every time the game is opened.
+  - type: input
+    attributes:
+      label: Crash Report (if applicable)
+      description: A **[Gist](https://gist.github.com/)** link to the crash report. This can be found in the game files under the `crash-reports` folder, and all the contents of the file should be pasted into the Gist file. If the bug does not result in a crash, ignore this field.
+  - type: textarea
+    attributes:
+      label: Bug Description
+      description: Describe the bug. Explain what happened, what you expected, or why something doesn't make sense.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to Reproduce
+      description: A detailed list of how you encountered this bug if it is not immediately obvious. If the bug is immediately obvious, briefly mention how to replicate it.
+      placeholder: |
+        1. Step 1
+        2. Step 2
+        3. Step 3, etc.
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Please Read and Confirm The Following
+      options:
+        - label: I have confirmed the details provided in this report are concise as possible and does not contained vague information (ie. Versions are properly recorded, answers to questions are clear).
+          required: true
+        - label: I have confirmed this issue is unique and has not been reported already.
+          required: true

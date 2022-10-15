@@ -1,13 +1,18 @@
 package com.gizmo.luggage.network;
 
 import com.gizmo.luggage.Luggage;
-import com.gizmo.luggage.client.ClientEvents;
+import com.gizmo.luggage.LuggageMenu;
+import com.gizmo.luggage.client.LuggageScreen;
+import com.gizmo.luggage.entity.LuggageEntity;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
 
 public class OpenLuggageScreenPacket {
 
@@ -37,10 +42,23 @@ public class OpenLuggageScreenPacket {
 
 	public static class Handler {
 
+		@SuppressWarnings("Convert2Lambda")
 		public static boolean onMessage(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
 			OpenLuggageScreenPacket message = new OpenLuggageScreenPacket(buf);
-			client.execute(() -> {
-				ClientEvents.handlePacket(message);
+			client.execute(new Runnable() {
+				@Override
+				public void run() {
+					assert Minecraft.getInstance().level != null;
+					Entity entity = Minecraft.getInstance().level.getEntity(message.getEntityId());
+					if (entity instanceof LuggageEntity luggage) {
+						LocalPlayer localplayer = Minecraft.getInstance().player;
+						SimpleContainer simplecontainer = new SimpleContainer(luggage.hasExtendedInventory() ? 54 : 27);
+						assert localplayer != null;
+						LuggageMenu menu = new LuggageMenu(message.getContainerId(), localplayer.getInventory(), simplecontainer, luggage);
+						localplayer.containerMenu = menu;
+						Minecraft.getInstance().setScreen(new LuggageScreen(menu, localplayer.getInventory(), luggage));
+					}
+				}
 			});
 			return true;
 		}

@@ -16,7 +16,9 @@
 
   "license": "MIT",
   "icon": "luggage.png",
-
+  "mixins": [
+    "luggage.mixin.json"
+  ],
   "environment": "*",
   "entrypoints": {
     "main": [

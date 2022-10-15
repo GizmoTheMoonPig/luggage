@@ -6,6 +6,8 @@ import com.gizmo.luggage.network.OpenLuggageScreenPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -31,9 +33,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,7 +49,9 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 	private SimpleContainer inventory;
 	private int soundCooldown = 15;
+	private int fetchCooldown = 0;
 	private boolean tryingToFetchItem;
+	private boolean isInventoryOpen;
 
 	public LuggageEntity(EntityType<? extends PathfinderMob> type, Level level) {
 		super(type, level);
@@ -57,6 +61,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		this.setPathfindingMalus(BlockPathTypes.COCOA, -1.0F);
 		this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
 		this.setPathfindingMalus(BlockPathTypes.UNPASSABLE_RAIL, 0.0F);
+		this.maxUpStep = 1.0F;
 	}
 
 	@Override
@@ -69,15 +74,15 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	@Override
 	protected void defineSynchedData() {
 		super.defineSynchedData();
-		this.entityData.define(EXTENDED, false);
-		this.entityData.define(OWNER_ID, Optional.empty());
-		this.entityData.define(TAME_FLAGS, (byte) 0);
+		this.getEntityData().define(EXTENDED, false);
+		this.getEntityData().define(OWNER_ID, Optional.empty());
+		this.getEntityData().define(TAME_FLAGS, (byte) 0);
 	}
 
 	public static AttributeSupplier.Builder registerAttributes() {
 		return Mob.createMobAttributes()
 				.add(Attributes.MAX_HEALTH, 0.0D)
-				.add(Attributes.MOVEMENT_SPEED, 0.4D);
+				.add(Attributes.MOVEMENT_SPEED, 0.35D);
 	}
 
 	//-----------------------------------------//
@@ -150,15 +155,15 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		ItemStack luggageItem = new ItemStack(Registries.ItemRegistry.LUGGAGE);
 		CompoundTag tag = new CompoundTag();
 
-		if(this.hasExtendedInventory()) {
+		if (this.hasExtendedInventory()) {
 			tag.putBoolean("Extended", this.hasExtendedInventory());
 		}
 
-		if(!this.inventory.isEmpty()) {
+		if (!this.inventory.isEmpty()) {
 			tag.put("Inventory", this.inventory.createTag());
 		}
 
-		if(!tag.isEmpty()) {
+		if (!tag.isEmpty()) {
 			luggageItem.setTag(tag);
 		}
 
@@ -170,19 +175,19 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		return luggageItem;
 	}
 
-	public void restoreFromStack(@Nonnull ItemStack stack) {
+	public void restoreFromStack(@NotNull ItemStack stack) {
 		//im not this stupid, but just in case
 		if (!stack.is(Registries.ItemRegistry.LUGGAGE)) return;
 
 		CompoundTag tag = stack.getTag();
 
-		if(tag != null && tag.contains("Extended")) {
+		if (tag != null && tag.contains("Extended")) {
 			this.setExtendedInventory(tag.getBoolean("Extended"));
 		}
 
 		if (tag != null && tag.contains("Inventory")) {
-			inventory.fromTag(tag.getList("Inventory", 10));
-			if (inventory.getContainerSize() > 27) {
+			this.inventory.fromTag(tag.getList("Inventory", 10));
+			if (this.inventory.getContainerSize() > 27) {
 				this.setExtendedInventory(true);
 			}
 		}
@@ -190,6 +195,8 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		if (stack.hasCustomHoverName()) {
 			this.setCustomName(stack.getHoverName());
 		}
+
+		this.fetchCooldown = 20;
 	}
 
 	//------------------------------------------//
@@ -219,16 +226,16 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	}
 
 	public boolean hasExtendedInventory() {
-		return this.entityData.get(EXTENDED);
+		return this.getEntityData().get(EXTENDED);
 	}
 
 	public void setExtendedInventory(boolean extended) {
-		this.entityData.set(EXTENDED, extended);
+		this.getEntityData().set(EXTENDED, extended);
 		this.createInventory();
 	}
 
 	@Override
-	public void containerChanged(Container p_18983_) {
+	public void containerChanged(Container container) {
 		//I dont think I need this for anything
 	}
 
@@ -243,37 +250,49 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	@Nullable
 	@Override
 	public UUID getOwnerUUID() {
-		return this.entityData.get(OWNER_ID).orElse(null);
+		return this.getEntityData().get(OWNER_ID).orElse(null);
 	}
 
 	public void setOwnerUUID(@Nullable UUID uuid) {
-		this.entityData.set(OWNER_ID, Optional.ofNullable(uuid));
+		this.getEntityData().set(OWNER_ID, Optional.ofNullable(uuid));
 	}
-
 
 	@Nullable
 	@Override
 	public LivingEntity getOwner() {
 		try {
 			UUID uuid = this.getOwnerUUID();
-			return uuid == null ? null : this.level.getPlayerByUUID(uuid);
+			return uuid == null ? null : this.getLevel().getPlayerByUUID(uuid);
 		} catch (IllegalArgumentException illegalargumentexception) {
 			return null;
 		}
 	}
 
-	public void setTame(boolean p_21836_) {
-		byte b0 = this.entityData.get(TAME_FLAGS);
-		if (p_21836_) {
-			this.entityData.set(TAME_FLAGS, (byte) (b0 | 4));
+	public void setTame(boolean tame) {
+		byte b0 = this.getEntityData().get(TAME_FLAGS);
+		if (tame) {
+			this.getEntityData().set(TAME_FLAGS, (byte) (b0 | 4));
 		} else {
-			this.entityData.set(TAME_FLAGS, (byte) (b0 & -5));
+			this.getEntityData().set(TAME_FLAGS, (byte) (b0 & -5));
 		}
 	}
 
 	public void tame(Player player) {
 		this.setTame(true);
 		this.setOwnerUUID(player.getUUID());
+	}
+
+	public boolean isChilling() {
+		return (this.getEntityData().get(TAME_FLAGS) & 1) != 0;
+	}
+
+	public void setChilling(boolean chilling) {
+		byte b0 = this.getEntityData().get(TAME_FLAGS);
+		if (chilling) {
+			this.getEntityData().set(TAME_FLAGS, (byte) (b0 | 1));
+		} else {
+			this.getEntityData().set(TAME_FLAGS, (byte) (b0 & -2));
+		}
 	}
 
 	//------------------------------------------//
@@ -288,6 +307,14 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		this.tryingToFetchItem = fetch;
 	}
 
+	public int getFetchCooldown() {
+		return this.fetchCooldown;
+	}
+
+	public void setFetchCooldown(int cooldown) {
+		this.fetchCooldown = cooldown;
+	}
+
 	public int getSoundCooldown() {
 		return this.soundCooldown;
 	}
@@ -296,11 +323,33 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		this.soundCooldown = cooldown;
 	}
 
+	public boolean isInventoryOpen() {
+		return this.isInventoryOpen;
+	}
+
+	public void setInventoryOpen(boolean open) {
+		this.isInventoryOpen = open;
+	}
+
 	@Override
 	public void aiStep() {
 		super.aiStep();
-		if(this.soundCooldown > 0) {
+		if (this.soundCooldown > 0) {
 			this.soundCooldown--;
+		}
+
+		if (this.fetchCooldown > 0) {
+			this.fetchCooldown--;
+		}
+
+		if (this.isChilling()) {
+			this.getLevel().addParticle(ParticleTypes.SPLASH,
+					this.getX() + (this.getRandom().nextDouble() - 0.5D) * this.getBbWidth() * 0.5D,
+					this.getY() + this.getEyeHeight(),
+					this.getZ() + (this.getRandom().nextDouble() - 0.5D) * this.getBbWidth() * 0.5D,
+					(this.getRandom().nextFloat() - 0.5F) * 0.25F,
+					0.0D,
+					(this.getRandom().nextFloat() - 0.5F) * 0.25F);
 		}
 	}
 
@@ -310,32 +359,30 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 			ItemStack stack = player.getItemInHand(hand);
 			if (stack.is(Items.NAME_TAG)) return InteractionResult.PASS;
 
-			if (stack.isEmpty()) {
-				if (player.isShiftKeyDown()) {
-					if (!level.isClientSide()) {
-						ItemStack luggageItem = this.convertToItem();
-						if (player.getInventory().add(luggageItem)) {
-							this.discard();
-							this.playSound(SoundEvents.ITEM_PICKUP, 0.5f, this.random.nextFloat() * 0.1f + 0.9f);
-						}
+			if (player.isShiftKeyDown()) {
+				if (!this.getLevel().isClientSide()) {
+					ItemStack luggageItem = this.convertToItem();
+					if (player.getInventory().add(luggageItem)) {
+						this.discard();
+						this.playSound(SoundEvents.ITEM_PICKUP, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
 					}
-				} else {
-					level.gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
-					//prevents sound from playing 4 times (twice on server only). Apparently interactAt fires 4 times????
-					if(this.soundCooldown == 0) {
-						this.playSound(SoundEvents.CHEST_OPEN, 0.5f, this.random.nextFloat() * 0.1f + 0.9f);
-						this.soundCooldown = 5;
-					}
-					if (!level.isClientSide()) {
-						ServerPlayer sp = (ServerPlayer) player;
-						if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
+				}
+			} else {
+				this.getLevel().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
+				//prevents sound from playing 4 times (twice on server only). Apparently interactAt fires 4 times????
+				if (this.soundCooldown == 0) {
+					this.playSound(SoundEvents.CHEST_OPEN, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
+					this.soundCooldown = 5;
+				}
+				if (!this.getLevel().isClientSide()) {
+					ServerPlayer sp = (ServerPlayer) player;
+					if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
 
-						sp.nextContainerCounter();
-						ServerPlayNetworking.send(sp, OpenLuggageScreenPacket.getID(), new OpenLuggageScreenPacket(sp.containerCounter, this.getId()).encode());
-						sp.containerMenu = new LuggageMenu(sp.containerCounter, sp.getInventory(), this.inventory, this);
-						sp.initMenu(sp.containerMenu);
-//						MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
-					}
+					sp.nextContainerCounter();
+					ServerPlayNetworking.send(sp, OpenLuggageScreenPacket.getID(), new OpenLuggageScreenPacket(sp.containerCounter, this.getId()).encode());
+					sp.containerMenu = new LuggageMenu(sp.containerCounter, sp.getInventory(), this.inventory, this);
+					sp.initMenu(sp.containerMenu);
+					this.isInventoryOpen = true;
 				}
 			}
 		}
@@ -377,10 +424,12 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	}
 
 	@Override
-	public void knockback(double x, double y, double z) {}
+	public void knockback(double x, double y, double z) {
+	}
 
 	@Override
-	protected void pushEntities() {}
+	protected void pushEntities() {
+	}
 
 	@Override
 	public boolean addEffect(MobEffectInstance instance, @Nullable Entity entity) {
@@ -393,7 +442,8 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 	}
 
 	@Override
-	public void checkDespawn() {}
+	public void checkDespawn() {
+	}
 
 	@Override
 	public void kill() {
@@ -451,6 +501,6 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 	@Override
 	protected void playStepSound(BlockPos pos, BlockState state) {
-		this.playSound(Registries.SoundRegistry.LUGGAGE_STEP, 0.05F, 0.7F + (random.nextFloat() * 0.5F));
+		this.playSound(Registries.SoundRegistry.LUGGAGE_STEP, 0.1F, 0.7F + (this.getRandom().nextFloat() * 0.5F));
 	}
 }

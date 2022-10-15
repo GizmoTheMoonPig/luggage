@@ -10,7 +10,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
-public class CallLuggagePetsPacket {
+import java.util.List;
+
+public class SitNearbyLuggagesPacket {
+
 	public static FriendlyByteBuf encode(final int playerId) {
 		FriendlyByteBuf buf = PacketByteBufs.create();
 		buf.writeInt(playerId);
@@ -22,24 +25,19 @@ public class CallLuggagePetsPacket {
 	}
 
 	public static ResourceLocation getID() {
-		return new ResourceLocation(Luggage.ID, "call_luggage_packet");
+		return new ResourceLocation(Luggage.ID, "sit_nearby_luggage_packet");
 	}
 
 	public static class Handler {
 		public static boolean onMessage(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
-			int playerId = decode(buf);
 			server.execute(() -> {
 				if (player != null) {
-					player.getLevel().getAllEntities().forEach(luggageIHope -> {
-						if (luggageIHope instanceof LuggageEntity luggage && luggage.getOwner() != null && luggage.getOwner().is(player.getLevel().getEntity(playerId))) {
-							luggage.stopRiding();
-							luggage.moveTo(player.position());
-							if (luggage.isTryingToFetchItem()) luggage.setTryingToFetchItem(false);
-							// 10 second cooldown between trying to fetch items
-							luggage.setFetchCooldown(200);
-							luggage.setChilling(false);
+					List<LuggageEntity> nearbyOwnedLuggages = player.getLevel().getEntitiesOfClass(LuggageEntity.class, player.getBoundingBox().inflate(8.0F), entity -> entity.getOwner() == player);
+					if (!nearbyOwnedLuggages.isEmpty()) {
+						for (LuggageEntity luggage : nearbyOwnedLuggages) {
+							luggage.setChilling(!luggage.isChilling());
 						}
-					});
+					}
 				}
 			});
 			return true;

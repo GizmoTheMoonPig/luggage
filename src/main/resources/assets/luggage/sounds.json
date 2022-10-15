@@ -3,5 +3,6 @@
 	"entity.luggage.luggage.eat_item": { "subtitle": "subtitles.luggage.entity.luggage.eat_item", "sounds": ["luggage:luggage_eat_item"] },
 	"entity.luggage.luggage.killed": { "subtitle": "subtitles.luggage.entity.luggage.killed", "sounds": ["luggage:luggage_killed"] },
 	"entity.luggage.luggage.step": { "subtitle": "subtitles.block.generic.footsteps", "sounds": ["luggage:luggage_step"] },
-	"entity.luggage.player.whistle": { "subtitle": "subtitles.luggage.entity.player.whistle", "sounds": ["luggage:whistle"] }
+	"entity.luggage.player.whistle_call": { "subtitle": "subtitles.luggage.entity.player.whistle_call", "sounds": ["luggage:whistle"] },
+	"entity.luggage.player.whistle_wait": { "subtitle": "subtitles.luggage.entity.player.whistle_wait", "sounds": ["luggage:whistle_wait"] }
 }

@@ -9,6 +9,7 @@ public class LuggageNetworkHandler {
 	@SuppressWarnings("UnusedAssignment")
 	public static void init() {
 		ServerPlayNetworking.registerGlobalReceiver(CallLuggagePetsPacket.getID(), CallLuggagePetsPacket.Handler::onMessage);
+		ServerPlayNetworking.registerGlobalReceiver(SitNearbyLuggagesPacket.getID(), SitNearbyLuggagesPacket.Handler::onMessage);
 		if(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			ClientPlayNetworking.registerGlobalReceiver(OpenLuggageScreenPacket.getID(), OpenLuggageScreenPacket.Handler::onMessage);
 		}
