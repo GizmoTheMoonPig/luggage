@@ -28,7 +28,7 @@ dependencies {
 
     // dependencies
     modImplementation("net.fabricmc.fabric-api:fabric-api:0.60.0+1.19.2")
-    modImplementation(include("me.alphamode:ForgeTags:2.2"))
+    modImplementation(include("io.github.fabricators_of_create.Porting-Lib:tags:2.0.611+1.19.2"))
 
     implementation("com.github.LlamaLad7:MixinExtras:0.1.0-rc5")
     annotationProcessor("com.github.LlamaLad7:MixinExtras:0.1.0-rc5")
