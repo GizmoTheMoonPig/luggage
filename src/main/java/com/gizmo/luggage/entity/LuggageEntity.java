@@ -375,13 +375,13 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		}
 
 		if (this.isChilling()) {
-			this.getLevel().addParticle(ParticleTypes.SPLASH,
-					this.getX() + (this.getRandom().nextDouble() - 0.5D) * this.getBbWidth() * 0.5D,
-					this.getY() + this.getEyeHeight(),
-					this.getZ() + (this.getRandom().nextDouble() - 0.5D) * this.getBbWidth() * 0.5D,
-					(this.getRandom().nextFloat() - 0.5F) * 0.25F,
+			this.getLevel().addParticle(ParticleTypes.NOTE,
+					this.getX() + (this.getRandom().nextDouble() - 0.5D) * this.getBbWidth(),
+					this.getY() + this.getEyeHeight() + 0.25D,
+					this.getZ() + (this.getRandom().nextDouble() - 0.5D) * this.getBbWidth(),
+					this.getRandom().nextDouble(),
 					0.0D,
-					(this.getRandom().nextFloat() - 0.5F) * 0.25F);
+					0.0D);
 		}
 	}
 
@@ -506,7 +506,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 
 	@Override
 	protected float getWaterSlowDown() {
-		return 0.95F;
+		return 0.9F;
 	}
 
 	@Override
