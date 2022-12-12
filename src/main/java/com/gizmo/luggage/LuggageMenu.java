@@ -17,26 +17,26 @@ public class LuggageMenu extends AbstractContainerMenu {
 
 	public LuggageMenu(int id, Inventory inventory, Container container, LuggageEntity luggage) {
 		super(MenuType.GENERIC_9x6, id);
-		checkContainerSize(container, luggage.hasExtendedInventory()  ? 54 : 27);
+		checkContainerSize(container, luggage.hasExtendedInventory() ? 54 : 27);
 		this.luggageContainer = container;
 		this.luggage = luggage;
 		this.containerRows = luggage.hasExtendedInventory() ? 6 : 3;
 		container.startOpen(inventory.player);
 		int i = (this.containerRows - 4) * 18;
 
-		for(int j = 0; j < this.containerRows; ++j) {
-			for(int k = 0; k < 9; ++k) {
+		for (int j = 0; j < this.containerRows; ++j) {
+			for (int k = 0; k < 9; ++k) {
 				this.addSlot(new LuggageSlot(container, k + j * 9, 8 + k * 18, 18 + j * 18));
 			}
 		}
 
-		for(int l = 0; l < 3; ++l) {
-			for(int j1 = 0; j1 < 9; ++j1) {
+		for (int l = 0; l < 3; ++l) {
+			for (int j1 = 0; j1 < 9; ++j1) {
 				this.addSlot(new Slot(inventory, j1 + l * 9 + 9, 8 + j1 * 18, 103 + l * 18 + i));
 			}
 		}
 
-		for(int i1 = 0; i1 < 9; ++i1) {
+		for (int i1 = 0; i1 < 9; ++i1) {
 			this.addSlot(new Slot(inventory, i1, 8 + i1 * 18, 161 + i));
 		}
 
@@ -78,6 +78,7 @@ public class LuggageMenu extends AbstractContainerMenu {
 	@Override
 	public void removed(Player player) {
 		super.removed(player);
+		this.luggage.setInventoryOpen(false);
 		this.luggageContainer.stopOpen(player);
 	}
 

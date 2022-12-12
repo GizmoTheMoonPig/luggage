@@ -6,8 +6,8 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.pathfinder.Path;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
@@ -29,19 +29,25 @@ public class LuggagePickupItemGoal extends Goal {
 
 	@Override
 	public boolean canUse() {
-		//we only want the luggage to pick up items if it isn't currently pathing to us
-		if (!navigation.isDone()) return false;
+		//we only want the luggage to pick up items if it isn't on a cooldown or forced to sit
+		if (this.luggage.getFetchCooldown() > 0 || this.luggage.isForcedToSit() || this.luggage.isInventoryOpen() || !this.navigation.isDone())
+			return false;
 
 		//sort through items, get the closest one
-		List<ItemEntity> items = this.luggage.level.getEntitiesOfClass(ItemEntity.class, this.luggage.getBoundingBox().inflate(16.0D), item ->
+		List<ItemEntity> items = this.luggage.getLevel().getEntitiesOfClass(ItemEntity.class, this.luggage.getBoundingBox().inflate(16.0D), item ->
 				(item.isOnGround() || item.isInWater()) &&
+						this.luggage.hasLineOfSight(item) &&
 						this.luggage.getInventory().canAddItem(item.getItem()) &&
-						!item.getItem().is(Registries.ItemRegistry.LUGGAGE.get()));
+						item.getItem().getItem().canFitInsideContainerItems());
 		items.sort(Comparator.comparingDouble(this.luggage::distanceToSqr));
 
-		if (!items.isEmpty()) {
-			this.targetItem = items.get(0);
-			return true;
+		for (ItemEntity item : items) {
+			//please, only go after items you can actually reach
+			Path toPath = this.navigation.createPath(item, 1);
+			if (toPath != null && toPath.canReach()) {
+				this.targetItem = item;
+				return true;
+			}
 		}
 		return false;
 	}
@@ -67,13 +73,13 @@ public class LuggagePickupItemGoal extends Goal {
 	@Override
 	public void tick() {
 		super.tick();
-		if (!this.luggage.level.isClientSide()) {
-			if (this.targetItem != null && this.luggage.distanceToSqr(this.targetItem.position()) < 2.5D) {
+		if (!this.luggage.getLevel().isClientSide()) {
+			if (this.targetItem != null && this.luggage.distanceToSqr(this.targetItem.position()) < 4.0D) {
 				ItemStack item = this.targetItem.getItem();
 				if (this.luggage.getInventory().canAddItem(this.targetItem.getItem())) {
 					if (this.luggage.getSoundCooldown() == 0) {
 						boolean isFood = item.isEdible();
-						this.luggage.playSound(isFood ? Registries.SoundRegistry.LUGGAGE_EAT_FOOD : Registries.SoundRegistry.LUGGAGE_EAT_ITEM,
+						this.luggage.playSound(isFood ? Registries.SoundRegistry.LUGGAGE_EAT_FOOD.get() : Registries.SoundRegistry.LUGGAGE_EAT_ITEM.get(),
 								0.5F, 1.0F + (this.luggage.getRandom().nextFloat() * 0.2F));
 						this.luggage.setSoundCooldown(15);
 					}
@@ -86,7 +92,7 @@ public class LuggagePickupItemGoal extends Goal {
 					}
 
 					this.luggage.onItemPickup(this.targetItem);
-					this.luggage.gameEvent(GameEvent.EAT, this.luggage.blockPosition());
+					this.luggage.gameEvent(GameEvent.EAT, this.luggage);
 					this.luggage.take(this.targetItem, item.getCount());
 					ItemStack consumedStack = simplecontainer.addItem(item);
 					if (consumedStack.isEmpty()) {

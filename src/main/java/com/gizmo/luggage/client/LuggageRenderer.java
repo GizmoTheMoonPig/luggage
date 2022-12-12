@@ -1,6 +1,6 @@
 package com.gizmo.luggage.client;
 
-import com.gizmo.luggage.Luggage;
+import com.gizmo.luggage.LuggageMod;
 import com.gizmo.luggage.entity.LuggageEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -23,7 +23,7 @@ public class LuggageRenderer extends MobRenderer<LuggageEntity, LuggageModel> {
 
 	@Override
 	public ResourceLocation getTextureLocation(LuggageEntity luggage) {
-		return new ResourceLocation(Luggage.ID, "textures/entity/luggage" +
+		return new ResourceLocation(LuggageMod.ID, "textures/entity/luggage" +
 				//maybe one day
 				//(luggage.hasCustomName() && Objects.requireNonNull(luggage.getCustomName()).getString().equals("Chester") ? "_chester" : "") +
 				(luggage.hasExtendedInventory() ? "_special" : "") + ".png");

@@ -8,8 +8,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.tooltip.BundleTooltip;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -19,9 +20,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.IItemRenderProperties;
-import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -64,7 +64,7 @@ public class LuggageItem extends Item {
 		if (compoundtag == null) {
 			return Stream.empty();
 		} else {
-			ListTag listtag = compoundtag.getList("Inventory", 10);
+			ListTag listtag = compoundtag.getList(LuggageEntity.INVENTORY_TAG, 10);
 			return listtag.stream().map(CompoundTag.class::cast).map(ItemStack::of);
 		}
 	}
@@ -80,18 +80,30 @@ public class LuggageItem extends Item {
 	public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> stacks) {
 		super.fillItemCategory(tab, stacks);
 
-		if (allowdedIn(tab)) {
+		if (this.allowdedIn(tab)) {
 			ItemStack item = new ItemStack(this);
 			CompoundTag tag = new CompoundTag();
-			tag.putBoolean("Extended", true);
+			tag.putBoolean(LuggageEntity.EXTENDED_TAG, true);
 			item.setTag(tag);
 			stacks.add(item);
 		}
 	}
 
 	@Override
+	public boolean canEquip(ItemStack stack, EquipmentSlot slot, Entity entity) {
+		return slot == EquipmentSlot.HEAD;
+	}
+
+	@Override
+	@Nullable
+	public EquipmentSlot getEquipmentSlot(ItemStack stack) {
+		return EquipmentSlot.HEAD;
+	}
+
+	@Override
 	public void initializeClient(Consumer<IItemRenderProperties> consumer) {
 		consumer.accept(new IItemRenderProperties() {
+
 			@Override
 			public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
 				return new LuggageItemRenderer();
