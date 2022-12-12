@@ -24,20 +24,19 @@ public class SitNearbyLuggagesPacket {
 	}
 
 	public static class Handler {
-		public static boolean onMessage(SitNearbyLuggagesPacket message, Supplier<NetworkEvent.Context> ctx) {
+		public static void onMessage(SitNearbyLuggagesPacket message, Supplier<NetworkEvent.Context> ctx) {
 			ctx.get().enqueueWork(() -> {
 				ServerPlayer player = ctx.get().getSender();
 				if (player != null) {
 					List<LuggageEntity> nearbyOwnedLuggages = player.getLevel().getEntitiesOfClass(LuggageEntity.class, player.getBoundingBox().inflate(8.0F), entity -> entity.getOwner() == player);
 					if (!nearbyOwnedLuggages.isEmpty()) {
 						for (LuggageEntity luggage : nearbyOwnedLuggages) {
-							luggage.setChilling(!luggage.isChilling());
+							luggage.setForcedToSit(!luggage.isForcedToSit());
 						}
 					}
 				}
 			});
 			ctx.get().setPacketHandled(true);
-			return true;
 		}
 	}
 }

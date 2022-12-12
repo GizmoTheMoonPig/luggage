@@ -35,32 +35,23 @@ public class OpenLuggageScreenPacket {
 	public static class Handler {
 
 		@SuppressWarnings("Convert2Lambda")
-		public static boolean onMessage(OpenLuggageScreenPacket message, Supplier<NetworkEvent.Context> ctx) {
+		public static void onMessage(OpenLuggageScreenPacket message, Supplier<NetworkEvent.Context> ctx) {
 			ctx.get().enqueueWork(new Runnable() {
 				@Override
 				public void run() {
 					assert Minecraft.getInstance().level != null;
-					Entity entity = Minecraft.getInstance().level.getEntity(message.getEntityId());
+					Entity entity = Minecraft.getInstance().level.getEntity(message.entityId);
 					if (entity instanceof LuggageEntity luggage) {
 						LocalPlayer localplayer = Minecraft.getInstance().player;
 						SimpleContainer simplecontainer = new SimpleContainer(luggage.hasExtendedInventory() ? 54 : 27);
 						assert localplayer != null;
-						LuggageMenu menu = new LuggageMenu(message.getContainerId(), localplayer.getInventory(), simplecontainer, luggage);
+						LuggageMenu menu = new LuggageMenu(message.containerId, localplayer.getInventory(), simplecontainer, luggage);
 						localplayer.containerMenu = menu;
 						Minecraft.getInstance().setScreen(new LuggageScreen(menu, localplayer.getInventory(), luggage));
 					}
 				}
 			});
 			ctx.get().setPacketHandled(true);
-			return true;
 		}
-	}
-
-	public int getContainerId() {
-		return this.containerId;
-	}
-
-	public int getEntityId() {
-		return this.entityId;
 	}
 }

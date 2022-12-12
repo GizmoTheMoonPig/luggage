@@ -47,7 +47,7 @@ public class LuggageFollowOwnerGoal extends Goal {
 						item.getItem().getItem().canFitInsideContainerItems());
 		if (livingentity == null || livingentity.isSpectator() || livingentity.hasPose(Pose.SLEEPING)) {
 			return false;
-		} else if (this.luggage.isChilling() || this.luggage.isTryingToFetchItem()) {
+		} else if (this.luggage.isForcedToSit() || this.luggage.isTryingToFetchItem()) {
 			return false;
 		} else if (this.luggage.distanceToSqr(livingentity) < (double) (this.startDistance * this.startDistance)) {
 			return false;

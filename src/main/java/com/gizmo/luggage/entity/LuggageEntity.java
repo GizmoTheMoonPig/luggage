@@ -309,11 +309,11 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 		this.setOwnerUUID(player.getUUID());
 	}
 
-	public boolean isChilling() {
+	public boolean isForcedToSit() {
 		return (this.getEntityData().get(TAME_FLAGS) & 1) != 0;
 	}
 
-	public void setChilling(boolean chilling) {
+	public void setForcedToSit(boolean chilling) {
 		byte b0 = this.getEntityData().get(TAME_FLAGS);
 		if (chilling) {
 			this.getEntityData().set(TAME_FLAGS, (byte) (b0 | 1));
@@ -374,7 +374,7 @@ public class LuggageEntity extends PathfinderMob implements OwnableEntity, Conta
 			this.fetchCooldown--;
 		}
 
-		if (this.isChilling()) {
+		if (this.isForcedToSit() && this.tickCount % 10 == 0) {
 			this.getLevel().addParticle(ParticleTypes.NOTE,
 					this.getX() + (this.getRandom().nextDouble() - 0.5D) * this.getBbWidth(),
 					this.getY() + this.getEyeHeight() + 0.25D,
