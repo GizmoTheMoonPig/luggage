@@ -20,7 +20,6 @@ public class LuggagePickupItemGoal extends Goal {
 	private final PathNavigation navigation;
 	@Nullable
 	private ItemEntity targetItem = null;
-	private int runtime = 0;
 
 	public LuggagePickupItemGoal(LuggageEntity luggage) {
 		this.luggage = luggage;
@@ -30,8 +29,8 @@ public class LuggagePickupItemGoal extends Goal {
 
 	@Override
 	public boolean canUse() {
-		//we only want the luggage to pick up items if it isn't on a cooldown or chillin
-		if (this.luggage.getFetchCooldown() > 0 || this.luggage.isChilling() || this.luggage.isInventoryOpen() || !this.navigation.isDone())
+		//we only want the luggage to pick up items if it isn't on a cooldown or forced to sit
+		if (this.luggage.getFetchCooldown() > 0 || this.luggage.isForcedToSit() || this.luggage.isInventoryOpen() || !this.navigation.isDone())
 			return false;
 
 		//sort through items, get the closest one
@@ -63,22 +62,19 @@ public class LuggagePickupItemGoal extends Goal {
 		if (this.targetItem != null) {
 			this.navigation.moveTo(this.targetItem, 1.2D);
 			this.luggage.setTryingToFetchItem(true);
-			this.runtime = 0;
 		}
 	}
 
 	@Override
 	public void stop() {
 		this.luggage.setTryingToFetchItem(false);
-		this.runtime = 0;
 	}
 
 	@Override
 	public void tick() {
 		super.tick();
-		this.runtime++;
 		if (!this.luggage.getLevel().isClientSide()) {
-			if (this.targetItem != null && this.luggage.distanceToSqr(this.targetItem.position()) < 2.0D + Math.min(this.runtime + 0.01D, 4.0D)) {
+			if (this.targetItem != null && this.luggage.distanceToSqr(this.targetItem.position()) < 4.0D) {
 				ItemStack item = this.targetItem.getItem();
 				if (this.luggage.getInventory().canAddItem(this.targetItem.getItem())) {
 					if (this.luggage.getSoundCooldown() == 0) {
