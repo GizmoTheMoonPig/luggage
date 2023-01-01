@@ -1,6 +1,7 @@
 package com.gizmo.luggage;
 
 import com.gizmo.luggage.entity.LuggageEntity;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -23,8 +24,8 @@ import java.util.stream.Stream;
 
 public class LuggageItem extends Item {
 
-	public LuggageItem(Properties properties) {
-		super(properties);
+	public LuggageItem(FabricItemSettings properties) {
+		super(properties.equipmentSlot(LuggageItem::getEquipmentSlot));
 	}
 
 	@Override
@@ -84,14 +85,7 @@ public class LuggageItem extends Item {
 		}
 	}
 
-	@Override
-	public boolean canEquip(ItemStack stack, EquipmentSlot slot, Entity entity) {
-		return slot == EquipmentSlot.HEAD;
-	}
-
-	@Override
-	@Nullable
-	public EquipmentSlot getEquipmentSlot(ItemStack stack) {
+	public static EquipmentSlot getEquipmentSlot(ItemStack stack) {
 		return EquipmentSlot.HEAD;
 	}
 

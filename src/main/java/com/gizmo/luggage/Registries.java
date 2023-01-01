@@ -1,6 +1,7 @@
 package com.gizmo.luggage;
 
 import com.gizmo.luggage.entity.LuggageEntity;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -14,7 +15,7 @@ public class Registries {
 	public static class ItemRegistry {
 		public static void register() {}
 
-		public static final Item LUGGAGE = Registry.register(Registry.ITEM, new ResourceLocation(LuggageMod.ID, "luggage"), new LuggageItem(new Item.Properties().fireResistant().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS)));
+		public static final Item LUGGAGE = Registry.register(Registry.ITEM, new ResourceLocation(LuggageMod.ID, "luggage"), new LuggageItem(new FabricItemSettings().fireproof().maxCount(1).group(CreativeModeTab.TAB_TOOLS)));
 	}
 
 	public static class EntityRegistry {

@@ -40,7 +40,6 @@ public class SitNearbyLuggagesPacket {
 					}
 				}
 			});
-			return true;
 		}
 	}
 }

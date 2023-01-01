@@ -10,6 +10,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
+import java.util.Objects;
+
 public class CallLuggagePetsPacket {
 	public static FriendlyByteBuf encode(final int playerId) {
 		FriendlyByteBuf buf = PacketByteBufs.create();
@@ -42,7 +44,6 @@ public class CallLuggagePetsPacket {
 					});
 				}
 			});
-			return true;
 		}
 	}
 }

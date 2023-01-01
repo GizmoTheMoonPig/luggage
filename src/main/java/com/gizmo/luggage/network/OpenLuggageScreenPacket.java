@@ -60,7 +60,6 @@ public class OpenLuggageScreenPacket {
 					}
 				}
 			});
-			return true;
 		}
 	}
 }
