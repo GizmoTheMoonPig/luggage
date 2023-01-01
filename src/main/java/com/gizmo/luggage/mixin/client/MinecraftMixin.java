@@ -52,6 +52,8 @@ public class MinecraftMixin {
 
     @WrapWithCondition(method = "startAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;attack(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/entity/Entity;)V"))
     private boolean luggage$modifiyResult(MultiPlayerGameMode gameMode, Player player, Entity entity) {
-        return !shouldCancel.get();
+        boolean result = !shouldCancel.get();
+        shouldCancel.set(false);
+        return result;
     }
 }
