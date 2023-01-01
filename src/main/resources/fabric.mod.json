@@ -26,6 +26,9 @@
     ],
     "client": [
       "com.gizmo.luggage.client.ClientEvents"
+    ],
+    "preLaunch": [
+      "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
     ]
   },
   "accessWidener": "luggage.accesswidener"
