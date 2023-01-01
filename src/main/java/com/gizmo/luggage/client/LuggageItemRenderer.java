@@ -24,37 +24,25 @@ public class LuggageItemRenderer implements BuiltinItemRendererRegistry.DynamicI
 			assert Minecraft.getInstance().level != null;
 			LuggageEntity entity = Registries.EntityRegistry.LUGGAGE.create(Minecraft.getInstance().level);
 			if (entity != null) {
-				if(stack.getTag() != null) {
+				if (stack.getTag() != null) {
 					entity.setExtendedInventory(stack.getTag().getBoolean(LuggageEntity.EXTENDED_TAG));
 				}
 				float partialTicks = Minecraft.getInstance().getFrameTime();
-				Quaternion quaternion = Vector3f.ZP.rotationDegrees(180.0F);
-				Quaternion quaternion1 = Vector3f.XP.rotationDegrees(20.0F);
 				float partialTicksForRender = Minecraft.getInstance().isPaused() ? 0 : partialTicks;
-
 				ms.scale(-1.0F, -1.0F, 1.0F);
 				ms.translate(-0.5F, -0.2F, 0.0F);
 				ms.scale(0.8F, 0.8F, 0.8F);
-				ms.mulPose(quaternion);
-				if (type == ItemTransforms.TransformType.GUI) {
-					ms.mulPose(Vector3f.XP.rotationDegrees(20));
-					ms.mulPose(Vector3f.YP.rotationDegrees(45));
-					ms.mulPose(Vector3f.ZP.rotationDegrees(0));
-				}
-				EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-				quaternion1.conj();
-				entityrenderdispatcher.overrideCameraOrientation(quaternion1);
-				entityrenderdispatcher.setRenderShadow(false);
+				ms.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+				EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+				boolean hitboxes = dispatcher.shouldRenderHitBoxes();
+				dispatcher.setRenderShadow(false);
+				dispatcher.setRenderHitBoxes(false);
 				MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
 				RenderSystem.runAsFancy(() ->
-						entityrenderdispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, partialTicksForRender, ms, source, type == ItemTransforms.TransformType.GUI ? 15728880 : light));
+						dispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, partialTicksForRender, ms, source, type == ItemTransforms.TransformType.GUI ? 15728880 : light));
 				source.endBatch();
-				entityrenderdispatcher.setRenderShadow(true);
-				entity.setYRot(0.0F);
-				entity.setXRot(0.0F);
-				entity.yBodyRot = 0.0F;
-				entity.yHeadRotO = 0.0F;
-				entity.yHeadRot = 0.0F;
+				dispatcher.setRenderShadow(true);
+				dispatcher.setRenderHitBoxes(hitboxes);
 				RenderSystem.applyModelViewMatrix();
 				Lighting.setupFor3DItems();
 			}

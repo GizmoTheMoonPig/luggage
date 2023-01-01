@@ -26,18 +26,18 @@ public class CallLuggagePetsPacket {
 	}
 
 	public static class Handler {
-		public static boolean onMessage(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
+		public static void onMessage(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
 			int playerId = decode(buf);
 			server.execute(() -> {
 				if (player != null) {
 					player.getLevel().getAllEntities().forEach(luggageIHope -> {
-						if (luggageIHope instanceof LuggageEntity luggage && luggage.getOwner() != null && luggage.getOwner().is(player.getLevel().getEntity(playerId))) {
+						if (luggageIHope instanceof LuggageEntity luggage && luggage.getOwner() != null && luggage.getOwner().is(Objects.requireNonNull(player.getLevel().getEntity(playerId)))) {
 							luggage.stopRiding();
 							luggage.moveTo(player.position());
 							if (luggage.isTryingToFetchItem()) luggage.setTryingToFetchItem(false);
 							// 10 second cooldown between trying to fetch items
 							luggage.setFetchCooldown(200);
-							luggage.setChilling(false);
+							luggage.setForcedToSit(false);
 						}
 					});
 				}

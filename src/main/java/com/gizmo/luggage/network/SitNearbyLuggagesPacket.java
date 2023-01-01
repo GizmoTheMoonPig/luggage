@@ -29,13 +29,13 @@ public class SitNearbyLuggagesPacket {
 	}
 
 	public static class Handler {
-		public static boolean onMessage(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
+		public static void onMessage(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
 			server.execute(() -> {
 				if (player != null) {
 					List<LuggageEntity> nearbyOwnedLuggages = player.getLevel().getEntitiesOfClass(LuggageEntity.class, player.getBoundingBox().inflate(8.0F), entity -> entity.getOwner() == player);
 					if (!nearbyOwnedLuggages.isEmpty()) {
 						for (LuggageEntity luggage : nearbyOwnedLuggages) {
-							luggage.setChilling(!luggage.isChilling());
+							luggage.setForcedToSit(!luggage.isForcedToSit());
 						}
 					}
 				}

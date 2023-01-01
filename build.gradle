@@ -6,7 +6,7 @@ plugins {
     id 'org.quiltmc.quilt-mappings-on-loom' version '4.+'
 }
 
-version = '1.5.1'
+version = '1.19-1.5.2'
 group = 'com.gizmo.luggage'
 archivesBaseName = 'luggage'
 
