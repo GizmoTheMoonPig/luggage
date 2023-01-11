@@ -19,5 +19,6 @@ public class LuggageNetworkHandler {
 		int id = 0;
 		CHANNEL.messageBuilder(CallLuggagePetsPacket.class, id++).encoder(CallLuggagePetsPacket::encode).decoder(CallLuggagePetsPacket::new).consumer(CallLuggagePetsPacket.Handler::onMessage).add();
 		CHANNEL.messageBuilder(OpenLuggageScreenPacket.class, id++).encoder(OpenLuggageScreenPacket::encode).decoder(OpenLuggageScreenPacket::new).consumer(OpenLuggageScreenPacket.Handler::onMessage).add();
+		CHANNEL.messageBuilder(SitNearbyLuggagesPacket.class, id++).encoder(SitNearbyLuggagesPacket::encode).decoder(SitNearbyLuggagesPacket::new).consumer(SitNearbyLuggagesPacket.Handler::onMessage).add();
 	}
 }
