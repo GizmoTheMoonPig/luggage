@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-//[VanillaCopy] of FollowOwnerGoal, but changed the entity to not be hardcoded to TamableAnimal
-//it also wont follow if its trying to fetch an item, and the teleport distance was greatly increased
+//Inspired by FollowOwnerGoal
+//Luggage won't follow if its trying to fetch an item, and the teleport distance was greatly increased
 public class LuggageFollowOwnerGoal extends Goal {
 	private final LuggageEntity luggage;
 	private LivingEntity owner;
@@ -47,7 +47,7 @@ public class LuggageFollowOwnerGoal extends Goal {
 						item.getItem().getItem().canFitInsideContainerItems());
 		if (livingentity == null || livingentity.isSpectator() || livingentity.getPose() == Pose.SLEEPING) {
 			return false;
-		} else if (this.luggage.isForcedToSit() || this.luggage.isTryingToFetchItem()) {
+		} else if (this.luggage.isInSittingPose() || this.luggage.isTryingToFetchItem()) {
 			return false;
 		} else if (this.luggage.distanceToSqr(livingentity) < (double) (this.startDistance * this.startDistance)) {
 			return false;
@@ -56,7 +56,7 @@ public class LuggageFollowOwnerGoal extends Goal {
 			List<ItemEntity> revisedItems = new ArrayList<>();
 			if (!items.isEmpty()) {
 				for (ItemEntity item : items) {
-					//if its out of reach it doesnt count
+					//if it's out of reach it doesn't count
 					Path toPath = this.navigation.createPath(item, 1);
 					if (toPath != null && toPath.canReach()) {
 						revisedItems.add(item);

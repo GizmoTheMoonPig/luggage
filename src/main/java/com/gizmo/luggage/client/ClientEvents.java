@@ -24,6 +24,7 @@ import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -94,7 +95,8 @@ public class ClientEvents {
 		}
 
 		//completely prevent Luggage from blocking attacks. This will swing directly through it, and will even allow you to hit other mobs behind it
-		@SubscribeEvent
+		//fire last in case any other mod tries to do something like this
+		@SubscribeEvent(priority = EventPriority.LOWEST)
 		public static void attackThroughLuggage(InputEvent.ClickInputEvent event) {
 			if (event.isAttack() && Minecraft.getInstance().hitResult instanceof EntityHitResult result && result.getEntity() instanceof LuggageEntity) {
 				event.setCanceled(true);

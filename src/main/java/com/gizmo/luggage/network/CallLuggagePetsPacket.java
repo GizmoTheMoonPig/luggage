@@ -36,7 +36,7 @@ public class CallLuggagePetsPacket {
 							if (luggage.isTryingToFetchItem()) luggage.setTryingToFetchItem(false);
 							// 10 second cooldown between trying to fetch items
 							luggage.setFetchCooldown(200);
-							luggage.setForcedToSit(false);
+							luggage.setInSittingPose(false);
 						}
 					});
 				}

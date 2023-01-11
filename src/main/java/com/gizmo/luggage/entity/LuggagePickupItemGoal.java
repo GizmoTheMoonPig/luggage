@@ -30,7 +30,7 @@ public class LuggagePickupItemGoal extends Goal {
 	@Override
 	public boolean canUse() {
 		//we only want the luggage to pick up items if it isn't on a cooldown or forced to sit
-		if (this.luggage.getFetchCooldown() > 0 || this.luggage.isForcedToSit() || this.luggage.isInventoryOpen() || !this.navigation.isDone())
+		if (this.luggage.getFetchCooldown() > 0 || this.luggage.isInSittingPose() || this.luggage.isInventoryOpen() || !this.navigation.isDone())
 			return false;
 
 		//sort through items, get the closest one

@@ -31,7 +31,7 @@ public class SitNearbyLuggagesPacket {
 					List<LuggageEntity> nearbyOwnedLuggages = player.getLevel().getEntitiesOfClass(LuggageEntity.class, player.getBoundingBox().inflate(8.0F), entity -> entity.getOwner() == player);
 					if (!nearbyOwnedLuggages.isEmpty()) {
 						for (LuggageEntity luggage : nearbyOwnedLuggages) {
-							luggage.setForcedToSit(!luggage.isForcedToSit());
+							luggage.setInSittingPose(!luggage.isInSittingPose());
 						}
 					}
 				}
