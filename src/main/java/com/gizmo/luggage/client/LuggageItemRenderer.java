@@ -5,8 +5,7 @@ import com.gizmo.luggage.entity.LuggageEntity;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -35,7 +34,7 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 				ms.scale(-1.0F, -1.0F, 1.0F);
 				ms.translate(-0.5F, -0.2F, 0.0F);
 				ms.scale(0.8F, 0.8F, 0.8F);
-				ms.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+				ms.mulPose(Axis.ZP.rotationDegrees(180.0F));
 				EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
 				boolean hitboxes = dispatcher.shouldRenderHitBoxes();
 				dispatcher.setRenderShadow(false);

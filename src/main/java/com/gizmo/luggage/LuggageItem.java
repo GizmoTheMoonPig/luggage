@@ -12,7 +12,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -74,19 +73,6 @@ public class LuggageItem extends Item {
 		NonNullList<ItemStack> nonnulllist = NonNullList.create();
 		getContentsForToolTip(stack).forEach(nonnulllist::add);
 		return nonnulllist.isEmpty() ? Optional.empty() : Optional.of(new Tooltip(nonnulllist, stack));
-	}
-
-	@Override
-	public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> stacks) {
-		super.fillItemCategory(tab, stacks);
-
-		if (this.allowedIn(tab)) {
-			ItemStack item = new ItemStack(this);
-			CompoundTag tag = new CompoundTag();
-			tag.putBoolean(LuggageEntity.EXTENDED_TAG, true);
-			item.setTag(tag);
-			stacks.add(item);
-		}
 	}
 
 	@Override

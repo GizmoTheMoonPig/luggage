@@ -16,7 +16,7 @@ public class Registries {
 	public static class ItemRegistry {
 		public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, LuggageMod.ID);
 
-		public static final RegistryObject<Item> LUGGAGE = ITEMS.register("luggage", () -> new LuggageItem(new Item.Properties().fireResistant().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS)));
+		public static final RegistryObject<Item> LUGGAGE = ITEMS.register("luggage", () -> new LuggageItem(new Item.Properties().fireResistant().stacksTo(1)));
 	}
 
 	public static class EntityRegistry {
@@ -38,7 +38,7 @@ public class Registries {
 
 		private static RegistryObject<SoundEvent> createEvent(String sound) {
 			ResourceLocation name = new ResourceLocation(LuggageMod.ID, sound);
-			return SOUNDS.register(sound, () -> new SoundEvent(name));
+			return SOUNDS.register(sound, () -> SoundEvent.createVariableRangeEvent(name));
 		}
 	}
 }
