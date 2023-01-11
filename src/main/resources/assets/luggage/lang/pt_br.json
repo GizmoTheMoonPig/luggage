@@ -1,0 +1,11 @@
+{
+	"entity.luggage.luggage": "Bagagem",
+	"item.luggage.luggage": "Bagagem",
+	"keybind.luggage.wait": "Faça a Bagagem próxima esperar",
+	"keybind.luggage.call": "Chamada para Bagagem",
+	"subtitles.luggage.entity.luggage.killed": "Bagagem quebra",
+	"subtitles.luggage.entity.luggage.eat_food": "Bagagem come comida",
+	"subtitles.luggage.entity.luggage.eat_item": "Bagagem come item",
+	"subtitles.luggage.entity.player.whistle_call": "O jogador assobia suavemente",
+	"subtitles.luggage.entity.player.whistle_wait": "Jogador assobia agudamente"
+}
