@@ -1,11 +1,11 @@
 {
-	"entity.luggage.luggage": "行李箱",
-	"item.luggage.luggage": "行李箱",
-	"keybind.luggage.whistle": "呼叫行李箱",
-	"keybind.luggage.wait": "使附近的行李箱待机", 
-	"keybind.luggage.call": "呼叫行李箱", 
-	"subtitles.luggage.entity.luggage.killed": "行李箱：碎裂",
-	"subtitles.luggage.entity.luggage.eat_food": "行李箱：吃掉食物",
-	"subtitles.luggage.entity.luggage.eat_item": "行李箱：吃掉物品",
-	"subtitles.luggage.entity.player.whistle": "玩家：口哨"
+    "entity.luggage.luggage": "行李箱",
+    "item.luggage.luggage": "行李箱",
+    "keybind.luggage.wait": "使附近的行李箱待机",
+    "keybind.luggage.call": "呼叫行李箱",
+    "subtitles.luggage.entity.luggage.killed": "行李箱：碎裂",
+    "subtitles.luggage.entity.luggage.eat_food": "行李箱：吃掉食物",
+    "subtitles.luggage.entity.luggage.eat_item": "行李箱：吃掉物品",
+    "subtitles.luggage.entity.player.whistle_call": "玩家：轻轻地吹口哨",
+    "subtitles.luggage.entity.player.whistle_wait": "玩家：疾厉地吹口哨"
 }
