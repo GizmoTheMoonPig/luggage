@@ -86,12 +86,12 @@ public class ClientEvents {
 
 		@SubscribeEvent
 		public static void commandTheCreatures(InputEvent.Key event) {
-			if (event.getAction() != GLFW.GLFW_REPEAT && Minecraft.getInstance().player != null) {
+			if (event.getAction() == GLFW.GLFW_PRESS && Minecraft.getInstance().player != null) {
 				float pitch = Minecraft.getInstance().player.getRandom().nextFloat() * 0.1F + 0.9F;
-				if (getCallKey().consumeClick()) {
+				if (event.getKey() == getCallKey().getKey().getValue() && getCallKey().consumeClick()) {
 					Minecraft.getInstance().player.playSound(Registries.SoundRegistry.WHISTLE_CALL.get(), 1.0F, pitch);
 					LuggageNetworkHandler.CHANNEL.sendToServer(new CallLuggagePetsPacket(Minecraft.getInstance().player.getId()));
-				} else if (getWaitKey().consumeClick()) {
+				} else if (event.getKey() == getWaitKey().getKey().getValue() && getWaitKey().consumeClick()) {
 					Minecraft.getInstance().player.playSound(Registries.SoundRegistry.WHISTLE_WAIT.get(), 0.85F, pitch);
 					LuggageNetworkHandler.CHANNEL.sendToServer(new SitNearbyLuggagesPacket(Minecraft.getInstance().player.getId()));
 				}
