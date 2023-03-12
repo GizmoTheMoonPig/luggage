@@ -1,6 +1,6 @@
 package com.gizmo.luggage.client;
 
-import com.gizmo.luggage.entity.LuggageEntity;
+import com.gizmo.luggage.entity.Luggage;
 import com.gizmo.luggage.LuggageMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -13,7 +13,7 @@ public class LuggageScreen extends AbstractContainerScreen<LuggageMenu> {
 	private static final ResourceLocation CONTAINER_BACKGROUND = new ResourceLocation("textures/gui/container/generic_54.png");
 	private final int containerRows;
 
-	public LuggageScreen(LuggageMenu menu, Inventory inventory, LuggageEntity entity) {
+	public LuggageScreen(LuggageMenu menu, Inventory inventory, Luggage entity) {
 		super(menu, inventory, entity.getDisplayName());
 		this.passEvents = false;
 		this.containerRows = entity.hasExtendedInventory() ? 6 : 3;

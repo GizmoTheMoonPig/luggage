@@ -1,6 +1,6 @@
 package com.gizmo.luggage;
 
-import com.gizmo.luggage.entity.LuggageEntity;
+import com.gizmo.luggage.entity.Luggage;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -12,10 +12,10 @@ import net.minecraft.world.item.ItemStack;
 public class LuggageMenu extends AbstractContainerMenu {
 
 	private final Container luggageContainer;
-	private final LuggageEntity luggage;
+	private final Luggage luggage;
 	private final int containerRows;
 
-	public LuggageMenu(int id, Inventory inventory, Container container, LuggageEntity luggage) {
+	public LuggageMenu(int id, Inventory inventory, Container container, Luggage luggage) {
 		super(MenuType.GENERIC_9x6, id);
 		checkContainerSize(container, luggage.hasExtendedInventory() ? 54 : 27);
 		this.luggageContainer = container;

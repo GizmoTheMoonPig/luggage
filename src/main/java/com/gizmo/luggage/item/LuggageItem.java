@@ -1,7 +1,8 @@
-package com.gizmo.luggage;
+package com.gizmo.luggage.item;
 
+import com.gizmo.luggage.Registries;
 import com.gizmo.luggage.client.LuggageItemRenderer;
-import com.gizmo.luggage.entity.LuggageEntity;
+import com.gizmo.luggage.entity.Luggage;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -38,7 +39,7 @@ public class LuggageItem extends Item {
 		if (result.getType() == HitResult.Type.BLOCK) {
 			Vec3 blockPos = result.getLocation();
 			if (!level.isClientSide()) {
-				LuggageEntity luggage = Registries.EntityRegistry.LUGGAGE.get().create(level);
+				Luggage luggage = Registries.EntityRegistry.LUGGAGE.get().create(level);
 				if (luggage != null) {
 					luggage.moveTo(blockPos);
 					luggage.tame(player);
@@ -64,7 +65,7 @@ public class LuggageItem extends Item {
 		if (compoundtag == null) {
 			return Stream.empty();
 		} else {
-			ListTag listtag = compoundtag.getList(LuggageEntity.INVENTORY_TAG, 10);
+			ListTag listtag = compoundtag.getList(Luggage.INVENTORY_TAG, 10);
 			return listtag.stream().map(CompoundTag.class::cast).map(ItemStack::of);
 		}
 	}
@@ -83,7 +84,7 @@ public class LuggageItem extends Item {
 		if (this.allowedIn(tab)) {
 			ItemStack item = new ItemStack(this);
 			CompoundTag tag = new CompoundTag();
-			tag.putBoolean(LuggageEntity.EXTENDED_TAG, true);
+			tag.putBoolean(Luggage.EXTENDED_TAG, true);
 			item.setTag(tag);
 			stacks.add(item);
 		}

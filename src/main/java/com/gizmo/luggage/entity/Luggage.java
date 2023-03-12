@@ -2,9 +2,11 @@ package com.gizmo.luggage.entity;
 
 import com.gizmo.luggage.LuggageMenu;
 import com.gizmo.luggage.Registries;
+import com.gizmo.luggage.entity.ai.LuggageFollowOwnerGoal;
+import com.gizmo.luggage.entity.ai.LuggagePickupItemGoal;
 import com.gizmo.luggage.network.LuggageNetworkHandler;
 import com.gizmo.luggage.network.OpenLuggageScreenPacket;
-import net.minecraft.core.BlockPos;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -17,20 +19,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.*;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
@@ -41,36 +41,61 @@ import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 
-public class LuggageEntity extends TamableAnimal implements ContainerListener {
 
-	private static final EntityDataAccessor<Boolean> EXTENDED = SynchedEntityData.defineId(LuggageEntity.class, EntityDataSerializers.BOOLEAN);
+public class Luggage extends AbstractLuggage implements ContainerListener {
+
+	private static final EntityDataAccessor<Boolean> EXTENDED = SynchedEntityData.defineId(Luggage.class, EntityDataSerializers.BOOLEAN);
 
 	public static final String INVENTORY_TAG = "Inventory";
 	public static final String EXTENDED_TAG = "Extended";
 
 	private SimpleContainer inventory;
 	private LazyOptional<?> itemHandler = null;
-	private int soundCooldown = 15;
 	private int fetchCooldown = 0;
 	private boolean tryingToFetchItem;
 	private boolean isInventoryOpen;
 
-	public LuggageEntity(EntityType<? extends TamableAnimal> type, Level level) {
+	public Luggage(EntityType<? extends TamableAnimal> type, Level level) {
 		super(type, level);
 		this.createInventory();
-		this.setPathfindingMalus(BlockPathTypes.LEAVES, -1.0F);
-		this.setPathfindingMalus(BlockPathTypes.FENCE, -1.0F);
-		this.setPathfindingMalus(BlockPathTypes.COCOA, -1.0F);
-		this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
-		this.setPathfindingMalus(BlockPathTypes.UNPASSABLE_RAIL, 0.0F);
 	}
 
 	@Override
 	protected void registerGoals() {
 		this.goalSelector.addGoal(0, new FloatGoal(this));
 		this.goalSelector.addGoal(1, new LuggagePickupItemGoal(this));
-		this.goalSelector.addGoal(2, new LuggageFollowOwnerGoal(this, 1.1D, 7.0F, 1.0F));
+		this.goalSelector.addGoal(2, new LuggageFollowOwnerGoal(this, 1.1D, 7.0F, 1.0F) {
+			@Override
+			public boolean canUse() {
+				if (super.canUse()) {
+					List<ItemEntity> items = Luggage.this.getLevel().getEntitiesOfClass(ItemEntity.class, Luggage.this.getBoundingBox().inflate(8.0D), item ->
+							(item.isOnGround() || item.isInWater()) &&
+									Luggage.this.hasLineOfSight(item) &&
+									Luggage.this.getInventory().canAddItem(item.getItem()) &&
+									item.getItem().getItem().canFitInsideContainerItems());
+
+					if (Luggage.this.isInSittingPose() || Luggage.this.isTryingToFetchItem()) {
+						return false;
+					} else {
+						List<ItemEntity> revisedItems = new ArrayList<>();
+						if (!items.isEmpty()) {
+							for (ItemEntity item : items) {
+								//if it's out of reach it doesn't count
+								Path toPath = Luggage.this.navigation.createPath(item, 1);
+								if (toPath != null && toPath.canReach()) {
+									revisedItems.add(item);
+								}
+							}
+						}
+						return revisedItems.isEmpty();
+					}
+				}
+				return false;
+			}
+		});
 	}
 
 	@Nullable
@@ -83,12 +108,6 @@ public class LuggageEntity extends TamableAnimal implements ContainerListener {
 	protected void defineSynchedData() {
 		super.defineSynchedData();
 		this.getEntityData().define(EXTENDED, false);
-	}
-
-	public static AttributeSupplier.Builder registerAttributes() {
-		return Mob.createMobAttributes()
-				.add(Attributes.MAX_HEALTH, 0.0D)
-				.add(Attributes.MOVEMENT_SPEED, 0.35D);
 	}
 
 	//-----------------------------------------//
@@ -251,19 +270,6 @@ public class LuggageEntity extends TamableAnimal implements ContainerListener {
 	//                   MISC                   //
 	//------------------------------------------//
 
-	//override tame logic to prevent the advancement for taming a mob to be granted
-	@Override
-	public void tame(Player player) {
-		this.setTame(true);
-		this.setOwnerUUID(player.getUUID());
-	}
-
-	//no attacking
-	@Override
-	public boolean wantsToAttack(LivingEntity owner, LivingEntity target) {
-		return false;
-	}
-
 	public boolean isTryingToFetchItem() {
 		return this.tryingToFetchItem;
 	}
@@ -280,14 +286,6 @@ public class LuggageEntity extends TamableAnimal implements ContainerListener {
 		this.fetchCooldown = cooldown;
 	}
 
-	public int getSoundCooldown() {
-		return this.soundCooldown;
-	}
-
-	public void setSoundCooldown(int cooldown) {
-		this.soundCooldown = cooldown;
-	}
-
 	public boolean isInventoryOpen() {
 		return this.isInventoryOpen;
 	}
@@ -297,16 +295,8 @@ public class LuggageEntity extends TamableAnimal implements ContainerListener {
 	}
 
 	@Override
-	public float getStepHeight() {
-		return 1.0F;
-	}
-
-	@Override
 	public void aiStep() {
 		super.aiStep();
-		if (this.soundCooldown > 0) {
-			this.soundCooldown--;
-		}
 
 		if (this.fetchCooldown > 0) {
 			this.fetchCooldown--;
@@ -324,65 +314,45 @@ public class LuggageEntity extends TamableAnimal implements ContainerListener {
 	}
 
 	@Override
-	public InteractionResult interactAt(Player player, Vec3 vec, InteractionHand hand) {
+	public InteractionResult mobInteract(Player player, InteractionHand hand) {
 		if (this.isAlive()) {
 			ItemStack stack = player.getItemInHand(hand);
 			if (stack.is(Items.NAME_TAG)) return InteractionResult.PASS;
 
-			if (player.isShiftKeyDown()) {
-				if (!this.getLevel().isClientSide()) {
-					ItemStack luggageItem = this.convertToItem();
-					if (player.getInventory().add(luggageItem)) {
-						this.discard();
-						this.playSound(SoundEvents.ITEM_PICKUP, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
+			if (this.getOwner() == player) {
+				if (player.isShiftKeyDown()) {
+					if (!this.getLevel().isClientSide()) {
+						ItemStack luggageItem = this.convertToItem();
+						if (player.getInventory().add(luggageItem)) {
+							this.discard();
+							this.playSound(SoundEvents.ITEM_PICKUP, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
+						}
+					}
+				} else {
+					this.getLevel().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
+					//prevents sound from playing 4 times (twice on server only). Apparently interactAt fires 4 times????
+					if (this.getSoundCooldown() == 0) {
+						this.playSound(SoundEvents.CHEST_OPEN, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
+						this.setSoundCooldown(5);
+					}
+					if (!this.getLevel().isClientSide()) {
+						ServerPlayer sp = (ServerPlayer) player;
+						if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
+
+						sp.nextContainerCounter();
+						LuggageNetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sp), new OpenLuggageScreenPacket(sp.containerCounter, this.getId()));
+						sp.containerMenu = new LuggageMenu(sp.containerCounter, sp.getInventory(), this.inventory, this);
+						sp.initMenu(sp.containerMenu);
+						this.isInventoryOpen = true;
+						MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
 					}
 				}
 			} else {
-				this.getLevel().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
-				//prevents sound from playing 4 times (twice on server only). Apparently interactAt fires 4 times????
-				if (this.soundCooldown == 0) {
-					this.playSound(SoundEvents.CHEST_OPEN, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
-					this.soundCooldown = 5;
-				}
-				if (!this.getLevel().isClientSide()) {
-					ServerPlayer sp = (ServerPlayer) player;
-					if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
-
-					sp.nextContainerCounter();
-					LuggageNetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sp), new OpenLuggageScreenPacket(sp.containerCounter, this.getId()));
-					sp.containerMenu = new LuggageMenu(sp.containerCounter, sp.getInventory(), this.inventory, this);
-					sp.initMenu(sp.containerMenu);
-					this.isInventoryOpen = true;
-					MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
-				}
+				player.displayClientMessage(Component.translatable("entity.luggage.player_doesnt_own").withStyle(ChatFormatting.DARK_RED), true);
 			}
 		}
 
-		return super.interactAt(player, vec, hand);
-	}
-
-	@Override
-	public boolean removeWhenFarAway(double dist) {
-		return false;
-	}
-
-	@Override
-	public boolean isInvulnerable() {
-		return true;
-	}
-
-	@Override
-	public boolean isInvulnerableTo(DamageSource source) {
-		return true;
-	}
-
-	@Override
-	public void setHealth(float health) {
-	}
-
-	@Override
-	public boolean onClimbable() {
-		return false;
+		return super.mobInteract(player, hand);
 	}
 
 	@Override
@@ -395,28 +365,6 @@ public class LuggageEntity extends TamableAnimal implements ContainerListener {
 	}
 
 	@Override
-	public void knockback(double x, double y, double z) {
-	}
-
-	@Override
-	protected void pushEntities() {
-	}
-
-	@Override
-	public boolean addEffect(MobEffectInstance instance, @Nullable Entity entity) {
-		return false;
-	}
-
-	@Override
-	public boolean causeFallDamage(float dist, float mult, DamageSource source) {
-		return false;
-	}
-
-	@Override
-	public void checkDespawn() {
-	}
-
-	@Override
 	public void remove(RemovalReason reason) {
 		if (reason == RemovalReason.KILLED) {
 			this.getInventory().removeAllItems().forEach(this::spawnAtLocation);
@@ -426,59 +374,9 @@ public class LuggageEntity extends TamableAnimal implements ContainerListener {
 		super.remove(reason);
 	}
 
-	@Override
-	public boolean canChangeDimensions() {
-		return false;
-	}
-
-	@Override
-	public boolean attackable() {
-		return false;
-	}
-
-	@Override
-	public boolean isAffectedByPotions() {
-		return false;
-	}
-
 	@Nullable
 	@Override
 	public ItemStack getPickResult() {
 		return new ItemStack(Registries.ItemRegistry.LUGGAGE.get());
-	}
-
-	@Override
-	protected float getWaterSlowDown() {
-		return 0.9F;
-	}
-
-	@Override
-	public double getFluidJumpThreshold() {
-		return 0.2F;
-	}
-
-	@Override
-	public boolean hurt(DamageSource source, float amount) {
-		return false;
-	}
-
-	@Override
-	public boolean canBeLeashed(Player player) {
-		return false;
-	}
-
-	@Override
-	public boolean isIgnoringBlockTriggers() {
-		return true;
-	}
-
-	@Override
-	public boolean isSteppingCarefully() {
-		return true;
-	}
-
-	@Override
-	protected void playStepSound(BlockPos pos, BlockState state) {
-		this.playSound(Registries.SoundRegistry.LUGGAGE_STEP.get(), 0.1F, 0.7F + (this.getRandom().nextFloat() * 0.5F));
 	}
 }

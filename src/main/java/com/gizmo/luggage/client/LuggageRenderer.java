@@ -1,7 +1,7 @@
 package com.gizmo.luggage.client;
 
 import com.gizmo.luggage.LuggageMod;
-import com.gizmo.luggage.entity.LuggageEntity;
+import com.gizmo.luggage.entity.Luggage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -14,29 +14,29 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
-public class LuggageRenderer extends MobRenderer<LuggageEntity, LuggageModel> {
+public class LuggageRenderer extends MobRenderer<Luggage, LuggageModel<Luggage>> {
 
 	public LuggageRenderer(EntityRendererProvider.Context ctx) {
-		super(ctx, new LuggageModel(ctx.bakeLayer(ClientEvents.LUGGAGE)), 0.5F);
+		super(ctx, new LuggageModel<>(ctx.bakeLayer(ClientEvents.LUGGAGE)), 0.5F);
 		this.addLayer(new LuggagePowerLayer(this));
 	}
 
 	@Override
-	public ResourceLocation getTextureLocation(LuggageEntity luggage) {
+	public ResourceLocation getTextureLocation(Luggage luggage) {
 		return new ResourceLocation(LuggageMod.ID, "textures/entity/luggage" +
 				//maybe one day
 				//(luggage.hasCustomName() && Objects.requireNonNull(luggage.getCustomName()).getString().equals("Chester") ? "_chester" : "") +
 				(luggage.hasExtendedInventory() ? "_special" : "") + ".png");
 	}
 
-	public static class LuggagePowerLayer extends RenderLayer<LuggageEntity, LuggageModel> {
+	public static class LuggagePowerLayer extends RenderLayer<Luggage, LuggageModel<Luggage>> {
 
-		public LuggagePowerLayer(RenderLayerParent<LuggageEntity, LuggageModel> parent) {
+		public LuggagePowerLayer(RenderLayerParent<Luggage, LuggageModel<Luggage>> parent) {
 			super(parent);
 		}
 
 		@Override
-		public void render(PoseStack ms, MultiBufferSource buffer, int light, LuggageEntity luggage, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float headYaw, float headPitch) {
+		public void render(PoseStack ms, MultiBufferSource buffer, int light, Luggage luggage, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float headYaw, float headPitch) {
 			if (luggage.hasExtendedInventory()) {
 				assert Minecraft.getInstance().level != null;
 				float f = (float) Minecraft.getInstance().level.getGameTime() + partialTicks;

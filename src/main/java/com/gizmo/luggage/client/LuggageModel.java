@@ -1,15 +1,13 @@
 package com.gizmo.luggage.client;
 
-import com.gizmo.luggage.entity.LuggageEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.gizmo.luggage.entity.AbstractLuggage;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.util.Mth;
 
-public class LuggageModel extends HierarchicalModel<LuggageEntity> {
+public class LuggageModel<T extends AbstractLuggage> extends HierarchicalModel<T> {
 
 	private final ModelPart root;
 	private final ModelPart lid;
@@ -55,7 +53,7 @@ public class LuggageModel extends HierarchicalModel<LuggageEntity> {
 	}
 
 	@Override
-	public void setupAnim(LuggageEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float headYaw, float headPitch) {
+	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float headYaw, float headPitch) {
 		this.lid.xRot = Math.min(0, Mth.cos(limbSwing * 0.5F) * 1.4F * limbSwingAmount * 0.75F);
 
 		for (int i = 0; i < legs.length; i++) {

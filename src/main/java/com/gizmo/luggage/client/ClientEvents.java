@@ -1,9 +1,10 @@
 package com.gizmo.luggage.client;
 
 import com.gizmo.luggage.LuggageMod;
-import com.gizmo.luggage.LuggageItem;
+import com.gizmo.luggage.entity.AbstractLuggage;
+import com.gizmo.luggage.item.LuggageItem;
 import com.gizmo.luggage.Registries;
-import com.gizmo.luggage.entity.LuggageEntity;
+import com.gizmo.luggage.entity.Luggage;
 import com.gizmo.luggage.network.CallLuggagePetsPacket;
 import com.gizmo.luggage.network.LuggageNetworkHandler;
 import com.gizmo.luggage.network.SitNearbyLuggagesPacket;
@@ -44,6 +45,7 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void registerEntityRenderer(EntityRenderersEvent.RegisterRenderers event) {
 		event.registerEntityRenderer(Registries.EntityRegistry.LUGGAGE.get(), LuggageRenderer::new);
+		event.registerEntityRenderer(Registries.EntityRegistry.ENDER_LUGGAGE.get(), EnderLuggageRenderer::new);
 	}
 
 	@SubscribeEvent
@@ -100,7 +102,7 @@ public class ClientEvents {
 		//fire last in case any other mod tries to do something like this
 		@SubscribeEvent(priority = EventPriority.LOWEST)
 		public static void attackThroughLuggage(InputEvent.InteractionKeyMappingTriggered event) {
-			if (event.isAttack() && Minecraft.getInstance().hitResult instanceof EntityHitResult result && result.getEntity() instanceof LuggageEntity) {
+			if (event.isAttack() && Minecraft.getInstance().hitResult instanceof EntityHitResult result && result.getEntity() instanceof AbstractLuggage) {
 				event.setCanceled(true);
 				event.setSwingHand(true);
 				Player player = Minecraft.getInstance().player;
@@ -110,7 +112,7 @@ public class ClientEvents {
 				double d1 = Minecraft.getInstance().hitResult.getLocation().distanceToSqr(vec3) + 8.0D;
 				Vec3 vec32 = vec3.add(vec31.x() * d0, vec31.y() * d0, vec31.z() * d0);
 				AABB aabb = player.getBoundingBox().expandTowards(vec31.scale(d0)).inflate(1.0D, 1.0D, 1.0D);
-				EntityHitResult entityhitresult = ProjectileUtil.getEntityHitResult(player, vec3, vec32, aabb, (entity) -> !entity.isSpectator() && entity.isPickable() && !(entity instanceof LuggageEntity), d1);
+				EntityHitResult entityhitresult = ProjectileUtil.getEntityHitResult(player, vec3, vec32, aabb, (entity) -> !entity.isSpectator() && entity.isPickable() && !(entity instanceof AbstractLuggage), d1);
 				if (entityhitresult != null) {
 					Minecraft.getInstance().gameMode.attack(player, entityhitresult.getEntity());
 				}

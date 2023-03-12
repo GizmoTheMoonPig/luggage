@@ -1,6 +1,6 @@
 package com.gizmo.luggage.network;
 
-import com.gizmo.luggage.entity.LuggageEntity;
+import com.gizmo.luggage.entity.AbstractLuggage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -28,9 +28,9 @@ public class SitNearbyLuggagesPacket {
 			ctx.get().enqueueWork(() -> {
 				ServerPlayer player = ctx.get().getSender();
 				if (player != null) {
-					List<LuggageEntity> nearbyOwnedLuggages = player.getLevel().getEntitiesOfClass(LuggageEntity.class, player.getBoundingBox().inflate(8.0F), entity -> entity.getOwner() == player);
+					List<AbstractLuggage> nearbyOwnedLuggages = player.getLevel().getEntitiesOfClass(AbstractLuggage.class, player.getBoundingBox().inflate(8.0F), entity -> entity.getOwner() == player);
 					if (!nearbyOwnedLuggages.isEmpty()) {
-						for (LuggageEntity luggage : nearbyOwnedLuggages) {
+						for (AbstractLuggage luggage : nearbyOwnedLuggages) {
 							luggage.setInSittingPose(!luggage.isInSittingPose());
 						}
 					}

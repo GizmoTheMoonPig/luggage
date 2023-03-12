@@ -1,6 +1,7 @@
 package com.gizmo.luggage;
 
-import com.gizmo.luggage.entity.LuggageEntity;
+import com.gizmo.luggage.entity.EnderLuggage;
+import com.gizmo.luggage.entity.Luggage;
 import com.gizmo.luggage.network.LuggageNetworkHandler;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraftforge.common.MinecraftForge;
@@ -32,7 +33,8 @@ public class LuggageMod {
 
 	@SubscribeEvent
 	public static void addAttributes(EntityAttributeCreationEvent event) {
-		event.put(Registries.EntityRegistry.LUGGAGE.get(), LuggageEntity.registerAttributes().build());
+		event.put(Registries.EntityRegistry.LUGGAGE.get(), Luggage.registerAttributes().build());
+		event.put(Registries.EntityRegistry.ENDER_LUGGAGE.get(), EnderLuggage.registerAttributes().build());
 	}
 
 	@Mod.EventBusSubscriber(modid = LuggageMod.ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -40,7 +42,7 @@ public class LuggageMod {
 		@SubscribeEvent
 		public static void neverKillLuggage(EntityJoinLevelEvent event) {
 			if (event.getEntity() instanceof ItemEntity item && item.getItem().is(Registries.ItemRegistry.LUGGAGE.get()) &&
-					item.getItem().getTag() != null && item.getItem().getTag().contains(LuggageEntity.INVENTORY_TAG)) {
+					item.getItem().getTag() != null && item.getItem().getTag().contains(Luggage.INVENTORY_TAG)) {
 				item.setInvulnerable(true);
 				item.setUnlimitedLifetime();
 			}

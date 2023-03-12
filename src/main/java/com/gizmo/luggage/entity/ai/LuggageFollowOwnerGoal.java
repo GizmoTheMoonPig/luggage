@@ -1,24 +1,21 @@
-package com.gizmo.luggage.entity;
+package com.gizmo.luggage.entity.ai;
 
+import com.gizmo.luggage.entity.AbstractLuggage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 //Inspired by FollowOwnerGoal
 //Luggage won't follow if its trying to fetch an item, and the teleport distance was greatly increased
 public class LuggageFollowOwnerGoal extends Goal {
-	private final LuggageEntity luggage;
+	private final AbstractLuggage luggage;
 	private LivingEntity owner;
 	private final LevelReader level;
 	private final double speedModifier;
@@ -28,7 +25,7 @@ public class LuggageFollowOwnerGoal extends Goal {
 	private final float startDistance;
 	private float oldWaterCost;
 
-	public LuggageFollowOwnerGoal(LuggageEntity luggage, double speed, float startDist, float stopDist) {
+	public LuggageFollowOwnerGoal(AbstractLuggage luggage, double speed, float startDist, float stopDist) {
 		this.luggage = luggage;
 		this.level = luggage.level;
 		this.speedModifier = speed;
@@ -40,30 +37,14 @@ public class LuggageFollowOwnerGoal extends Goal {
 
 	public boolean canUse() {
 		LivingEntity livingentity = this.luggage.getOwner();
-		List<ItemEntity> items = this.luggage.getLevel().getEntitiesOfClass(ItemEntity.class, this.luggage.getBoundingBox().inflate(8.0D), item ->
-				(item.isOnGround() || item.isInWater()) &&
-						this.luggage.hasLineOfSight(item) &&
-						this.luggage.getInventory().canAddItem(item.getItem()) &&
-						item.getItem().getItem().canFitInsideContainerItems());
+
 		if (livingentity == null || livingentity.isSpectator() || livingentity.hasPose(Pose.SLEEPING)) {
-			return false;
-		} else if (this.luggage.isInSittingPose() || this.luggage.isTryingToFetchItem()) {
 			return false;
 		} else if (this.luggage.distanceToSqr(livingentity) < (double) (this.startDistance * this.startDistance)) {
 			return false;
 		} else {
 			this.owner = livingentity;
-			List<ItemEntity> revisedItems = new ArrayList<>();
-			if (!items.isEmpty()) {
-				for (ItemEntity item : items) {
-					//if its out of reach it doesnt count
-					Path toPath = this.navigation.createPath(item, 1);
-					if (toPath != null && toPath.canReach()) {
-						revisedItems.add(item);
-					}
-				}
-			}
-			return revisedItems.isEmpty();
+			return true;
 		}
 	}
 

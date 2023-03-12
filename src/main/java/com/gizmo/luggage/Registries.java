@@ -1,6 +1,9 @@
 package com.gizmo.luggage;
 
-import com.gizmo.luggage.entity.LuggageEntity;
+import com.gizmo.luggage.entity.EnderLuggage;
+import com.gizmo.luggage.entity.Luggage;
+import com.gizmo.luggage.item.EnderLuggageItem;
+import com.gizmo.luggage.item.LuggageItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
@@ -17,12 +20,14 @@ public class Registries {
 		public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, LuggageMod.ID);
 
 		public static final RegistryObject<Item> LUGGAGE = ITEMS.register("luggage", () -> new LuggageItem(new Item.Properties().fireResistant().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS)));
+		public static final RegistryObject<Item> ENDER_LUGGAGE = ITEMS.register("ender_luggage", () -> new EnderLuggageItem(new Item.Properties().fireResistant().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS)));
 	}
 
 	public static class EntityRegistry {
 		public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, LuggageMod.ID);
 
-		public static final RegistryObject<EntityType<LuggageEntity>> LUGGAGE = ENTITIES.register("luggage", () -> EntityType.Builder.of(LuggageEntity::new, MobCategory.CREATURE).fireImmune().sized(0.75F, 0.75F).build("luggage:luggage"));
+		public static final RegistryObject<EntityType<Luggage>> LUGGAGE = ENTITIES.register("luggage", () -> EntityType.Builder.of(Luggage::new, MobCategory.CREATURE).fireImmune().sized(0.75F, 0.75F).build("luggage:luggage"));
+		public static final RegistryObject<EntityType<EnderLuggage>> ENDER_LUGGAGE = ENTITIES.register("ender_luggage", () -> EntityType.Builder.of(EnderLuggage::new, MobCategory.CREATURE).fireImmune().sized(0.75F, 0.75F).build("luggage:ender_luggage"));
 	}
 
 	public static class SoundRegistry {

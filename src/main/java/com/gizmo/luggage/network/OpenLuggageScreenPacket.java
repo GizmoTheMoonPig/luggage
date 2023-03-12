@@ -2,7 +2,7 @@ package com.gizmo.luggage.network;
 
 import com.gizmo.luggage.LuggageMenu;
 import com.gizmo.luggage.client.LuggageScreen;
-import com.gizmo.luggage.entity.LuggageEntity;
+import com.gizmo.luggage.entity.Luggage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
@@ -41,7 +41,7 @@ public class OpenLuggageScreenPacket {
 				public void run() {
 					assert Minecraft.getInstance().level != null;
 					Entity entity = Minecraft.getInstance().level.getEntity(message.entityId);
-					if (entity instanceof LuggageEntity luggage) {
+					if (entity instanceof Luggage luggage) {
 						LocalPlayer localplayer = Minecraft.getInstance().player;
 						SimpleContainer simplecontainer = new SimpleContainer(luggage.hasExtendedInventory() ? 54 : 27);
 						assert localplayer != null;

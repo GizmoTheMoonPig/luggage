@@ -1,6 +1,7 @@
-package com.gizmo.luggage.entity;
+package com.gizmo.luggage.entity.ai;
 
 import com.gizmo.luggage.Registries;
+import com.gizmo.luggage.entity.Luggage;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
@@ -16,12 +17,12 @@ import java.util.List;
 
 public class LuggagePickupItemGoal extends Goal {
 
-	private final LuggageEntity luggage;
+	private final Luggage luggage;
 	private final PathNavigation navigation;
 	@Nullable
 	private ItemEntity targetItem = null;
 
-	public LuggagePickupItemGoal(LuggageEntity luggage) {
+	public LuggagePickupItemGoal(Luggage luggage) {
 		this.luggage = luggage;
 		this.navigation = luggage.getNavigation();
 		this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
