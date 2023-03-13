@@ -347,12 +347,13 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 						MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
 					}
 				}
+				return InteractionResult.sidedSuccess(this.getLevel().isClientSide());
 			} else {
 				player.displayClientMessage(Component.translatable("entity.luggage.player_doesnt_own").withStyle(ChatFormatting.DARK_RED), true);
+				return InteractionResult.CONSUME;
 			}
 		}
-
-		return super.mobInteract(player, hand);
+		return InteractionResult.PASS;
 	}
 
 	@Override

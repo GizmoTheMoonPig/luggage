@@ -56,8 +56,10 @@ public class EnderLuggage extends AbstractLuggage {
 							this.playSound(SoundEvents.ITEM_PICKUP, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
 						}
 					}
+					return InteractionResult.sidedSuccess(this.getLevel().isClientSide());
 				} else {
 					player.displayClientMessage(Component.translatable("entity.luggage.player_doesnt_own").withStyle(ChatFormatting.DARK_RED), true);
+					return InteractionResult.CONSUME;
 				}
 			} else {
 				this.getLevel().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
@@ -67,9 +69,23 @@ public class EnderLuggage extends AbstractLuggage {
 					this.setSoundCooldown(5);
 				}
 				player.openMenu(new SimpleMenuProvider((id, inventory, cPlayer) -> ChestMenu.threeRows(id, inventory, player.getEnderChestInventory()), this.getTypeName()));
-
+				return InteractionResult.sidedSuccess(this.getLevel().isClientSide());
 			}
 		}
-		return super.mobInteract(player, hand);
+		return InteractionResult.PASS;
+	}
+
+	@Override
+	public void remove(RemovalReason reason) {
+		if (reason == RemovalReason.KILLED) {
+			this.spawnAnim();
+			this.playSound(Registries.SoundRegistry.LUGGAGE_KILLED.get(), 8.0F, 1.0F);
+		}
+		super.remove(reason);
+	}
+
+	@Override
+	public ItemStack getPickResult() {
+		return new ItemStack(Registries.ItemRegistry.ENDER_LUGGAGE.get());
 	}
 }
