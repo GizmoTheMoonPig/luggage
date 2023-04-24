@@ -78,19 +78,6 @@ public class LuggageItem extends Item {
 	}
 
 	@Override
-	public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> stacks) {
-		super.fillItemCategory(tab, stacks);
-
-		if (this.allowedIn(tab)) {
-			ItemStack item = new ItemStack(this);
-			CompoundTag tag = new CompoundTag();
-			tag.putBoolean(Luggage.EXTENDED_TAG, true);
-			item.setTag(tag);
-			stacks.add(item);
-		}
-	}
-
-	@Override
 	public boolean canEquip(ItemStack stack, EquipmentSlot slot, Entity entity) {
 		return slot == EquipmentSlot.HEAD;
 	}

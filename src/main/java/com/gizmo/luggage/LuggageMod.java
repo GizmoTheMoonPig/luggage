@@ -3,8 +3,12 @@ package com.gizmo.luggage;
 import com.gizmo.luggage.entity.EnderLuggage;
 import com.gizmo.luggage.entity.Luggage;
 import com.gizmo.luggage.network.LuggageNetworkHandler;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -35,6 +39,21 @@ public class LuggageMod {
 	public static void addAttributes(EntityAttributeCreationEvent event) {
 		event.put(Registries.EntityRegistry.LUGGAGE.get(), Luggage.registerAttributes().build());
 		event.put(Registries.EntityRegistry.ENDER_LUGGAGE.get(), EnderLuggage.registerAttributes().build());
+	}
+
+	@SubscribeEvent
+	public static void addToTab(CreativeModeTabEvent.BuildContents event) {
+		if (event.getTab() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+			//normal luggage
+			event.accept(Registries.ItemRegistry.LUGGAGE.get());
+			//add charged luggage too
+			ItemStack item = new ItemStack(Registries.ItemRegistry.LUGGAGE.get());
+			CompoundTag tag = new CompoundTag();
+			tag.putBoolean(Luggage.EXTENDED_TAG, true);
+			item.setTag(tag);
+			event.accept(item);
+			event.accept(Registries.ItemRegistry.ENDER_LUGGAGE.get());
+		}
 	}
 
 	@Mod.EventBusSubscriber(modid = LuggageMod.ID, bus = Mod.EventBusSubscriber.Bus.FORGE)

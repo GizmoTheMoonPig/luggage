@@ -1,7 +1,7 @@
 package com.gizmo.luggage.client;
 
-import com.gizmo.luggage.entity.Luggage;
 import com.gizmo.luggage.LuggageMenu;
+import com.gizmo.luggage.entity.Luggage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -33,7 +33,7 @@ public class LuggageScreen extends AbstractContainerScreen<LuggageMenu> {
 		RenderSystem.setShaderTexture(0, CONTAINER_BACKGROUND);
 		int i = (this.width - this.imageWidth) / 2;
 		int j = (this.height - this.imageHeight) / 2;
-		this.blit(ms, i, j, 0, 0, this.imageWidth, this.containerRows * 18 + 17);
-		this.blit(ms, i, j + this.containerRows * 18 + 17, 0, 126, this.imageWidth, 96);
+		blit(ms, i, j, 0, 0, this.imageWidth, this.containerRows * 18 + 17);
+		blit(ms, i, j + this.containerRows * 18 + 17, 0, 126, this.imageWidth, 96);
 	}
 }

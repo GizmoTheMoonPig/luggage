@@ -12,14 +12,14 @@ apply plugin: 'eclipse'
 apply plugin:  'maven-publish'
 apply plugin: 'net.minecraftforge.gradle'
 
-version = '1.19-1.6'
+version = '1.19.4-1.6'
 group = 'com.gizmo.luggage'
 archivesBaseName = 'luggage'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'official', version: '1.19.2'
+    mappings channel: 'official', version: '1.19.4'
 
     runs {
         client {
@@ -82,7 +82,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.2.6'
+    minecraft 'net.minecraftforge:forge:1.19.4-45.0.47'
 }
 
 jar {

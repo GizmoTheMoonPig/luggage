@@ -2,7 +2,6 @@ package com.gizmo.luggage.entity;
 
 import com.gizmo.luggage.Registries;
 import com.gizmo.luggage.entity.ai.LuggageFollowOwnerGoal;
-import com.gizmo.luggage.entity.ai.LuggagePickupItemGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;

@@ -18,5 +18,6 @@
   },
   "result": {
     "item": "luggage:luggage"
-  }
+  },
+  "show_notification": true
 }

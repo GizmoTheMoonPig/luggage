@@ -1,10 +1,9 @@
 package com.gizmo.luggage.client;
 
 import com.gizmo.luggage.LuggageMod;
+import com.gizmo.luggage.Registries;
 import com.gizmo.luggage.entity.AbstractLuggage;
 import com.gizmo.luggage.item.LuggageItem;
-import com.gizmo.luggage.Registries;
-import com.gizmo.luggage.entity.Luggage;
 import com.gizmo.luggage.network.CallLuggagePetsPacket;
 import com.gizmo.luggage.network.LuggageNetworkHandler;
 import com.gizmo.luggage.network.SitNearbyLuggagesPacket;
