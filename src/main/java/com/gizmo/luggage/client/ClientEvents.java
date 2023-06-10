@@ -1,7 +1,7 @@
 package com.gizmo.luggage.client;
 
 import com.gizmo.luggage.LuggageMod;
-import com.gizmo.luggage.Registries;
+import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.entity.AbstractLuggage;
 import com.gizmo.luggage.item.LuggageItem;
 import com.gizmo.luggage.network.CallLuggagePetsPacket;
@@ -43,8 +43,8 @@ public class ClientEvents {
 
 	@SubscribeEvent
 	public static void registerEntityRenderer(EntityRenderersEvent.RegisterRenderers event) {
-		event.registerEntityRenderer(Registries.EntityRegistry.LUGGAGE.get(), LuggageRenderer::new);
-		event.registerEntityRenderer(Registries.EntityRegistry.ENDER_LUGGAGE.get(), EnderLuggageRenderer::new);
+		event.registerEntityRenderer(LuggageRegistries.EntityRegistry.LUGGAGE.get(), LuggageRenderer::new);
+		event.registerEntityRenderer(LuggageRegistries.EntityRegistry.ENDER_LUGGAGE.get(), EnderLuggageRenderer::new);
 	}
 
 	@SubscribeEvent
@@ -88,11 +88,11 @@ public class ClientEvents {
 			if (event.getAction() == GLFW.GLFW_PRESS && Minecraft.getInstance().player != null) {
 				float pitch = Minecraft.getInstance().player.getRandom().nextFloat() * 0.1F + 0.9F;
 				if (event.getKey() == getCallKey().getKey().getValue() && getCallKey().consumeClick()) {
-					Minecraft.getInstance().player.playSound(Registries.SoundRegistry.WHISTLE_CALL.get(), 1.0F, pitch);
+					Minecraft.getInstance().player.playSound(LuggageRegistries.SoundRegistry.WHISTLE_CALL.get(), 1.0F, pitch);
 					LuggageNetworkHandler.CHANNEL.sendToServer(new CallLuggagePetsPacket(Minecraft.getInstance().player.getId()));
 				} else if (event.getKey() == getWaitKey().getKey().getValue() && getWaitKey().consumeClick()) {
-					Minecraft.getInstance().player.playSound(Registries.SoundRegistry.WHISTLE_WAIT.get(), 0.85F, pitch);
-					LuggageNetworkHandler.CHANNEL.sendToServer(new SitNearbyLuggagesPacket(Minecraft.getInstance().player.getId()));
+					Minecraft.getInstance().player.playSound(LuggageRegistries.SoundRegistry.WHISTLE_WAIT.get(), 0.85F, pitch);
+					LuggageNetworkHandler.CHANNEL.sendToServer(new SitNearbyLuggagesPacket());
 				}
 			}
 		}

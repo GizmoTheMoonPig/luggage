@@ -1,6 +1,6 @@
 package com.gizmo.luggage.item;
 
-import com.gizmo.luggage.Registries;
+import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.client.LuggageItemRenderer;
 import com.gizmo.luggage.entity.EnderLuggage;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -31,7 +31,7 @@ public class EnderLuggageItem extends Item {
 		if (result.getType() == HitResult.Type.BLOCK) {
 			Vec3 blockPos = result.getLocation();
 			if (!level.isClientSide()) {
-				EnderLuggage luggage = Registries.EntityRegistry.ENDER_LUGGAGE.get().create(level);
+				EnderLuggage luggage = LuggageRegistries.EntityRegistry.ENDER_LUGGAGE.get().create(level);
 				if (luggage != null) {
 					luggage.moveTo(blockPos);
 					luggage.tame(player);

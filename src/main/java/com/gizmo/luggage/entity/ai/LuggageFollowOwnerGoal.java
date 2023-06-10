@@ -27,7 +27,7 @@ public class LuggageFollowOwnerGoal extends Goal {
 
 	public LuggageFollowOwnerGoal(AbstractLuggage luggage, double speed, float startDist, float stopDist) {
 		this.luggage = luggage;
-		this.level = luggage.level;
+		this.level = luggage.level();
 		this.speedModifier = speed;
 		this.navigation = luggage.getNavigation();
 		this.startDistance = startDist;

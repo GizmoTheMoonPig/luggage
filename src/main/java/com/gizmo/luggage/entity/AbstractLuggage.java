@@ -1,6 +1,6 @@
 package com.gizmo.luggage.entity;
 
-import com.gizmo.luggage.Registries;
+import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.entity.ai.LuggageFollowOwnerGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -174,6 +174,6 @@ public class AbstractLuggage extends TamableAnimal {
 
 	@Override
 	protected void playStepSound(BlockPos pos, BlockState state) {
-		this.playSound(Registries.SoundRegistry.LUGGAGE_STEP.get(), 0.1F, 0.7F + (this.getRandom().nextFloat() * 0.5F));
+		this.playSound(LuggageRegistries.SoundRegistry.LUGGAGE_STEP.get(), 0.1F, 0.7F + (this.getRandom().nextFloat() * 0.5F));
 	}
 }

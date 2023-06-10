@@ -3,6 +3,7 @@ package com.gizmo.luggage.network;
 import com.gizmo.luggage.entity.AbstractLuggage;
 import com.gizmo.luggage.entity.Luggage;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -30,8 +31,8 @@ public class CallLuggagePetsPacket {
 			ctx.get().enqueueWork(() -> {
 				ServerPlayer player = ctx.get().getSender();
 				if (player != null) {
-					player.getLevel().getAllEntities().forEach(luggageIHope -> {
-						if (luggageIHope instanceof AbstractLuggage luggage && luggage.getOwner() != null && luggage.getOwner().is(Objects.requireNonNull(player.getLevel().getEntity(message.playerId)))) {
+					((ServerLevel)player.level()).getAllEntities().forEach(luggageIHope -> {
+						if (luggageIHope instanceof AbstractLuggage luggage && luggage.getOwner() != null && luggage.getOwner().is(Objects.requireNonNull(player.level().getEntity(message.playerId)))) {
 							luggage.stopRiding();
 							luggage.moveTo(player.position());
 							if (luggage instanceof Luggage fetcher) {

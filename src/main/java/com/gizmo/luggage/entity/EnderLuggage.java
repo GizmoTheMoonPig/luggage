@@ -1,6 +1,6 @@
 package com.gizmo.luggage.entity;
 
-import com.gizmo.luggage.Registries;
+import com.gizmo.luggage.LuggageRegistries;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -26,7 +26,7 @@ public class EnderLuggage extends AbstractLuggage {
 	@Override
 	public void aiStep() {
 		super.aiStep();
-		if (this.getLevel().isClientSide() && this.tickCount % 5 == 0) {
+		if (this.level().isClientSide() && this.tickCount % 5 == 0) {
 			for (int i = 0; i < 2; ++i) {
 				int j = this.getRandom().nextInt(2) * 2 - 1;
 				int k = this.getRandom().nextInt(2) * 2 - 1;
@@ -36,7 +36,7 @@ public class EnderLuggage extends AbstractLuggage {
 				double d3 = this.getRandom().nextFloat() * (float) j;
 				double d4 = (this.getRandom().nextFloat() - 0.5D) * 0.125D;
 				double d5 = this.getRandom().nextFloat() * (float) k;
-				this.getLevel().addParticle(ParticleTypes.PORTAL, d0, d1, d2, d3, d4, d5);
+				this.level().addParticle(ParticleTypes.PORTAL, d0, d1, d2, d3, d4, d5);
 			}
 		}
 	}
@@ -49,27 +49,27 @@ public class EnderLuggage extends AbstractLuggage {
 
 			if (player.isShiftKeyDown()) {
 				if (this.getOwner() == player) {
-					if (!this.getLevel().isClientSide()) {
-						ItemStack luggageItem = new ItemStack(Registries.ItemRegistry.ENDER_LUGGAGE.get());
+					if (!this.level().isClientSide()) {
+						ItemStack luggageItem = new ItemStack(LuggageRegistries.ItemRegistry.ENDER_LUGGAGE.get());
 						if (player.getInventory().add(luggageItem)) {
 							this.discard();
 							this.playSound(SoundEvents.ITEM_PICKUP, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
 						}
 					}
-					return InteractionResult.sidedSuccess(this.getLevel().isClientSide());
+					return InteractionResult.sidedSuccess(this.level().isClientSide());
 				} else {
 					player.displayClientMessage(Component.translatable("entity.luggage.player_doesnt_own").withStyle(ChatFormatting.DARK_RED), true);
 					return InteractionResult.CONSUME;
 				}
 			} else {
-				this.getLevel().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
+				this.level().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
 				//prevents sound from playing 4 times (twice on server only). Apparently interactAt fires 4 times????
 				if (this.getSoundCooldown() == 0) {
 					this.playSound(SoundEvents.ENDER_CHEST_OPEN, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
 					this.setSoundCooldown(5);
 				}
 				player.openMenu(new SimpleMenuProvider((id, inventory, cPlayer) -> ChestMenu.threeRows(id, inventory, player.getEnderChestInventory()), this.getTypeName()));
-				return InteractionResult.sidedSuccess(this.getLevel().isClientSide());
+				return InteractionResult.sidedSuccess(this.level().isClientSide());
 			}
 		}
 		return InteractionResult.PASS;
@@ -79,13 +79,13 @@ public class EnderLuggage extends AbstractLuggage {
 	public void remove(RemovalReason reason) {
 		if (reason == RemovalReason.KILLED) {
 			this.spawnAnim();
-			this.playSound(Registries.SoundRegistry.LUGGAGE_KILLED.get(), 8.0F, 1.0F);
+			this.playSound(LuggageRegistries.SoundRegistry.LUGGAGE_KILLED.get(), 8.0F, 1.0F);
 		}
 		super.remove(reason);
 	}
 
 	@Override
 	public ItemStack getPickResult() {
-		return new ItemStack(Registries.ItemRegistry.ENDER_LUGGAGE.get());
+		return new ItemStack(LuggageRegistries.ItemRegistry.ENDER_LUGGAGE.get());
 	}
 }

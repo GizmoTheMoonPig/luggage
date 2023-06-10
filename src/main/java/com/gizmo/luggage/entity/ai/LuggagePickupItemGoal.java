@@ -1,6 +1,6 @@
 package com.gizmo.luggage.entity.ai;
 
-import com.gizmo.luggage.Registries;
+import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.entity.Luggage;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -35,8 +35,8 @@ public class LuggagePickupItemGoal extends Goal {
 			return false;
 
 		//sort through items, get the closest one
-		List<ItemEntity> items = this.luggage.getLevel().getEntitiesOfClass(ItemEntity.class, this.luggage.getBoundingBox().inflate(16.0D), item ->
-				(item.isOnGround() || item.isInWater()) &&
+		List<ItemEntity> items = this.luggage.level().getEntitiesOfClass(ItemEntity.class, this.luggage.getBoundingBox().inflate(16.0D), item ->
+				(item.onGround() || item.isInWater()) &&
 						this.luggage.hasLineOfSight(item) &&
 						this.luggage.getInventory().canAddItem(item.getItem()) &&
 						item.getItem().getItem().canFitInsideContainerItems());
@@ -74,13 +74,13 @@ public class LuggagePickupItemGoal extends Goal {
 	@Override
 	public void tick() {
 		super.tick();
-		if (!this.luggage.getLevel().isClientSide()) {
+		if (!this.luggage.level().isClientSide()) {
 			if (this.targetItem != null && this.luggage.distanceToSqr(this.targetItem.position()) < 4.0D) {
 				ItemStack item = this.targetItem.getItem();
 				if (this.luggage.getInventory().canAddItem(this.targetItem.getItem())) {
 					if (this.luggage.getSoundCooldown() == 0) {
 						boolean isFood = item.isEdible();
-						this.luggage.playSound(isFood ? Registries.SoundRegistry.LUGGAGE_EAT_FOOD.get() : Registries.SoundRegistry.LUGGAGE_EAT_ITEM.get(),
+						this.luggage.playSound(isFood ? LuggageRegistries.SoundRegistry.LUGGAGE_EAT_FOOD.get() : LuggageRegistries.SoundRegistry.LUGGAGE_EAT_ITEM.get(),
 								0.5F, 1.0F + (this.luggage.getRandom().nextFloat() * 0.2F));
 						this.luggage.setSoundCooldown(15);
 					}

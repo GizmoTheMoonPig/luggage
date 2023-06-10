@@ -8,7 +8,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -25,9 +25,9 @@ public class LuggageMod {
 	public LuggageMod() {
 		IEventBus modbus = FMLJavaModLoadingContext.get().getModEventBus();
 		modbus.addListener(this::setup);
-		Registries.EntityRegistry.ENTITIES.register(modbus);
-		Registries.ItemRegistry.ITEMS.register(modbus);
-		Registries.SoundRegistry.SOUNDS.register(modbus);
+		LuggageRegistries.EntityRegistry.ENTITIES.register(modbus);
+		LuggageRegistries.ItemRegistry.ITEMS.register(modbus);
+		LuggageRegistries.SoundRegistry.SOUNDS.register(modbus);
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
@@ -37,22 +37,22 @@ public class LuggageMod {
 
 	@SubscribeEvent
 	public static void addAttributes(EntityAttributeCreationEvent event) {
-		event.put(Registries.EntityRegistry.LUGGAGE.get(), Luggage.registerAttributes().build());
-		event.put(Registries.EntityRegistry.ENDER_LUGGAGE.get(), EnderLuggage.registerAttributes().build());
+		event.put(LuggageRegistries.EntityRegistry.LUGGAGE.get(), Luggage.registerAttributes().build());
+		event.put(LuggageRegistries.EntityRegistry.ENDER_LUGGAGE.get(), EnderLuggage.registerAttributes().build());
 	}
 
 	@SubscribeEvent
-	public static void addToTab(CreativeModeTabEvent.BuildContents event) {
-		if (event.getTab() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+	public static void addToTab(BuildCreativeModeTabContentsEvent event) {
+		if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
 			//normal luggage
-			event.accept(Registries.ItemRegistry.LUGGAGE.get());
+			event.accept(LuggageRegistries.ItemRegistry.LUGGAGE.get());
 			//add charged luggage too
-			ItemStack item = new ItemStack(Registries.ItemRegistry.LUGGAGE.get());
+			ItemStack item = new ItemStack(LuggageRegistries.ItemRegistry.LUGGAGE.get());
 			CompoundTag tag = new CompoundTag();
 			tag.putBoolean(Luggage.EXTENDED_TAG, true);
 			item.setTag(tag);
 			event.accept(item);
-			event.accept(Registries.ItemRegistry.ENDER_LUGGAGE.get());
+			event.accept(LuggageRegistries.ItemRegistry.ENDER_LUGGAGE.get());
 		}
 	}
 
@@ -60,7 +60,7 @@ public class LuggageMod {
 	public static class ForgeEvents {
 		@SubscribeEvent
 		public static void neverKillLuggage(EntityJoinLevelEvent event) {
-			if (event.getEntity() instanceof ItemEntity item && item.getItem().is(Registries.ItemRegistry.LUGGAGE.get()) &&
+			if (event.getEntity() instanceof ItemEntity item && item.getItem().is(LuggageRegistries.ItemRegistry.LUGGAGE.get()) &&
 					item.getItem().getTag() != null && item.getItem().getTag().contains(Luggage.INVENTORY_TAG)) {
 				item.setInvulnerable(true);
 				item.setUnlimitedLifetime();

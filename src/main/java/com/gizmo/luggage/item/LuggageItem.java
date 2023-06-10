@@ -1,6 +1,6 @@
 package com.gizmo.luggage.item;
 
-import com.gizmo.luggage.Registries;
+import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.client.LuggageItemRenderer;
 import com.gizmo.luggage.entity.Luggage;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -13,7 +13,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -39,7 +38,7 @@ public class LuggageItem extends Item {
 		if (result.getType() == HitResult.Type.BLOCK) {
 			Vec3 blockPos = result.getLocation();
 			if (!level.isClientSide()) {
-				Luggage luggage = Registries.EntityRegistry.LUGGAGE.get().create(level);
+				Luggage luggage = LuggageRegistries.EntityRegistry.LUGGAGE.get().create(level);
 				if (luggage != null) {
 					luggage.moveTo(blockPos);
 					luggage.tame(player);

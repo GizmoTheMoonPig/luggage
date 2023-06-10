@@ -1,7 +1,7 @@
 package com.gizmo.luggage.entity;
 
 import com.gizmo.luggage.LuggageMenu;
-import com.gizmo.luggage.Registries;
+import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.entity.ai.LuggageFollowOwnerGoal;
 import com.gizmo.luggage.entity.ai.LuggagePickupItemGoal;
 import com.gizmo.luggage.network.LuggageNetworkHandler;
@@ -71,8 +71,8 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 			@Override
 			public boolean canUse() {
 				if (super.canUse()) {
-					List<ItemEntity> items = Luggage.this.getLevel().getEntitiesOfClass(ItemEntity.class, Luggage.this.getBoundingBox().inflate(8.0D), item ->
-							(item.isOnGround() || item.isInWater()) &&
+					List<ItemEntity> items = Luggage.this.level().getEntitiesOfClass(ItemEntity.class, Luggage.this.getBoundingBox().inflate(8.0D), item ->
+							(item.onGround() || item.isInWater()) &&
 									Luggage.this.hasLineOfSight(item) &&
 									Luggage.this.getInventory().canAddItem(item.getItem()) &&
 									item.getItem().getItem().canFitInsideContainerItems());
@@ -156,7 +156,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 
 	private ItemStack convertToItem() {
 
-		ItemStack luggageItem = new ItemStack(Registries.ItemRegistry.LUGGAGE.get());
+		ItemStack luggageItem = new ItemStack(LuggageRegistries.ItemRegistry.LUGGAGE.get());
 		CompoundTag tag = new CompoundTag();
 
 		if (this.hasExtendedInventory()) {
@@ -181,7 +181,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 
 	public void restoreFromStack(@NotNull ItemStack stack) {
 		//im not this stupid, but just in case
-		if (!stack.is(Registries.ItemRegistry.LUGGAGE.get())) return;
+		if (!stack.is(LuggageRegistries.ItemRegistry.LUGGAGE.get())) return;
 
 		CompoundTag tag = stack.getTag();
 
@@ -303,7 +303,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 		}
 
 		if (this.isInSittingPose() && this.tickCount % 10 == 0) {
-			this.getLevel().addParticle(ParticleTypes.NOTE,
+			this.level().addParticle(ParticleTypes.NOTE,
 					this.getX() + (this.getRandom().nextDouble() - 0.5D) * this.getBbWidth(),
 					this.getY() + this.getEyeHeight() + 0.25D,
 					this.getZ() + (this.getRandom().nextDouble() - 0.5D) * this.getBbWidth(),
@@ -321,7 +321,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 
 			if (this.getOwner() == player) {
 				if (player.isShiftKeyDown()) {
-					if (!this.getLevel().isClientSide()) {
+					if (!this.level().isClientSide()) {
 						ItemStack luggageItem = this.convertToItem();
 						if (player.getInventory().add(luggageItem)) {
 							this.discard();
@@ -329,13 +329,13 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 						}
 					}
 				} else {
-					this.getLevel().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
+					this.level().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
 					//prevents sound from playing 4 times (twice on server only). Apparently interactAt fires 4 times????
 					if (this.getSoundCooldown() == 0) {
 						this.playSound(SoundEvents.CHEST_OPEN, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
 						this.setSoundCooldown(5);
 					}
-					if (!this.getLevel().isClientSide()) {
+					if (!this.level().isClientSide()) {
 						ServerPlayer sp = (ServerPlayer) player;
 						if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
 
@@ -347,7 +347,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 						MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
 					}
 				}
-				return InteractionResult.sidedSuccess(this.getLevel().isClientSide());
+				return InteractionResult.sidedSuccess(this.level().isClientSide());
 			} else {
 				player.displayClientMessage(Component.translatable("entity.luggage.player_doesnt_own").withStyle(ChatFormatting.DARK_RED), true);
 				return InteractionResult.CONSUME;
@@ -370,7 +370,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 		if (reason == RemovalReason.KILLED) {
 			this.getInventory().removeAllItems().forEach(this::spawnAtLocation);
 			this.spawnAnim();
-			this.playSound(Registries.SoundRegistry.LUGGAGE_KILLED.get(), 8.0F, 1.0F);
+			this.playSound(LuggageRegistries.SoundRegistry.LUGGAGE_KILLED.get(), 8.0F, 1.0F);
 		}
 		super.remove(reason);
 	}
@@ -378,6 +378,6 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 	@Nullable
 	@Override
 	public ItemStack getPickResult() {
-		return new ItemStack(Registries.ItemRegistry.LUGGAGE.get());
+		return new ItemStack(LuggageRegistries.ItemRegistry.LUGGAGE.get());
 	}
 }

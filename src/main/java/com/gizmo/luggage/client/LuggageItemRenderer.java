@@ -1,6 +1,6 @@
 package com.gizmo.luggage.client;
 
-import com.gizmo.luggage.Registries;
+import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.entity.EnderLuggage;
 import com.gizmo.luggage.entity.Luggage;
 import com.mojang.blaze3d.platform.Lighting;
@@ -23,18 +23,18 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 
 	@Override
 	public void renderByItem(ItemStack stack, ItemDisplayContext context, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-		if (stack.is(Registries.ItemRegistry.LUGGAGE.get())) {
+		if (stack.is(LuggageRegistries.ItemRegistry.LUGGAGE.get())) {
 			assert Minecraft.getInstance().level != null;
-			Luggage entity = Registries.EntityRegistry.LUGGAGE.get().create(Minecraft.getInstance().level);
+			Luggage entity = LuggageRegistries.EntityRegistry.LUGGAGE.get().create(Minecraft.getInstance().level);
 			if (entity != null) {
 				if (stack.getTag() != null) {
 					entity.setExtendedInventory(stack.getTag().getBoolean(Luggage.EXTENDED_TAG));
 				}
 				this.renderEntity(entity, context, ms, light);
 			}
-		} else if (stack.is(Registries.ItemRegistry.ENDER_LUGGAGE.get())) {
+		} else if (stack.is(LuggageRegistries.ItemRegistry.ENDER_LUGGAGE.get())) {
 			assert Minecraft.getInstance().level != null;
-			EnderLuggage entity = Registries.EntityRegistry.ENDER_LUGGAGE.get().create(Minecraft.getInstance().level);
+			EnderLuggage entity = LuggageRegistries.EntityRegistry.ENDER_LUGGAGE.get().create(Minecraft.getInstance().level);
 			if (entity != null) {
 				this.renderEntity(entity, context, ms, light);
 			}

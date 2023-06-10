@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[45,)"
+loaderVersion = "[46,)"
 issueTrackerURL="https://github.com/GizmoTheMoonPig/luggage/issues"
 license = "The MIT License (MIT)"
 
@@ -10,23 +10,23 @@ displayName = "Luggage"
 itemIcon="luggage:luggage"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/luggage"
 logoFile = "luggage.png"
-credits = "Original Luggage idea made by the Openblocks team"
+credits = "Original Luggage made by the Openblocks team"
 authors = "GizmoTheMoonPig"
 description = '''
-Brings back the Luggage entity from Openblocks.
+Brings back the Luggage entity from OpenBlocks.
 '''
 
 [[dependencies.luggage]]
     modId = "forge"
     mandatory = true
-    versionRange = "[45,)"
+    versionRange = "[46,)"
     ordering = "NONE"
     side = "BOTH"
 
 [[dependencies.luggage]]
     modId = "minecraft"
     mandatory = true
-    versionRange = "[1.19.4]"
+    versionRange = "[1.20]"
     ordering = "NONE"
     side = "BOTH"
 
