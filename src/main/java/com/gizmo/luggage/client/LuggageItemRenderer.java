@@ -41,6 +41,7 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void renderEntity(Entity entity, ItemDisplayContext context, PoseStack stack, int light) {
 		float partialTicks = Minecraft.getInstance().getFrameTime();
 		float partialTicksForRender = Minecraft.getInstance().isPaused() ? 0 : partialTicks;
