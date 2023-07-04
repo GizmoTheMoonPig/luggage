@@ -128,7 +128,7 @@ publishing {
                 artifact project.jar
                 artifact project.sourceJar
             }
-            setGroupId 'gizmo'
+            setGroupId 'GizmoTheMoonPig'
             setArtifactId 'luggage'
         }
     }
