@@ -101,7 +101,7 @@ public class ClientEvents {
 		//fire last in case any other mod tries to do something like this
 		@SubscribeEvent(priority = EventPriority.LOWEST)
 		public static void attackThroughLuggage(InputEvent.InteractionKeyMappingTriggered event) {
-			if (event.isAttack() && Minecraft.getInstance().hitResult instanceof EntityHitResult result && result.getEntity() instanceof AbstractLuggage) {
+			if (!event.isCanceled() && event.isAttack() && Minecraft.getInstance().hitResult instanceof EntityHitResult result && result.getEntity() instanceof AbstractLuggage) {
 				event.setCanceled(true);
 				event.setSwingHand(true);
 				Player player = Minecraft.getInstance().player;
