@@ -13,8 +13,10 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
@@ -147,6 +149,12 @@ public class LuggageItem extends Item {
 	@Nullable
 	public EquipmentSlot getEquipmentSlot(ItemStack stack) {
 		return EquipmentSlot.HEAD;
+	}
+
+	@Override
+	public void onDestroyed(ItemEntity entity, DamageSource source) {
+		//drop all items if luggage is destroyed for any reason whatsoever
+		ItemUtils.onContainerDestroyed(entity, this.getContents(entity.getItem()));
 	}
 
 	@Override
