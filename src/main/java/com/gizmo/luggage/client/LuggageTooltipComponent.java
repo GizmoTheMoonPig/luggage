@@ -13,6 +13,11 @@ import net.minecraft.world.item.ItemStack;
 //Modified version of ClientBundleTooltip
 public class LuggageTooltipComponent implements ClientTooltipComponent {
 
+	private static final int MARGIN_Y = 4;
+	private static final int BORDER_WIDTH = 1;
+	private static final int TEX_SIZE = 128;
+	private static final int SLOT_SIZE_X = 18;
+	private static final int SLOT_SIZE_Y = 18;
 	public static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("textures/gui/container/bundle.png");
 	private final NonNullList<ItemStack> items;
 	private final boolean extended;
@@ -25,13 +30,13 @@ public class LuggageTooltipComponent implements ClientTooltipComponent {
 	//slots * slot height + padding
 	@Override
 	public int getHeight() {
-		return (this.extended ? 6 : 3) * 18 + 6;
+		return this.gridSizeY() * SLOT_SIZE_Y + 2 + MARGIN_Y;
 	}
 
 	//slots * slot width + padding
 	@Override
 	public int getWidth(Font font) {
-		return 9 * 18 + 2;
+		return this.gridSizeX() * SLOT_SIZE_X + 2;
 	}
 
 
@@ -41,11 +46,11 @@ public class LuggageTooltipComponent implements ClientTooltipComponent {
 		int gridY = this.gridSizeY();
 		int slot = 0;
 
-		for (int l = 0; l < gridY; ++l) {
-			for (int i1 = 0; i1 < gridX; ++i1) {
-				int j1 = x + i1 * 18 + 1;
-				int k1 = y + l * 18 + 1;
-				this.renderSlot(j1, k1, slot++, font, graphics);
+		for (int yOffset = 0; yOffset < gridY; yOffset++) {
+			for (int xOffset = 0; xOffset < gridX; xOffset++) {
+				int slotX = x + xOffset * SLOT_SIZE_X + BORDER_WIDTH;
+				int slotY = y + yOffset * SLOT_SIZE_Y + BORDER_WIDTH;
+				this.renderSlot(slotX, slotY, slot++, font, graphics);
 			}
 		}
 
@@ -58,34 +63,31 @@ public class LuggageTooltipComponent implements ClientTooltipComponent {
 		} else {
 			ItemStack itemstack = this.items.get(slot);
 			this.blit(graphics, x, y, Texture.SLOT);
-			graphics.renderItem(itemstack, x + 1, y + 1, slot);
-			graphics.renderItemDecorations(font, itemstack, x + 1, y + 1);
-			if (slot == 0) {
-				AbstractContainerScreen.renderSlotHighlight(graphics, x + 1, y + 1, 0);
-			}
+			graphics.renderItem(itemstack, x + BORDER_WIDTH, y + BORDER_WIDTH, slot);
+			graphics.renderItemDecorations(font, itemstack, x + BORDER_WIDTH, y + BORDER_WIDTH);
 		}
 	}
 
 	private void drawBorder(int startX, int startY, int endX, int endY, GuiGraphics graphics) {
 		this.blit(graphics, startX, startY, Texture.BORDER_CORNER_TOP);
-		this.blit(graphics, startX + endX * 18 + 1, startY, Texture.BORDER_CORNER_TOP);
+		this.blit(graphics, startX + endX * SLOT_SIZE_X + BORDER_WIDTH, startY, Texture.BORDER_CORNER_TOP);
 
 		for (int j = 0; j < endX; ++j) {
-			this.blit(graphics, startX + 1 + j * 18, startY, Texture.BORDER_HORIZONTAL_TOP);
-			this.blit(graphics, startX + 1 + j * 18, startY + endY * 19 - 1, Texture.BORDER_HORIZONTAL_BOTTOM);
+			this.blit(graphics, startX + 1 + j * SLOT_SIZE_X, startY, Texture.BORDER_HORIZONTAL_TOP);
+			this.blit(graphics, startX + 1 + j * SLOT_SIZE_X, startY + endY * SLOT_SIZE_Y + 2, Texture.BORDER_HORIZONTAL_BOTTOM);
 		}
 
 		for (int k = 0; k < endY; ++k) {
-			this.blit(graphics, startX, startY + k * 18 + 1, Texture.BORDER_VERTICAL);
-			this.blit(graphics, startX + endX * 18 + 1, startY + k * 18 + 1, Texture.BORDER_VERTICAL);
+			this.blit(graphics, startX, startY + k * SLOT_SIZE_Y + BORDER_WIDTH, Texture.BORDER_VERTICAL);
+			this.blit(graphics, startX + endX * SLOT_SIZE_X + BORDER_WIDTH, startY + k * SLOT_SIZE_Y + BORDER_WIDTH, Texture.BORDER_VERTICAL);
 		}
 
-		this.blit(graphics, startX, startY + endY * 19 - 1, Texture.BORDER_CORNER_BOTTOM);
-		this.blit(graphics, startX + endX * 18 + 1, startY + endY * 18 + 2, Texture.BORDER_CORNER_BOTTOM);
+		this.blit(graphics, startX, startY + endY * SLOT_SIZE_Y + 2, Texture.BORDER_CORNER_BOTTOM);
+		this.blit(graphics, startX + endX * SLOT_SIZE_X + BORDER_WIDTH, startY + endY * SLOT_SIZE_Y + 2, Texture.BORDER_CORNER_BOTTOM);
 	}
 
 	private void blit(GuiGraphics graphics, int x, int y, Texture texture) {
-		graphics.blit(TEXTURE_LOCATION, x, y, 0, (float) texture.x, (float) texture.y, texture.w, texture.h, 128, 128);
+		graphics.blit(TEXTURE_LOCATION, x, y, 0, (float) texture.x, (float) texture.y, texture.w, texture.h, TEX_SIZE, TEX_SIZE);
 	}
 
 	private int gridSizeX() {
@@ -97,12 +99,12 @@ public class LuggageTooltipComponent implements ClientTooltipComponent {
 	}
 
 	enum Texture {
-		SLOT(0, 0, 18, 20),
-		BORDER_VERTICAL(0, 18, 1, 20),
-		BORDER_HORIZONTAL_TOP(0, 20, 18, 1),
-		BORDER_HORIZONTAL_BOTTOM(0, 60, 18, 1),
-		BORDER_CORNER_TOP(0, 20, 1, 1),
-		BORDER_CORNER_BOTTOM(0, 60, 1, 1);
+		SLOT(0, 0, SLOT_SIZE_X, SLOT_SIZE_Y),
+		BORDER_VERTICAL(0, SLOT_SIZE_X, 1, SLOT_SIZE_Y),
+		BORDER_HORIZONTAL_TOP(0, SLOT_SIZE_Y, SLOT_SIZE_X, BORDER_WIDTH),
+		BORDER_HORIZONTAL_BOTTOM(0, 60, SLOT_SIZE_X, BORDER_WIDTH),
+		BORDER_CORNER_TOP(0, SLOT_SIZE_Y, BORDER_WIDTH, BORDER_WIDTH),
+		BORDER_CORNER_BOTTOM(0, SLOT_SIZE_Y, BORDER_WIDTH, BORDER_WIDTH);
 
 		public final int x;
 		public final int y;
