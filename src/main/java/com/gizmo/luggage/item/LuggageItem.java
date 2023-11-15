@@ -1,9 +1,7 @@
 package com.gizmo.luggage.item;
 
 import com.gizmo.luggage.LuggageRegistries;
-import com.gizmo.luggage.client.LuggageItemRenderer;
 import com.gizmo.luggage.entity.Luggage;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -14,12 +12,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.level.ClipContext;
@@ -28,16 +24,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class LuggageItem extends Item {
+public class LuggageItem extends AbstractLuggageItem {
 
 	public LuggageItem(Properties properties) {
 		super(properties);
@@ -72,24 +65,11 @@ public class LuggageItem extends Item {
 					}
 				}
 			}
-			if (!insertedAny) {
-				if (!level.isClientSide()) {
-					Luggage luggage = LuggageRegistries.EntityRegistry.LUGGAGE.get().create(level);
-					if (luggage != null) {
-						luggage.moveTo(blockPos);
-						luggage.tame(player);
-						luggage.restoreFromStack(stack);
-						level.addFreshEntity(luggage);
-					}
-					if (!player.getAbilities().instabuild) {
-						stack.shrink(1);
-					}
-				}
-			}
 
-			return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
-		//throw all items into the air, similar to a bundle, when holding shift and targeting no block
+			//if we dont insert any items fire super to spawn the luggage
+			return insertedAny ? InteractionResultHolder.sidedSuccess(stack, level.isClientSide()) : super.use(level, player, hand);
 		} else if (result.getType() == HitResult.Type.MISS && player.isSecondaryUseActive()) {
+			//throw all items into the air, similar to a bundle, when holding shift and targeting no block
 			if (this.dropContents(stack, player)) {
 				player.awardStat(Stats.ITEM_USED.get(this));
 				return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
@@ -99,8 +79,8 @@ public class LuggageItem extends Item {
 	}
 
 	@Override
-	public boolean canFitInsideContainerItems() {
-		return false;
+	public EntityType<Luggage> getLuggageEntity() {
+		return LuggageRegistries.EntityRegistry.LUGGAGE.get();
 	}
 
 	private Stream<ItemStack> getContents(ItemStack stack) {
@@ -141,31 +121,9 @@ public class LuggageItem extends Item {
 	}
 
 	@Override
-	public boolean canEquip(ItemStack stack, EquipmentSlot slot, Entity entity) {
-		return slot == EquipmentSlot.HEAD;
-	}
-
-	@Override
-	@Nullable
-	public EquipmentSlot getEquipmentSlot(ItemStack stack) {
-		return EquipmentSlot.HEAD;
-	}
-
-	@Override
 	public void onDestroyed(ItemEntity entity, DamageSource source) {
 		//drop all items if luggage is destroyed for any reason whatsoever
 		ItemUtils.onContainerDestroyed(entity, this.getContents(entity.getItem()));
-	}
-
-	@Override
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-		consumer.accept(new IClientItemExtensions() {
-
-			@Override
-			public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-				return new LuggageItemRenderer();
-			}
-		});
 	}
 
 	public record Tooltip(NonNullList<ItemStack> stacks, ItemStack stack) implements TooltipComponent {
