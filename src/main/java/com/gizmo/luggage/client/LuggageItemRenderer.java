@@ -1,14 +1,14 @@
 package com.gizmo.luggage.client;
 
-import com.gizmo.luggage.LuggageRegistries;
-import com.gizmo.luggage.entity.EnderLuggage;
 import com.gizmo.luggage.entity.Luggage;
+import com.gizmo.luggage.item.AbstractLuggageItem;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
@@ -23,18 +23,8 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 
 	@Override
 	public void renderByItem(ItemStack stack, ItemDisplayContext context, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-		if (stack.is(LuggageRegistries.ItemRegistry.LUGGAGE.get())) {
-			assert Minecraft.getInstance().level != null;
-			Luggage entity = LuggageRegistries.EntityRegistry.LUGGAGE.get().create(Minecraft.getInstance().level);
-			if (entity != null) {
-				if (stack.getTag() != null) {
-					entity.setExtendedInventory(stack.getTag().getBoolean(Luggage.EXTENDED_TAG));
-				}
-				this.renderEntity(entity, context, ms, light);
-			}
-		} else if (stack.is(LuggageRegistries.ItemRegistry.ENDER_LUGGAGE.get())) {
-			assert Minecraft.getInstance().level != null;
-			EnderLuggage entity = LuggageRegistries.EntityRegistry.ENDER_LUGGAGE.get().create(Minecraft.getInstance().level);
+		if (stack.getItem() instanceof AbstractLuggageItem luggage) {
+			Entity entity = EntityCache.fetchEntity(luggage.getLuggageEntity(), Minecraft.getInstance().level, stack.getTag() != null && stack.getTag().getBoolean(Luggage.EXTENDED_TAG));
 			if (entity != null) {
 				this.renderEntity(entity, context, ms, light);
 			}
@@ -55,7 +45,7 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 		dispatcher.setRenderHitBoxes(false);
 		MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
 		RenderSystem.runAsFancy(() ->
-				dispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, partialTicksForRender, stack, source, context == ItemDisplayContext.GUI ? 15728880 : light));
+				dispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, partialTicksForRender, stack, source, context == ItemDisplayContext.GUI ? LightTexture.FULL_BRIGHT : light));
 		source.endBatch();
 		dispatcher.setRenderShadow(true);
 		dispatcher.setRenderHitBoxes(hitboxes);
