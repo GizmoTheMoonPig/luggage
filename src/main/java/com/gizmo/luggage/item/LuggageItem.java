@@ -24,8 +24,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -43,17 +43,18 @@ public class LuggageItem extends AbstractLuggageItem {
 		BlockHitResult result = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
 		if (result.getType() == HitResult.Type.BLOCK) {
 			Vec3 blockPos = result.getLocation();
+			BlockPos pos = result.getBlockPos();
 			//attempt to dump items into a container if shift is held and a container is targeted
 			if (!level.isClientSide() && player.isSecondaryUseActive() && level.getBlockState(BlockPos.containing(blockPos)).hasBlockEntity()) {
 				BlockEntity be = level.getBlockEntity(result.getBlockPos());
-				if (be != null && be.getCapability(ForgeCapabilities.ITEM_HANDLER, result.getDirection()).resolve().isPresent()) {
+				IItemHandler cap = level.getCapability(Capabilities.ItemHandler.BLOCK, result.getBlockPos(), level.getBlockState(pos), be, result.getDirection());
+				if (cap != null) {
 					CompoundTag tag = stack.getTag();
 					SimpleContainer newInv = new SimpleContainer(tag != null && tag.contains(Luggage.EXTENDED_TAG) ? 54 : 27);
-					IItemHandler handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER, result.getDirection()).resolve().get();
 					for (ItemStack stack1 : this.getContents(stack).toList()) {
-						for (int slot = 0; slot < handler.getSlots(); slot++) {
-							if (handler.insertItem(slot, stack1, true) != stack1) {
-								stack1 = handler.insertItem(slot, stack1, false);
+						for (int slot = 0; slot < cap.getSlots(); slot++) {
+							if (cap.insertItem(slot, stack1, true) != stack1) {
+								stack1 = cap.insertItem(slot, stack1, false);
 								insertedAny = true;
 								break;
 							}

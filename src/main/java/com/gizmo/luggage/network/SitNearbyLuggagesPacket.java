@@ -1,34 +1,37 @@
 package com.gizmo.luggage.network;
 
+import com.gizmo.luggage.LuggageMod;
 import com.gizmo.luggage.entity.AbstractLuggage;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.List;
-import java.util.function.Supplier;
 
-public class SitNearbyLuggagesPacket {
-	public SitNearbyLuggagesPacket() {}
+public class SitNearbyLuggagesPacket implements CustomPacketPayload {
 
-	public SitNearbyLuggagesPacket(FriendlyByteBuf buf) {}
+	public static final ResourceLocation ID = new ResourceLocation(LuggageMod.ID, "sit_luggage");
 
-	public void encode(FriendlyByteBuf buf) {}
+	@Override
+	public void write(FriendlyByteBuf buf) {}
 
-	public static class Handler {
-		public static void onMessage(SitNearbyLuggagesPacket message, Supplier<NetworkEvent.Context> ctx) {
-			ctx.get().enqueueWork(() -> {
-				ServerPlayer player = ctx.get().getSender();
-				if (player != null) {
-					List<AbstractLuggage> nearbyOwnedLuggages = player.level().getEntitiesOfClass(AbstractLuggage.class, player.getBoundingBox().inflate(8.0F), entity -> entity.getOwner() == player);
-					if (!nearbyOwnedLuggages.isEmpty()) {
-						for (AbstractLuggage luggage : nearbyOwnedLuggages) {
-							luggage.setInSittingPose(!luggage.isInSittingPose());
-						}
-					}
-				}
-			});
-			ctx.get().setPacketHandled(true);
-		}
+	@Override
+	public ResourceLocation id() {
+		return ID;
 	}
+
+	public static void handle(PlayPayloadContext ctx) {
+		ctx.workHandler().execute(() -> {
+			Player player = ctx.player().orElseThrow();
+			List<AbstractLuggage> nearbyOwnedLuggages = player.level().getEntitiesOfClass(AbstractLuggage.class, player.getBoundingBox().inflate(8.0F), entity -> entity.getOwner() == player);
+			if (!nearbyOwnedLuggages.isEmpty()) {
+				for (AbstractLuggage luggage : nearbyOwnedLuggages) {
+					luggage.setInSittingPose(!luggage.isInSittingPose());
+				}
+			}
+		});
+	}
+
 }

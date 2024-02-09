@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[46,)"
+loaderVersion = "[1,)"
 issueTrackerURL="https://github.com/GizmoTheMoonPig/luggage/issues"
 license = "The MIT License (MIT)"
 
@@ -17,16 +17,16 @@ Brings back the Luggage entity from OpenBlocks.
 '''
 
 [[dependencies.luggage]]
-    modId = "forge"
-    mandatory = true
-    versionRange = "[46,)"
+    modId = "neoforge"
+    type = "required"
+    versionRange = "[1,)"
     ordering = "NONE"
     side = "BOTH"
 
 [[dependencies.luggage]]
     modId = "minecraft"
-    mandatory = true
-    versionRange = "[1.20,1.21)"
+    type = "required"
+    versionRange = "[1.20.4]"
     ordering = "NONE"
     side = "BOTH"
 

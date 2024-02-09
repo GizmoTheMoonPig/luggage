@@ -4,10 +4,8 @@ import com.gizmo.luggage.LuggageMenu;
 import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.entity.ai.LuggageFollowOwnerGoal;
 import com.gizmo.luggage.entity.ai.LuggagePickupItemGoal;
-import com.gizmo.luggage.network.LuggageNetworkHandler;
 import com.gizmo.luggage.network.OpenLuggageScreenPacket;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -31,19 +29,14 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.Path;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.entity.player.PlayerContainerEvent;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class Luggage extends AbstractLuggage implements ContainerListener {
 
@@ -53,7 +46,6 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 	public static final String EXTENDED_TAG = "Extended";
 
 	private SimpleContainer inventory;
-	private LazyOptional<?> itemHandler = null;
 	private int fetchCooldown = 0;
 	private boolean tryingToFetchItem;
 	private boolean isInventoryOpen;
@@ -223,7 +215,6 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 		}
 
 		this.inventory.addListener(this);
-		this.itemHandler = LazyOptional.of(() -> new InvWrapper(this.inventory));
 	}
 
 	public SimpleContainer getInventory() {
@@ -246,24 +237,6 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 
 	public boolean hasInventoryChanged(Container container) {
 		return this.inventory != container;
-	}
-
-	@NotNull
-	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
-		if (this.isAlive() && capability == ForgeCapabilities.ITEM_HANDLER && this.itemHandler != null)
-			return this.itemHandler.cast();
-		return super.getCapability(capability, facing);
-	}
-
-	@Override
-	public void invalidateCaps() {
-		super.invalidateCaps();
-		if (this.itemHandler != null) {
-			LazyOptional<?> oldHandler = this.itemHandler;
-			this.itemHandler = null;
-			oldHandler.invalidate();
-		}
 	}
 
 	//------------------------------------------//
@@ -340,11 +313,11 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 						if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
 
 						sp.nextContainerCounter();
-						LuggageNetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sp), new OpenLuggageScreenPacket(sp.containerCounter, this.getId()));
+						PacketDistributor.PLAYER.with(sp).send(new OpenLuggageScreenPacket(sp.containerCounter, this.getId()));
 						sp.containerMenu = new LuggageMenu(sp.containerCounter, sp.getInventory(), this.inventory, this);
 						sp.initMenu(sp.containerMenu);
 						this.isInventoryOpen = true;
-						MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
+						NeoForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
 					}
 				}
 				return InteractionResult.sidedSuccess(this.level().isClientSide());

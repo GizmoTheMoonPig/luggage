@@ -1,148 +1,148 @@
 plugins {
-    id 'eclipse'
-    id 'idea'
-    id 'maven-publish'
-    id 'net.neoforged.gradle' version '[6.0.18,6.2)'
+	id 'eclipse'
+	id 'idea'
+	id 'maven-publish'
+	id 'net.neoforged.gradle.userdev' version '7.0.+'
 }
 
 def secrets = new Properties()
 def secretsFile = file('secrets.properties')
 if (secretsFile.exists()) {
-    secretsFile.withInputStream {
-        stream -> secrets.load(stream)
-    }
+	secretsFile.withInputStream {
+		stream -> secrets.load(stream)
+	}
 
-    fileTree("secrets").matching {
-        include "**/*.properties"
-    }.each {
-        File file ->
-            file.withInputStream {
-                stream -> secrets.load(stream)
-            }
-    }
+	fileTree("secrets").matching {
+		include "**/*.properties"
+	}.each {
+		File file ->
+			file.withInputStream {
+				stream -> secrets.load(stream)
+			}
+	}
 }
 
 version = "${project.minecraft_version}-${project.mod_version}." + (hasProperty("CIVersion") ? CIVersion : '0')
 group = 'com.gizmo.luggage'
 base {
-    archivesName = modid
+	archivesName = modid
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+//minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
+compileJava.options.compilerArgs << "-Xlint:all,-classfile,-processing,-deprecation" << "-Werror"
 
-minecraft {
-    mappings channel: 'official', version: "${project.minecraft_version}"
-    copyIdeResources = true
+runs {
+	configureEach {
+		workingDirectory project.file("run")
+		systemProperty 'forge.logging.console.level', 'debug'
+		systemProperty 'mixin.env.disableRefMap', 'true'
 
-    runs {
-        configureEach {
-            workingDirectory project.file("run")
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.disableRefMap', 'true'
+		modSource project.sourceSets.main
+	}
 
-            mods {
-                "${modid}" {
-                    source sourceSets.main
-                }
-            }
-        }
+	client {
+		systemProperty 'forge.enabledGameTestNamespaces', modid
+		programArguments.addAll '--username', secrets.getProperty("username") ?: 'Dev', secrets.getProperty("uuid") ? '--uuid' : '', secrets.getProperty("uuid") ?: ''
+	}
 
-        client {
-            taskName "Minecraft_Client_${project.minecraft_version}"
-            property 'forge.enabledGameTestNamespaces', modid
-            args '--username', secrets.getProperty("username") ?: 'Dev', secrets.getProperty("uuid") ? '--uuid' : '', secrets.getProperty("uuid") ?: ''
-        }
+	server {
+		systemProperty 'forge.enabledGameTestNamespaces', modid
+        programArgument '--nogui'
+	}
 
-        server {
-            taskName "Minecraft_Server_${project.minecraft_version}"
-            property 'forge.enabledGameTestNamespaces', modid
-            args '--nogui'
-        }
+	gameTestServer {
+		systemProperty 'forge.enabledGameTestNamespaces', modid
+	}
 
-        gameTestServer {
-            taskName "Minecraft_GameTestServer_${project.minecraft_version}"
-            property 'forge.enabledGameTestNamespaces', modid
-        }
-
-        data {
-            taskName "Minecraft_Data_${project.minecraft_version}"
-            args '--mod', modid, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-        }
-    }
+	data {
+		programArguments.addAll '--mod', modid, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+	}
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
+	maven {
+		name 'Jared\'s Maven' // JEI
+		url 'https://maven.blamejared.com/'
+	}
     maven {
-        name 'Jared\'s Maven' // JEI
-        url 'https://maven.blamejared.com/'
+        name 'Shedaniel\'s Maven' // REI
+        url "https://maven.shedaniel.me"
     }
     maven {
-        name 'Curseforge Maven' // Jade
-        url "https://www.cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
+        name = "TerraformersMC" // EMI
+        url = "https://maven.terraformersmc.com/"
     }
-    maven {
-        url "https://modmaven.dev/"
-    }
+	maven {
+		name 'Curseforge Maven' // Jade
+		url "https://www.cursemaven.com"
+		content {
+			includeGroup "curse.maven"
+		}
+	}
+	maven {
+		url "https://modmaven.dev/"
+	}
 }
 
 dependencies {
-    minecraft "net.neoforged:forge:${project.minecraft_version}-${project.neo_version}"
+	//make sure to only pick one of these when testing (switch others to compileOnly)
+	compileOnly "mezz.jei:jei-${project.minecraft_version}-neoforge:${project.jei_version}"
+	compileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:${project.rei_version}"
+	implementation "dev.emi:emi-neoforge:${project.emi_version}+${project.minecraft_version}"
 
-    implementation fg.deobf("mezz.jei:jei-${project.minecraft_version}-forge:15.2.0.25")
-    implementation fg.deobf("curse.maven:jade-324717:4711195")
+	compileOnly "curse.maven:jade-324717:4980188"
+
+	implementation "net.neoforged:neoforge:${project.neo_version}"
 }
 
 tasks.named('jar', Jar).configure {
-    manifest {
-        attributes([
-                "Specification-Title"     : mod_name,
-                "Specification-Vendor"    : "GizmoTheMoonPig",
-                "Specification-Version"   : "1",
-                "Implementation-Title"    : mod_name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "GizmoTheMoonPig",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-    finalizedBy 'reobfJar'
+	manifest {
+		attributes([
+				"Specification-Title"     : mod_name,
+				"Specification-Vendor"    : "GizmoTheMoonPig",
+				"Specification-Version"   : "1",
+				"Implementation-Title"    : mod_name,
+				"Implementation-Version"  : project.jar.archiveVersion,
+				"Implementation-Vendor"   : "GizmoTheMoonPig",
+				"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+		])
+	}
 }
 
 def mavenUser = hasProperty("CIMUser") ? CIMUser : secrets.getProperty("maven_username")
 def mavenToken = hasProperty("CIMToken") ? CIMToken : secrets.getProperty("maven_password")
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            afterEvaluate {
-                artifact project.jar
-                artifact project.sourceJar
-            }
-            setGroupId 'gizmo'
-            setArtifactId 'luggage'
-        }
-    }
-    repositories {
-        maven {
-            url "https://maven.tamaized.com/releases"
-            credentials {
-                username mavenUser
-                password mavenToken
-            }
-        }
-    }
+	publications {
+		mavenJava(MavenPublication) {
+			afterEvaluate {
+				artifact project.jar
+				artifact project.sourceJar
+			}
+			setGroupId 'gizmo'
+			setArtifactId 'luggage'
+		}
+	}
+	repositories {
+		maven {
+			url "https://maven.tamaized.com/releases"
+			credentials {
+				username mavenUser
+				password mavenToken
+			}
+		}
+	}
 }
 
 tasks.register('sourceJar', Jar) {
-    dependsOn 'classes'
-    from sourceSets.main.allSource
-    archiveClassifier = 'sources'
+	dependsOn 'classes'
+	from sourceSets.main.allSource
+	archiveClassifier = 'sources'
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
+	options.encoding = 'UTF-8'
 }
