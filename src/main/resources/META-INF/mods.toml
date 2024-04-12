@@ -19,7 +19,7 @@ Brings back the Luggage entity from OpenBlocks.
 [[dependencies.luggage]]
     modId = "neoforge"
     type = "required"
-    versionRange = "[1,)"
+    versionRange = "[20.4.167,)"
     ordering = "NONE"
     side = "BOTH"
 

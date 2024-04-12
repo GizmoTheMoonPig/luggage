@@ -2,8 +2,10 @@ package com.gizmo.luggage.entity;
 
 import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.entity.ai.LuggageFollowOwnerGoal;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
@@ -11,6 +13,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -19,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 public class AbstractLuggage extends TamableAnimal {
 
 	private int soundCooldown = 15;
+	private static final TicketType<Integer> LUGGAGE_UNLOAD = TicketType.create("luggage_unload", Integer::compareTo, 20);
 
 	protected AbstractLuggage(EntityType<? extends TamableAnimal> type, Level level) {
 		super(type, level);
@@ -47,6 +51,14 @@ public class AbstractLuggage extends TamableAnimal {
 		if (this.soundCooldown > 0) {
 			this.soundCooldown--;
 		}
+	}
+
+	@Override
+	public void onRemovedFromWorld() {
+		if (this.level() != null && this.level() instanceof ServerLevel server && !this.isInSittingPose() && this.getOwner() != null) {
+			server.getChunkSource().addRegionTicket(LUGGAGE_UNLOAD, new ChunkPos(this.blockPosition()), 2, this.getId());
+		}
+		super.onRemovedFromWorld();
 	}
 
 	public int getSoundCooldown() {

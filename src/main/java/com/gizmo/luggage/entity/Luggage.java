@@ -17,7 +17,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.*;
-import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.TamableAnimal;
@@ -88,12 +87,6 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 				return false;
 			}
 		});
-	}
-
-	@Nullable
-	@Override
-	public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob mob) {
-		return null;
 	}
 
 	@Override
@@ -303,7 +296,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 					}
 				} else {
 					this.level().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
-					//prevents sound from playing 4 times (twice on server only). Apparently interactAt fires 4 times????
+					//prevents sound from playing 4 times (once for each hand on both server and client).
 					if (this.getSoundCooldown() == 0) {
 						this.playSound(SoundEvents.CHEST_OPEN, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
 						this.setSoundCooldown(5);
