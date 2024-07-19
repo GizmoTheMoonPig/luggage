@@ -7,7 +7,7 @@
   ],
   "key": {
     "o": {
-      "tag": "c:obsidian"
+      "tag": "c:obsidians"
     },
     "c": {
       "tag": "c:chests/ender"
@@ -17,7 +17,6 @@
     }
   },
   "result": {
-    "item": "luggage:ender_luggage"
-  },
-  "show_notification": true
+    "id": "luggage:ender_luggage"
+  }
 }

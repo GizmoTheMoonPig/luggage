@@ -17,7 +17,6 @@
     }
   },
   "result": {
-    "item": "luggage:luggage"
-  },
-  "show_notification": true
+    "id": "luggage:luggage"
+  }
 }
