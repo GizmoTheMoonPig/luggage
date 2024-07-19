@@ -50,7 +50,7 @@ public class EnderLuggage extends AbstractLuggage {
 			if (player.isShiftKeyDown()) {
 				if (this.getOwner() == player) {
 					if (!this.level().isClientSide()) {
-						ItemStack luggageItem = new ItemStack(LuggageRegistries.ItemRegistry.ENDER_LUGGAGE.get());
+						ItemStack luggageItem = new ItemStack(LuggageRegistries.ENDER_LUGGAGE_ITEM.get());
 						if (player.getInventory().add(luggageItem)) {
 							this.discard();
 							this.playSound(SoundEvents.ITEM_PICKUP, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
@@ -79,13 +79,13 @@ public class EnderLuggage extends AbstractLuggage {
 	public void remove(RemovalReason reason) {
 		if (reason == RemovalReason.KILLED) {
 			this.spawnAnim();
-			this.playSound(LuggageRegistries.SoundRegistry.LUGGAGE_KILLED.get(), 8.0F, 1.0F);
+			this.playSound(LuggageRegistries.LUGGAGE_KILLED.get(), 8.0F, 1.0F);
 		}
 		super.remove(reason);
 	}
 
 	@Override
 	public ItemStack getPickResult() {
-		return new ItemStack(LuggageRegistries.ItemRegistry.ENDER_LUGGAGE.get());
+		return new ItemStack(LuggageRegistries.ENDER_LUGGAGE_ITEM.get());
 	}
 }

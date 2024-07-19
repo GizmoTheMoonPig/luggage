@@ -6,7 +6,9 @@ import com.gizmo.luggage.entity.Luggage;
 import com.gizmo.luggage.network.CallLuggagePacket;
 import com.gizmo.luggage.network.OpenLuggageScreenPacket;
 import com.gizmo.luggage.network.SitNearbyLuggagesPacket;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
@@ -20,17 +22,18 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
-import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 @Mod(LuggageMod.ID)
 public class LuggageMod {
 	public static final String ID = "luggage";
 
 	public LuggageMod(IEventBus bus, Dist dist) {
-		LuggageRegistries.ItemRegistry.ITEMS.register(bus);
-		LuggageRegistries.SoundRegistry.SOUNDS.register(bus);
-		LuggageRegistries.EntityRegistry.ENTITIES.register(bus);
+		LuggageRegistries.ITEMS.register(bus);
+		LuggageRegistries.SOUNDS.register(bus);
+		LuggageRegistries.ENTITIES.register(bus);
+		LuggageRegistries.COMPONENTS.register(bus);
 
 		if (dist.isClient()) {
 			ClientEvents.init(bus);
@@ -39,39 +42,36 @@ public class LuggageMod {
 		bus.addListener(this::addToTab);
 		bus.addListener(this::setupPackets);
 		bus.addListener(this::addAttributes);
-		bus.addListener(RegisterCapabilitiesEvent.class, event -> event.registerEntity(Capabilities.ItemHandler.ENTITY, LuggageRegistries.EntityRegistry.LUGGAGE.get(), (entity, ctx) -> new InvWrapper(entity.getInventory())));
+		bus.addListener(RegisterCapabilitiesEvent.class, event -> event.registerEntity(Capabilities.ItemHandler.ENTITY, LuggageRegistries.LUGGAGE.get(), (entity, ctx) -> new InvWrapper(entity.getInventory())));
 		NeoForge.EVENT_BUS.addListener(this::neverKillLuggage);
 	}
 
-	public void setupPackets(RegisterPayloadHandlerEvent event) {
-		IPayloadRegistrar registrar = event.registrar(ID).versioned("1.0.0").optional();
-		registrar.play(CallLuggagePacket.ID, (buf) -> new CallLuggagePacket(), payload -> payload.server((message, ctx) -> CallLuggagePacket.handle(ctx)));
-		registrar.play(OpenLuggageScreenPacket.ID, OpenLuggageScreenPacket::new, payload -> payload.client(OpenLuggageScreenPacket::handle));
-		registrar.play(SitNearbyLuggagesPacket.ID, (buf) -> new SitNearbyLuggagesPacket(), payload -> payload.server((message, ctx) -> SitNearbyLuggagesPacket.handle(ctx)));
+	public void setupPackets(RegisterPayloadHandlersEvent event) {
+		PayloadRegistrar registrar = event.registrar(ID).versioned("1.0.0").optional();
+		registrar.playToServer(CallLuggagePacket.TYPE, StreamCodec.unit(new CallLuggagePacket()), CallLuggagePacket::handle);
+		registrar.playToClient(OpenLuggageScreenPacket.TYPE, OpenLuggageScreenPacket.STREAM_CODEC, OpenLuggageScreenPacket::handle);
+		registrar.playToServer(SitNearbyLuggagesPacket.TYPE, StreamCodec.unit(new SitNearbyLuggagesPacket()), SitNearbyLuggagesPacket::handle);
 	}
 
 	public void addAttributes(EntityAttributeCreationEvent event) {
-		event.put(LuggageRegistries.EntityRegistry.LUGGAGE.get(), Luggage.registerAttributes().build());
-		event.put(LuggageRegistries.EntityRegistry.ENDER_LUGGAGE.get(), EnderLuggage.registerAttributes().build());
+		event.put(LuggageRegistries.LUGGAGE.get(), Luggage.registerAttributes().build());
+		event.put(LuggageRegistries.ENDER_LUGGAGE.get(), EnderLuggage.registerAttributes().build());
 	}
 
 	public void addToTab(BuildCreativeModeTabContentsEvent event) {
 		if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
 			//normal luggage
-			event.accept(LuggageRegistries.ItemRegistry.LUGGAGE.get());
+			event.accept(LuggageRegistries.LUGGAGE_ITEM.get());
 			//add charged luggage too
-			ItemStack item = new ItemStack(LuggageRegistries.ItemRegistry.LUGGAGE.get());
-			CompoundTag tag = new CompoundTag();
-			tag.putBoolean(Luggage.EXTENDED_TAG, true);
-			item.setTag(tag);
+			ItemStack item = new ItemStack(LuggageRegistries.LUGGAGE_ITEM.get());
+			item.set(LuggageRegistries.EXTENDED, Unit.INSTANCE);
 			event.accept(item);
-			event.accept(LuggageRegistries.ItemRegistry.ENDER_LUGGAGE.get());
+			event.accept(LuggageRegistries.ENDER_LUGGAGE_ITEM.get());
 		}
 	}
 
 	public void neverKillLuggage(EntityJoinLevelEvent event) {
-		if (event.getEntity() instanceof ItemEntity item && item.getItem().is(LuggageRegistries.ItemRegistry.LUGGAGE.get()) &&
-				item.getItem().getTag() != null && item.getItem().getTag().contains(Luggage.INVENTORY_TAG)) {
+		if (event.getEntity() instanceof ItemEntity item && item.getItem().is(LuggageRegistries.LUGGAGE_ITEM.get()) && item.getItem().has(DataComponents.CONTAINER)) {
 			item.setInvulnerable(true);
 			item.setUnlimitedLifetime();
 		}

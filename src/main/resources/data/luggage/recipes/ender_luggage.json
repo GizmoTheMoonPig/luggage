@@ -7,10 +7,10 @@
   ],
   "key": {
     "o": {
-      "tag": "forge:obsidian"
+      "tag": "c:obsidian"
     },
     "c": {
-      "tag": "forge:chests/ender"
+      "tag": "c:chests/ender"
     },
     "e": {
       "item": "minecraft:ender_eye"

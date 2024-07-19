@@ -2,10 +2,10 @@ package com.gizmo.luggage.entity;
 
 import com.gizmo.luggage.LuggageMenu;
 import com.gizmo.luggage.LuggageRegistries;
-import com.gizmo.luggage.entity.ai.LuggageFollowOwnerGoal;
 import com.gizmo.luggage.entity.ai.LuggagePickupItemGoal;
 import com.gizmo.luggage.network.OpenLuggageScreenPacket;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -16,15 +16,18 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Unit;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.Path;
@@ -58,7 +61,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 	protected void registerGoals() {
 		this.goalSelector.addGoal(0, new FloatGoal(this));
 		this.goalSelector.addGoal(1, new LuggagePickupItemGoal(this));
-		this.goalSelector.addGoal(2, new LuggageFollowOwnerGoal(this, 1.1D, 7.0F, 1.0F) {
+		this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 1.1D, 7.0F, 1.0F) {
 			@Override
 			public boolean canUse() {
 				if (super.canUse()) {
@@ -90,9 +93,9 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.getEntityData().define(EXTENDED, false);
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(EXTENDED, false);
 	}
 
 	//-----------------------------------------//
@@ -111,7 +114,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 			if (!itemstack.isEmpty()) {
 				CompoundTag compoundtag = new CompoundTag();
 				compoundtag.putByte("Slot", (byte) i);
-				itemstack.save(compoundtag);
+				itemstack.save(this.level().registryAccess(), compoundtag);
 				listtag.add(compoundtag);
 			}
 		}
@@ -130,7 +133,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 			CompoundTag compoundtag = listtag.getCompound(i);
 			int j = compoundtag.getByte("Slot") & 255;
 			if (j < this.inventory.getContainerSize()) {
-				this.inventory.setItem(j, ItemStack.of(compoundtag));
+				this.inventory.setItem(j, ItemStack.parseOptional(this.level().registryAccess(), compoundtag));
 			}
 		}
 	}
@@ -141,24 +144,19 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 
 	private ItemStack convertToItem() {
 
-		ItemStack luggageItem = new ItemStack(LuggageRegistries.ItemRegistry.LUGGAGE.get());
-		CompoundTag tag = new CompoundTag();
+		ItemStack luggageItem = new ItemStack(LuggageRegistries.LUGGAGE_ITEM.get());
 
 		if (this.hasExtendedInventory()) {
-			tag.putBoolean(EXTENDED_TAG, this.hasExtendedInventory());
+			luggageItem.set(LuggageRegistries.EXTENDED, Unit.INSTANCE);
 		}
 
 		if (!this.inventory.isEmpty()) {
-			tag.put(INVENTORY_TAG, this.inventory.createTag());
-		}
-
-		if (!tag.isEmpty()) {
-			luggageItem.setTag(tag);
+			luggageItem.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(this.inventory.getItems()));
 		}
 
 		Component nameTag = this.getCustomName();
 		if (nameTag != null && !nameTag.getString().isEmpty()) {
-			luggageItem.setHoverName(nameTag);
+			luggageItem.set(DataComponents.CUSTOM_NAME, nameTag);
 		}
 
 		return luggageItem;
@@ -166,22 +164,20 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 
 	public void restoreFromStack(@NotNull ItemStack stack) {
 		//im not this stupid, but just in case
-		if (!stack.is(LuggageRegistries.ItemRegistry.LUGGAGE.get())) return;
+		if (!stack.is(LuggageRegistries.LUGGAGE_ITEM.get())) return;
 
-		CompoundTag tag = stack.getTag();
-
-		if (tag != null && tag.contains(EXTENDED_TAG)) {
-			this.setExtendedInventory(tag.getBoolean(EXTENDED_TAG));
+		if (stack.has(LuggageRegistries.EXTENDED)) {
+			this.setExtendedInventory(true);
 		}
 
-		if (tag != null && tag.contains(INVENTORY_TAG)) {
-			this.inventory.fromTag(tag.getList(INVENTORY_TAG, 10));
+		if (stack.has(DataComponents.CONTAINER)) {
+			stack.get(DataComponents.CONTAINER).copyInto(this.inventory.getItems());
 			if (this.inventory.getContainerSize() > 27) {
 				this.setExtendedInventory(true);
 			}
 		}
 
-		if (stack.hasCustomHoverName()) {
+		if (stack.has(DataComponents.CUSTOM_NAME)) {
 			this.setCustomName(stack.getHoverName());
 		}
 
@@ -303,10 +299,12 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 					}
 					if (!this.level().isClientSide()) {
 						ServerPlayer sp = (ServerPlayer) player;
-						if (sp.containerMenu != sp.inventoryMenu) sp.closeContainer();
+						if (sp.containerMenu != sp.inventoryMenu) {
+							sp.closeContainer();
+						}
 
 						sp.nextContainerCounter();
-						PacketDistributor.PLAYER.with(sp).send(new OpenLuggageScreenPacket(sp.containerCounter, this.getId()));
+						PacketDistributor.sendToPlayer(sp, new OpenLuggageScreenPacket(sp.containerCounter, this.getId()));
 						sp.containerMenu = new LuggageMenu(sp.containerCounter, sp.getInventory(), this.inventory, this);
 						sp.initMenu(sp.containerMenu);
 						this.isInventoryOpen = true;
@@ -336,7 +334,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 		if (reason == RemovalReason.KILLED) {
 			this.getInventory().removeAllItems().forEach(this::spawnAtLocation);
 			this.spawnAnim();
-			this.playSound(LuggageRegistries.SoundRegistry.LUGGAGE_KILLED.get(), 8.0F, 1.0F);
+			this.playSound(LuggageRegistries.LUGGAGE_KILLED.get(), 8.0F, 1.0F);
 		}
 		super.remove(reason);
 	}
@@ -344,6 +342,6 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 	@Nullable
 	@Override
 	public ItemStack getPickResult() {
-		return new ItemStack(LuggageRegistries.ItemRegistry.LUGGAGE.get());
+		return new ItemStack(LuggageRegistries.LUGGAGE_ITEM.get());
 	}
 }

@@ -10,6 +10,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -21,6 +22,8 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.common.NeoForge;
@@ -28,7 +31,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 public class ClientEvents {
-	public static final ModelLayerLocation LUGGAGE = new ModelLayerLocation(new ResourceLocation(LuggageMod.ID, "luggage"), "main");
+	public static final ModelLayerLocation LUGGAGE = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(LuggageMod.ID, "luggage"), "main");
 	private static final KeyMapping CALL_KEY = new KeyMapping(
 			"keybind.luggage.call",
 			KeyConflictContext.IN_GAME,
@@ -50,9 +53,15 @@ public class ClientEvents {
 		});
 		bus.addListener(EntityRenderersEvent.RegisterLayerDefinitions.class, event -> event.registerLayerDefinition(LUGGAGE, LuggageModel::create));
 		bus.addListener(EntityRenderersEvent.RegisterRenderers.class, event -> {
-			event.registerEntityRenderer(LuggageRegistries.EntityRegistry.LUGGAGE.get(), LuggageRenderer::new);
-			event.registerEntityRenderer(LuggageRegistries.EntityRegistry.ENDER_LUGGAGE.get(), EnderLuggageRenderer::new);
+			event.registerEntityRenderer(LuggageRegistries.LUGGAGE.get(), LuggageRenderer::new);
+			event.registerEntityRenderer(LuggageRegistries.ENDER_LUGGAGE.get(), EnderLuggageRenderer::new);
 		});
+		bus.addListener(RegisterClientExtensionsEvent.class, event -> event.registerItem(new IClientItemExtensions() {
+			@Override
+			public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+				return new LuggageItemRenderer();
+			}
+		}, LuggageRegistries.LUGGAGE_ITEM.get(), LuggageRegistries.ENDER_LUGGAGE_ITEM.get()));
 		bus.addListener(RegisterClientTooltipComponentFactoriesEvent.class, event -> event.register(LuggageItem.Tooltip.class, LuggageTooltipComponent::new));
 		NeoForge.EVENT_BUS.addListener(ClientEvents::commandTheCreatures);
 		NeoForge.EVENT_BUS.addListener(ClientEvents::attackThroughLuggage);
@@ -62,11 +71,11 @@ public class ClientEvents {
 		if (event.getAction() == GLFW.GLFW_PRESS && Minecraft.getInstance().player != null) {
 			float pitch = Minecraft.getInstance().player.getRandom().nextFloat() * 0.1F + 0.9F;
 			if (event.getKey() == CALL_KEY.getKey().getValue() && CALL_KEY.consumeClick()) {
-				Minecraft.getInstance().player.playSound(LuggageRegistries.SoundRegistry.WHISTLE_CALL.get(), 1.0F, pitch);
-				PacketDistributor.SERVER.noArg().send(new CallLuggagePacket());
+				Minecraft.getInstance().player.playSound(LuggageRegistries.WHISTLE_CALL.get(), 1.0F, pitch);
+				PacketDistributor.sendToServer(new CallLuggagePacket());
 			} else if (event.getKey() == WAIT_KEY.getKey().getValue() && WAIT_KEY.consumeClick()) {
-				Minecraft.getInstance().player.playSound(LuggageRegistries.SoundRegistry.WHISTLE_WAIT.get(), 0.85F, pitch);
-				PacketDistributor.SERVER.noArg().send(new SitNearbyLuggagesPacket());
+				Minecraft.getInstance().player.playSound(LuggageRegistries.WHISTLE_WAIT.get(), 0.85F, pitch);
+				PacketDistributor.sendToServer(new SitNearbyLuggagesPacket());
 			}
 		}
 	}
@@ -80,7 +89,7 @@ public class ClientEvents {
 			Player player = Minecraft.getInstance().player;
 			Vec3 vec3 = player.getEyePosition(1.0F);
 			Vec3 vec31 = player.getViewVector(1.0F);
-			double d0 = (double) Minecraft.getInstance().gameMode.getPickRange() + 1.5D;
+			double d0 = player.entityInteractionRange() + 1.5D;
 			double d1 = Minecraft.getInstance().hitResult.getLocation().distanceToSqr(vec3) + 8.0D;
 			Vec3 vec32 = vec3.add(vec31.x() * d0, vec31.y() * d0, vec31.z() * d0);
 			AABB aabb = player.getBoundingBox().expandTowards(vec31.scale(d0)).inflate(1.0D, 1.0D, 1.0D);

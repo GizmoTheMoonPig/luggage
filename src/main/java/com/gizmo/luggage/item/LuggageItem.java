@@ -4,6 +4,7 @@ import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.entity.Luggage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -27,6 +29,8 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -49,9 +53,8 @@ public class LuggageItem extends AbstractLuggageItem {
 				BlockEntity be = level.getBlockEntity(result.getBlockPos());
 				IItemHandler cap = level.getCapability(Capabilities.ItemHandler.BLOCK, result.getBlockPos(), level.getBlockState(pos), be, result.getDirection());
 				if (cap != null) {
-					CompoundTag tag = stack.getTag();
-					SimpleContainer newInv = new SimpleContainer(tag != null && tag.contains(Luggage.EXTENDED_TAG) ? 54 : 27);
-					for (ItemStack stack1 : this.getContents(stack).toList()) {
+					SimpleContainer newInv = new SimpleContainer(stack.has(LuggageRegistries.EXTENDED) ? 54 : 27);
+					for (ItemStack stack1 : this.getContents(stack)) {
 						for (int slot = 0; slot < cap.getSlots(); slot++) {
 							if (cap.insertItem(slot, stack1, true) != stack1) {
 								stack1 = cap.insertItem(slot, stack1, false);
@@ -61,8 +64,8 @@ public class LuggageItem extends AbstractLuggageItem {
 						}
 						newInv.addItem(stack1);
 					}
-					if (insertedAny && tag != null) {
-						tag.put(Luggage.INVENTORY_TAG, newInv.createTag());
+					if (insertedAny) {
+						stack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(newInv.getItems()));
 					}
 				}
 			}
@@ -81,16 +84,14 @@ public class LuggageItem extends AbstractLuggageItem {
 
 	@Override
 	public EntityType<Luggage> getLuggageEntity() {
-		return LuggageRegistries.EntityRegistry.LUGGAGE.get();
+		return LuggageRegistries.LUGGAGE.get();
 	}
 
-	private Stream<ItemStack> getContents(ItemStack stack) {
-		CompoundTag compoundtag = stack.getTag();
-		if (compoundtag == null) {
-			return Stream.empty();
+	private Iterable<ItemStack> getContents(ItemStack stack) {
+		if (!stack.has(DataComponents.CONTAINER)) {
+			return new ArrayList<>();
 		} else {
-			ListTag listtag = compoundtag.getList(Luggage.INVENTORY_TAG, 10);
-			return listtag.stream().map(CompoundTag.class::cast).map(ItemStack::of);
+			return stack.get(DataComponents.CONTAINER).nonEmptyItems();
 		}
 	}
 
@@ -102,21 +103,14 @@ public class LuggageItem extends AbstractLuggageItem {
 	}
 
 	private boolean dropContents(ItemStack stack, Player player) {
-		CompoundTag tag = stack.getTag();
-		if (tag == null || !tag.contains(Luggage.INVENTORY_TAG)) {
+		if (!stack.has(DataComponents.CONTAINER)) {
 			return false;
 		} else {
 			if (player instanceof ServerPlayer) {
-				ListTag listtag = tag.getList(Luggage.INVENTORY_TAG, 10);
-
-				for(int i = 0; i < listtag.size(); ++i) {
-					CompoundTag stackTag = listtag.getCompound(i);
-					ItemStack itemstack = ItemStack.of(stackTag);
-					player.drop(itemstack, true);
-				}
+				stack.get(DataComponents.CONTAINER).nonEmptyItems().forEach(stack1 -> player.drop(stack1, true));
 			}
 
-			stack.removeTagKey(Luggage.INVENTORY_TAG);
+			stack.remove(DataComponents.CONTAINER);
 			return true;
 		}
 	}

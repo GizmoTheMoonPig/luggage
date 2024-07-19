@@ -1,5 +1,6 @@
 package com.gizmo.luggage.client;
 
+import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.entity.Luggage;
 import com.gizmo.luggage.item.LuggageItem;
 import net.minecraft.client.gui.Font;
@@ -18,14 +19,14 @@ public class LuggageTooltipComponent implements ClientTooltipComponent {
 	private static final int SLOT_SIZE_X = 18;
 	private static final int SLOT_SIZE_Y = 18;
 
-	private static final ResourceLocation BACKGROUND_SPRITE = new ResourceLocation("container/bundle/background");
-	private static final ResourceLocation SLOT_SPRITE = new ResourceLocation("container/bundle/slot");
+	private static final ResourceLocation BACKGROUND_SPRITE = ResourceLocation.withDefaultNamespace("container/bundle/background");
+	private static final ResourceLocation SLOT_SPRITE = ResourceLocation.withDefaultNamespace("container/bundle/slot");
 	private final NonNullList<ItemStack> items;
 	private final boolean extended;
 
 	public LuggageTooltipComponent(LuggageItem.Tooltip tooltip) {
 		this.items = tooltip.stacks();
-		this.extended = tooltip.stack().getTag() != null && tooltip.stack().getTag().getBoolean(Luggage.EXTENDED_TAG);
+		this.extended = tooltip.stack().has(LuggageRegistries.EXTENDED);
 	}
 
 	@Override
@@ -63,10 +64,12 @@ public class LuggageTooltipComponent implements ClientTooltipComponent {
 	}
 
 	private void renderSlot(int x, int y, int slot, GuiGraphics graphics, Font font) {
-		ItemStack itemstack = this.items.get(slot);
 		graphics.blitSprite(SLOT_SPRITE, x, y, 0, SLOT_SIZE_X, SLOT_SIZE_Y + 2);
-		graphics.renderItem(itemstack, x + 1, y + 1, slot);
-		graphics.renderItemDecorations(font, itemstack, x + 1, y + 1);
+		if (slot < this.items.size()) {
+			ItemStack itemstack = this.items.get(slot);
+			graphics.renderItem(itemstack, x + 1, y + 1, slot);
+			graphics.renderItemDecorations(font, itemstack, x + 1, y + 1);
+		}
 	}
 
 	private int gridSizeX() {

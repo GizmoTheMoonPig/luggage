@@ -2,6 +2,7 @@ package com.gizmo.luggage.entity.ai;
 
 import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.entity.Luggage;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
@@ -79,8 +80,8 @@ public class LuggagePickupItemGoal extends Goal {
 				ItemStack item = this.targetItem.getItem();
 				if (this.luggage.getInventory().canAddItem(this.targetItem.getItem())) {
 					if (this.luggage.getSoundCooldown() == 0) {
-						boolean isFood = item.isEdible();
-						this.luggage.playSound(isFood ? LuggageRegistries.SoundRegistry.LUGGAGE_EAT_FOOD.get() : LuggageRegistries.SoundRegistry.LUGGAGE_EAT_ITEM.get(),
+						boolean isFood = item.has(DataComponents.FOOD);
+						this.luggage.playSound(isFood ? LuggageRegistries.LUGGAGE_EAT_FOOD.get() : LuggageRegistries.LUGGAGE_EAT_ITEM.get(),
 								0.5F, 1.0F + (this.luggage.getRandom().nextFloat() * 0.2F));
 						this.luggage.setSoundCooldown(15);
 					}

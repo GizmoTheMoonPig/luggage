@@ -1,8 +1,9 @@
 plugins {
+	id 'java-library'
 	id 'eclipse'
 	id 'idea'
 	id 'maven-publish'
-	id 'net.neoforged.gradle.userdev' version '7.0.+'
+	id 'net.neoforged.moddev' version '1.0.1'
 }
 
 def secrets = new Properties()
@@ -22,41 +23,55 @@ if (secretsFile.exists()) {
 	}
 }
 
+idea {
+	module {
+		downloadJavadoc = true
+		downloadSources = true
+	}
+}
+
 version = "${project.minecraft_version}-${project.mod_version}." + (hasProperty("CIVersion") ? CIVersion : '0')
 group = 'com.gizmo.luggage'
 base {
 	archivesName = modid
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-//minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
-compileJava.options.compilerArgs << "-Xlint:all,-classfile,-processing,-deprecation" << "-Werror"
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+compileJava.options.compilerArgs << "-Xlint:all,-classfile,-processing,-deprecation,-this-escape" << "-Werror"
 
-runs {
-	configureEach {
-		workingDirectory project.file("run")
-		systemProperty 'forge.logging.console.level', 'debug'
-		systemProperty 'mixin.env.disableRefMap', 'true'
+neoForge {
+	version = project.neo_version
+	validateAccessTransformers = true
 
-		modSource project.sourceSets.main
+	runs {
+		configureEach {
+			gameDirectory = project.file('run')
+			systemProperty 'forge.logging.console.level', 'debug'
+			logLevel = org.slf4j.event.Level.DEBUG
+		}
+
+		client {
+			client()
+			systemProperty 'forge.enabledGameTestNamespaces', modid
+			programArguments.addAll '--username', secrets.getProperty("username") ?: 'Dev', secrets.getProperty("uuid") ? '--uuid' : '', secrets.getProperty("uuid") ?: ''
+		}
+
+		server {
+			server()
+			systemProperty 'forge.enabledGameTestNamespaces', modid
+			programArgument '--nogui'
+		}
+
+		data {
+			data()
+			programArguments.addAll '--mod', modid, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+		}
 	}
 
-	client {
-		systemProperty 'forge.enabledGameTestNamespaces', modid
-		programArguments.addAll '--username', secrets.getProperty("username") ?: 'Dev', secrets.getProperty("uuid") ? '--uuid' : '', secrets.getProperty("uuid") ?: ''
-	}
-
-	server {
-		systemProperty 'forge.enabledGameTestNamespaces', modid
-        programArgument '--nogui'
-	}
-
-	gameTestServer {
-		systemProperty 'forge.enabledGameTestNamespaces', modid
-	}
-
-	data {
-		programArguments.addAll '--mod', modid, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+	mods {
+		obtrophies {
+			sourceSet this.sourceSets.main
+		}
 	}
 }
 
@@ -90,12 +105,10 @@ repositories {
 dependencies {
 	//make sure to only pick one of these when testing (switch others to compileOnly)
 	compileOnly "mezz.jei:jei-${project.minecraft_version}-neoforge:${project.jei_version}"
-	compileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:${project.rei_version}"
+//	compileOnly "me.shedaniel:RoughlyEnoughItems-neoforge:${project.rei_version}"
 	implementation "dev.emi:emi-neoforge:${project.emi_version}+${project.minecraft_version}"
 
-	compileOnly "curse.maven:jade-324717:4980188"
-
-	implementation "net.neoforged:neoforge:${project.neo_version}"
+	compileOnly "curse.maven:jade-324717:5529595"
 }
 
 tasks.named('jar', Jar).configure {
@@ -117,13 +130,13 @@ def mavenToken = hasProperty("CIMToken") ? CIMToken : secrets.getProperty("maven
 
 publishing {
 	publications {
-		mavenJava(MavenPublication) {
+		create('mavenJava', MavenPublication) {
 			afterEvaluate {
 				artifact project.jar
 				artifact project.sourceJar
 			}
-			setGroupId 'gizmo'
-			setArtifactId 'luggage'
+			groupId 'gizmo'
+			artifactId this.project.modid
 		}
 	}
 	repositories {

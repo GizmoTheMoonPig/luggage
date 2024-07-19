@@ -13,6 +13,8 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.FastColor;
 
 public class LuggageRenderer extends MobRenderer<Luggage, LuggageModel<Luggage>> {
 
@@ -23,7 +25,7 @@ public class LuggageRenderer extends MobRenderer<Luggage, LuggageModel<Luggage>>
 
 	@Override
 	public ResourceLocation getTextureLocation(Luggage luggage) {
-		return new ResourceLocation(LuggageMod.ID, "textures/entity/luggage" +
+		return ResourceLocation.fromNamespaceAndPath(LuggageMod.ID, "textures/entity/luggage" +
 				//maybe one day
 				//(luggage.hasCustomName() && Objects.requireNonNull(luggage.getCustomName()).getString().equals("Chester") ? "_chester" : "") +
 				(luggage.hasExtendedInventory() ? "_special" : "") + ".png");
@@ -41,9 +43,9 @@ public class LuggageRenderer extends MobRenderer<Luggage, LuggageModel<Luggage>>
 				assert Minecraft.getInstance().level != null;
 				float f = (float) Minecraft.getInstance().level.getGameTime() + partialTicks;
 				this.getParentModel().prepareMobModel(luggage, limbSwing, limbSwingAmount, partialTicks);
-				VertexConsumer vertexconsumer = buffer.getBuffer(RenderType.energySwirl(new ResourceLocation("textures/entity/creeper/creeper_armor.png"), f * 0.01F % 1.0F, f * 0.01F % 1.0F));
+				VertexConsumer vertexconsumer = buffer.getBuffer(RenderType.energySwirl(ResourceLocation.withDefaultNamespace("textures/entity/creeper/creeper_armor.png"), f * 0.01F % 1.0F, f * 0.01F % 1.0F));
 				this.getParentModel().setupAnim(luggage, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch);
-				this.getParentModel().renderToBuffer(ms, vertexconsumer, light, OverlayTexture.NO_OVERLAY, 0.5F, 0.5F, 0.5F, 1.0F);
+				this.getParentModel().renderToBuffer(ms, vertexconsumer, light, OverlayTexture.NO_OVERLAY, -8355712);
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 package com.gizmo.luggage.client;
 
+import com.gizmo.luggage.LuggageRegistries;
 import com.gizmo.luggage.entity.Luggage;
 import com.gizmo.luggage.item.AbstractLuggageItem;
 import com.mojang.blaze3d.platform.Lighting;
@@ -24,7 +25,7 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 	@Override
 	public void renderByItem(ItemStack stack, ItemDisplayContext context, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
 		if (stack.getItem() instanceof AbstractLuggageItem luggage) {
-			Entity entity = EntityCache.fetchEntity(luggage.getLuggageEntity(), Minecraft.getInstance().level, stack.getTag() != null && stack.getTag().getBoolean(Luggage.EXTENDED_TAG));
+			Entity entity = EntityCache.fetchEntity(luggage.getLuggageEntity(), Minecraft.getInstance().level, stack.has(LuggageRegistries.EXTENDED));
 			if (entity != null) {
 				this.renderEntity(entity, context, ms, light);
 			}
@@ -33,7 +34,7 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 
 	@SuppressWarnings("deprecation")
 	private void renderEntity(Entity entity, ItemDisplayContext context, PoseStack stack, int light) {
-		float partialTicks = Minecraft.getInstance().getFrameTime();
+		float partialTicks = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
 		float partialTicksForRender = Minecraft.getInstance().isPaused() ? 0 : partialTicks;
 		stack.scale(-1.0F, -1.0F, 1.0F);
 		stack.translate(-0.5F, -0.2F, 0.0F);

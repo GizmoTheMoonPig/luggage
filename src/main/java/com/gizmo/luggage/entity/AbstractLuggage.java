@@ -1,8 +1,6 @@
 package com.gizmo.luggage.entity;
 
 import com.gizmo.luggage.LuggageRegistries;
-import com.gizmo.luggage.entity.ai.LuggageFollowOwnerGoal;
-import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
@@ -12,11 +10,13 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathType;
 import org.jetbrains.annotations.Nullable;
 
 public class AbstractLuggage extends TamableAnimal {
@@ -26,23 +26,24 @@ public class AbstractLuggage extends TamableAnimal {
 
 	protected AbstractLuggage(EntityType<? extends TamableAnimal> type, Level level) {
 		super(type, level);
-		this.setPathfindingMalus(BlockPathTypes.LEAVES, -1.0F);
-		this.setPathfindingMalus(BlockPathTypes.FENCE, -1.0F);
-		this.setPathfindingMalus(BlockPathTypes.COCOA, -1.0F);
-		this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
-		this.setPathfindingMalus(BlockPathTypes.UNPASSABLE_RAIL, 0.0F);
+		this.setPathfindingMalus(PathType.LEAVES, -1.0F);
+		this.setPathfindingMalus(PathType.FENCE, -1.0F);
+		this.setPathfindingMalus(PathType.COCOA, -1.0F);
+		this.setPathfindingMalus(PathType.WATER, 0.0F);
+		this.setPathfindingMalus(PathType.UNPASSABLE_RAIL, 0.0F);
 	}
 
 	@Override
 	protected void registerGoals() {
 		this.goalSelector.addGoal(0, new FloatGoal(this));
-		this.goalSelector.addGoal(2, new LuggageFollowOwnerGoal(this, 1.1D, 7.0F, 1.0F));
+		this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 1.1D, 7.0F, 1.0F));
 	}
 
 	public static AttributeSupplier.Builder registerAttributes() {
 		return Mob.createMobAttributes()
 				.add(Attributes.MAX_HEALTH, 0.0D)
-				.add(Attributes.MOVEMENT_SPEED, 0.35D);
+				.add(Attributes.MOVEMENT_SPEED, 0.35D)
+				.add(Attributes.STEP_HEIGHT, 1.0D);
 	}
 
 	@Override
@@ -54,11 +55,11 @@ public class AbstractLuggage extends TamableAnimal {
 	}
 
 	@Override
-	public void onRemovedFromWorld() {
+	public void onRemovedFromLevel() {
 		if (this.level() != null && this.level() instanceof ServerLevel server && !this.isInSittingPose() && this.getOwner() != null) {
 			server.getChunkSource().addRegionTicket(LUGGAGE_UNLOAD, new ChunkPos(this.blockPosition()), 2, this.getId());
 		}
-		super.onRemovedFromWorld();
+		super.onRemovedFromLevel();
 	}
 
 	public int getSoundCooldown() {
@@ -78,7 +79,7 @@ public class AbstractLuggage extends TamableAnimal {
 	//override tame logic to prevent the advancement for taming a mob to be granted
 	@Override
 	public void tame(Player player) {
-		this.setTame(true);
+		this.setTame(true, false);
 		this.setOwnerUUID(player.getUUID());
 	}
 
@@ -89,12 +90,12 @@ public class AbstractLuggage extends TamableAnimal {
 	}
 
 	@Override
-	public float getStepHeight() {
-		return 1.0F;
+	public boolean removeWhenFarAway(double dist) {
+		return false;
 	}
 
 	@Override
-	public boolean removeWhenFarAway(double dist) {
+	public boolean isFood(ItemStack itemStack) {
 		return false;
 	}
 
@@ -140,11 +141,6 @@ public class AbstractLuggage extends TamableAnimal {
 	}
 
 	@Override
-	public boolean canChangeDimensions() {
-		return false;
-	}
-
-	@Override
 	public boolean attackable() {
 		return false;
 	}
@@ -170,7 +166,7 @@ public class AbstractLuggage extends TamableAnimal {
 	}
 
 	@Override
-	public boolean canBeLeashed(Player player) {
+	public boolean canBeLeashed() {
 		return false;
 	}
 
@@ -186,6 +182,12 @@ public class AbstractLuggage extends TamableAnimal {
 
 	@Override
 	protected void playStepSound(BlockPos pos, BlockState state) {
-		this.playSound(LuggageRegistries.SoundRegistry.LUGGAGE_STEP.get(), 0.1F, 0.7F + (this.getRandom().nextFloat() * 0.5F));
+		this.playSound(LuggageRegistries.LUGGAGE_STEP.get(), 0.1F, 0.7F + (this.getRandom().nextFloat() * 0.5F));
+	}
+
+	@Override
+	public boolean shouldTryTeleportToOwner() {
+		LivingEntity livingentity = this.getOwner();
+		return livingentity != null && this.distanceToSqr(this.getOwner()) >= 1600.0D;
 	}
 }

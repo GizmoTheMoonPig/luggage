@@ -60,24 +60,8 @@ public abstract class AbstractLuggageItem extends Item {
 	}
 
 	@Override
-	public boolean canEquip(ItemStack stack, EquipmentSlot slot, Entity entity) {
-		return slot == EquipmentSlot.HEAD;
-	}
-
-	@Override
 	@Nullable
 	public EquipmentSlot getEquipmentSlot(ItemStack stack) {
 		return EquipmentSlot.HEAD;
-	}
-
-	@Override
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-		consumer.accept(new IClientItemExtensions() {
-
-			@Override
-			public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-				return new LuggageItemRenderer();
-			}
-		});
 	}
 }

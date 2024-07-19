@@ -13,6 +13,6 @@ public class EnderLuggageRenderer extends MobRenderer<EnderLuggage, LuggageModel
 
 	@Override
 	public ResourceLocation getTextureLocation(EnderLuggage luggage) {
-		return new ResourceLocation(LuggageMod.ID, "textures/entity/ender_luggage.png");
+		return ResourceLocation.fromNamespaceAndPath(LuggageMod.ID, "textures/entity/ender_luggage.png");
 	}
 }

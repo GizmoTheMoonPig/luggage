@@ -11,6 +11,6 @@ public class EnderLuggageItem extends AbstractLuggageItem {
 
 	@Override
 	public EntityType<EnderLuggage> getLuggageEntity() {
-		return LuggageRegistries.EntityRegistry.ENDER_LUGGAGE.get();
+		return LuggageRegistries.ENDER_LUGGAGE.get();
 	}
 }
