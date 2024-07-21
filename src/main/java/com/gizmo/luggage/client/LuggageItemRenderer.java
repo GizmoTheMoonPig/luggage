@@ -50,7 +50,5 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 		source.endBatch();
 		dispatcher.setRenderShadow(true);
 		dispatcher.setRenderHitBoxes(hitboxes);
-		RenderSystem.applyModelViewMatrix();
-		Lighting.setupFor3DItems();
 	}
 }
