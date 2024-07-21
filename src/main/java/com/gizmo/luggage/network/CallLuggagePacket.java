@@ -3,6 +3,8 @@ package com.gizmo.luggage.network;
 import com.gizmo.luggage.LuggageMod;
 import com.gizmo.luggage.entity.AbstractLuggage;
 import com.gizmo.luggage.entity.Luggage;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -12,13 +14,15 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 public class CallLuggagePacket implements CustomPacketPayload {
 
 	public static final Type<CallLuggagePacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LuggageMod.ID, "call_nearby_luggage"));
+	public static final CallLuggagePacket INSTANCE = new CallLuggagePacket();
+	public static final StreamCodec<ByteBuf, CallLuggagePacket> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
 	@Override
 	public Type<? extends CustomPacketPayload> type() {
 		return TYPE;
 	}
 
-	public static void handle(CallLuggagePacket packet, IPayloadContext ctx) {
+	public static void handle(IPayloadContext ctx) {
 		if (ctx.flow().isServerbound()) {
 			ctx.enqueueWork(() -> {
 				Player player = ctx.player();

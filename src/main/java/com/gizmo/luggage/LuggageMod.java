@@ -7,7 +7,6 @@ import com.gizmo.luggage.network.CallLuggagePacket;
 import com.gizmo.luggage.network.OpenLuggageScreenPacket;
 import com.gizmo.luggage.network.SitNearbyLuggagesPacket;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -48,9 +47,9 @@ public class LuggageMod {
 
 	public void setupPackets(RegisterPayloadHandlersEvent event) {
 		PayloadRegistrar registrar = event.registrar(ID).versioned("1.0.0").optional();
-		registrar.playToServer(CallLuggagePacket.TYPE, StreamCodec.unit(new CallLuggagePacket()), CallLuggagePacket::handle);
+		registrar.playToServer(CallLuggagePacket.TYPE, CallLuggagePacket.STREAM_CODEC, (payload, context) -> CallLuggagePacket.handle(context));
 		registrar.playToClient(OpenLuggageScreenPacket.TYPE, OpenLuggageScreenPacket.STREAM_CODEC, OpenLuggageScreenPacket::handle);
-		registrar.playToServer(SitNearbyLuggagesPacket.TYPE, StreamCodec.unit(new SitNearbyLuggagesPacket()), SitNearbyLuggagesPacket::handle);
+		registrar.playToServer(SitNearbyLuggagesPacket.TYPE, SitNearbyLuggagesPacket.STREAM_CODEC, (payload, context) -> SitNearbyLuggagesPacket.handle(context));
 	}
 
 	public void addAttributes(EntityAttributeCreationEvent event) {

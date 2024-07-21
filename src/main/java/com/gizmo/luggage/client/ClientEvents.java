@@ -17,6 +17,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
@@ -64,7 +65,7 @@ public class ClientEvents {
 		}, LuggageRegistries.LUGGAGE_ITEM.get(), LuggageRegistries.ENDER_LUGGAGE_ITEM.get()));
 		bus.addListener(RegisterClientTooltipComponentFactoriesEvent.class, event -> event.register(LuggageItem.Tooltip.class, LuggageTooltipComponent::new));
 		NeoForge.EVENT_BUS.addListener(ClientEvents::commandTheCreatures);
-		NeoForge.EVENT_BUS.addListener(ClientEvents::attackThroughLuggage);
+		NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ClientEvents::attackThroughLuggage);
 	}
 
 	private static void commandTheCreatures(InputEvent.Key event) {
@@ -72,10 +73,10 @@ public class ClientEvents {
 			float pitch = Minecraft.getInstance().player.getRandom().nextFloat() * 0.1F + 0.9F;
 			if (event.getKey() == CALL_KEY.getKey().getValue() && CALL_KEY.consumeClick()) {
 				Minecraft.getInstance().player.playSound(LuggageRegistries.WHISTLE_CALL.get(), 1.0F, pitch);
-				PacketDistributor.sendToServer(new CallLuggagePacket());
+				PacketDistributor.sendToServer(CallLuggagePacket.INSTANCE);
 			} else if (event.getKey() == WAIT_KEY.getKey().getValue() && WAIT_KEY.consumeClick()) {
 				Minecraft.getInstance().player.playSound(LuggageRegistries.WHISTLE_WAIT.get(), 0.85F, pitch);
-				PacketDistributor.sendToServer(new SitNearbyLuggagesPacket());
+				PacketDistributor.sendToServer(SitNearbyLuggagesPacket.INSTANCE);
 			}
 		}
 	}
