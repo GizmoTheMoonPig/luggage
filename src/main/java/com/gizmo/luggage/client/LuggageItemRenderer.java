@@ -24,8 +24,8 @@ public class LuggageItemRenderer extends BlockEntityWithoutLevelRenderer {
 
 	@Override
 	public void renderByItem(ItemStack stack, ItemDisplayContext context, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-		if (stack.getItem() instanceof AbstractLuggageItem luggage) {
-			Entity entity = EntityCache.fetchEntity(luggage.getLuggageEntity(), Minecraft.getInstance().level, stack.has(LuggageRegistries.EXTENDED));
+		if (stack.getItem() instanceof AbstractLuggageItem<?> luggage) {
+			Entity entity = EntityCache.fetchEntity(luggage.getLuggage().get(), Minecraft.getInstance().level, stack.has(LuggageRegistries.EXTENDED));
 			if (entity != null) {
 				this.renderEntity(entity, context, ms, light);
 			}

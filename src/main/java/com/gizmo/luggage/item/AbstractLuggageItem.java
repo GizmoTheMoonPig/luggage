@@ -30,6 +30,10 @@ public class AbstractLuggageItem<T extends AbstractLuggage> extends Item {
 		this.luggage = entity;
 	}
 
+	public Supplier<EntityType<T>> getLuggage() {
+		return this.luggage;
+	}
+
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		BlockHitResult result = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
