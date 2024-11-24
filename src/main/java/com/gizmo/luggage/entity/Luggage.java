@@ -26,7 +26,6 @@ import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -34,8 +33,6 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +41,6 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 
 	private static final EntityDataAccessor<Boolean> EXTENDED = SynchedEntityData.defineId(Luggage.class, EntityDataSerializers.BOOLEAN);
 
-	public static final String INVENTORY_TAG = "Inventory";
 	public static final String EXTENDED_TAG = "Extended";
 
 	private SimpleContainer inventory;
@@ -135,30 +131,6 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 				this.inventory.setItem(j, ItemStack.parseOptional(this.level().registryAccess(), compoundtag));
 			}
 		}
-	}
-
-	//------------------------------------------//
-	//              ITEM TO ENTITY              //
-	//------------------------------------------//
-
-	private ItemStack convertToItem() {
-
-		ItemStack luggageItem = new ItemStack(LuggageRegistries.LUGGAGE_ITEM.get());
-
-		if (this.hasExtendedInventory()) {
-			luggageItem.set(LuggageRegistries.EXTENDED, Unit.INSTANCE);
-		}
-
-		if (!this.inventory.isEmpty()) {
-			luggageItem.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(this.inventory.getItems()));
-		}
-
-		Component nameTag = this.getCustomName();
-		if (nameTag != null && !nameTag.getString().isEmpty()) {
-			luggageItem.set(DataComponents.CUSTOM_NAME, nameTag);
-		}
-
-		return luggageItem;
 	}
 
 	//------------------------------------------//
@@ -254,47 +226,11 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 
 	@Override
 	public InteractionResult mobInteract(Player player, InteractionHand hand) {
-		if (this.isAlive()) {
-			ItemStack stack = player.getItemInHand(hand);
-			if (stack.is(Items.NAME_TAG)) return InteractionResult.PASS;
-
-			if (this.getOwner() == player) {
-				if (player.isShiftKeyDown()) {
-					if (!this.level().isClientSide()) {
-						ItemStack luggageItem = this.convertToItem();
-						if (player.getInventory().add(luggageItem)) {
-							this.discard();
-							this.playSound(SoundEvents.ITEM_PICKUP, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
-						}
-					}
-				} else {
-					this.level().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
-					//prevents sound from playing 4 times (once for each hand on both server and client).
-					if (this.getSoundCooldown() == 0) {
-						this.playSound(SoundEvents.CHEST_OPEN, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
-						this.setSoundCooldown(5);
-					}
-					if (!this.level().isClientSide()) {
-						ServerPlayer sp = (ServerPlayer) player;
-						if (sp.containerMenu != sp.inventoryMenu) {
-							sp.closeContainer();
-						}
-
-						sp.nextContainerCounter();
-						PacketDistributor.sendToPlayer(sp, new OpenLuggageScreenPacket(sp.containerCounter, this.getId()));
-						sp.containerMenu = new LuggageMenu(sp.containerCounter, sp.getInventory(), this.inventory, this);
-						sp.initMenu(sp.containerMenu);
-						this.isInventoryOpen = true;
-						NeoForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
-					}
-				}
-				return InteractionResult.sidedSuccess(this.level().isClientSide());
-			} else {
-				player.displayClientMessage(Component.translatable("entity.luggage.player_doesnt_own").withStyle(ChatFormatting.DARK_RED), true);
-				return InteractionResult.CONSUME;
-			}
+		if (this.isAlive() && this.getOwner() != player && !player.isShiftKeyDown()) {
+			player.displayClientMessage(Component.translatable("entity.luggage.player_doesnt_own").withStyle(ChatFormatting.DARK_RED), true);
+			return InteractionResult.CONSUME;
 		}
-		return InteractionResult.PASS;
+		return super.mobInteract(player, hand);
 	}
 
 	@Override
@@ -316,7 +252,43 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 		super.remove(reason);
 	}
 
-	@Nullable
+	@Override
+	public ItemStack createItem() {
+		ItemStack luggageItem = new ItemStack(LuggageRegistries.LUGGAGE_ITEM.get());
+
+		if (this.hasExtendedInventory()) {
+			luggageItem.set(LuggageRegistries.EXTENDED, Unit.INSTANCE);
+		}
+
+		if (!this.inventory.isEmpty()) {
+			luggageItem.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(this.inventory.getItems()));
+		}
+
+		return luggageItem;
+	}
+
+	@Override
+	public void onOpenMenu(Player player) {
+		this.level().gameEvent(player, GameEvent.CONTAINER_OPEN, player.blockPosition());
+		if (this.getSoundCooldown() == 0) {
+			this.playSound(SoundEvents.CHEST_OPEN, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
+			this.setSoundCooldown(5);
+		}
+		if (!this.level().isClientSide()) {
+			ServerPlayer sp = (ServerPlayer) player;
+			if (sp.containerMenu != sp.inventoryMenu) {
+				sp.closeContainer();
+			}
+
+			sp.nextContainerCounter();
+			PacketDistributor.sendToPlayer(sp, new OpenLuggageScreenPacket(sp.containerCounter, this.getId()));
+			sp.containerMenu = new LuggageMenu(sp.containerCounter, sp.getInventory(), this.inventory, this);
+			sp.initMenu(sp.containerMenu);
+			this.isInventoryOpen = true;
+			NeoForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
+		}
+	}
+
 	@Override
 	public ItemStack getPickResult() {
 		return new ItemStack(LuggageRegistries.LUGGAGE_ITEM.get());

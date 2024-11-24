@@ -1,9 +1,15 @@
 package com.gizmo.luggage.entity;
 
 import com.gizmo.luggage.LuggageRegistries;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
@@ -13,13 +19,14 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathType;
 import org.jetbrains.annotations.Nullable;
 
-public class AbstractLuggage extends TamableAnimal {
+public abstract class AbstractLuggage extends TamableAnimal {
 
 	private int soundCooldown = 15;
 	private static final TicketType<Integer> LUGGAGE_UNLOAD = TicketType.create("luggage_unload", Integer::compareTo, 20);
@@ -52,6 +59,38 @@ public class AbstractLuggage extends TamableAnimal {
 		if (this.soundCooldown > 0) {
 			this.soundCooldown--;
 		}
+	}
+
+	@Override
+	public InteractionResult mobInteract(Player player, InteractionHand hand) {
+		if (this.isAlive()) {
+			ItemStack stack = player.getItemInHand(hand);
+			if (stack.is(Items.NAME_TAG)) return InteractionResult.PASS;
+
+			if (player.isShiftKeyDown()) {
+				if (this.getOwner() == player) {
+					if (!this.level().isClientSide()) {
+						ItemStack luggageItem = this.createItem();
+						Component nameTag = this.getCustomName();
+						if (nameTag != null && !nameTag.getString().isEmpty()) {
+							luggageItem.set(DataComponents.CUSTOM_NAME, nameTag);
+						}
+						if (player.getInventory().add(luggageItem)) {
+							this.discard();
+							this.playSound(SoundEvents.ITEM_PICKUP, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
+						}
+					}
+					return InteractionResult.sidedSuccess(this.level().isClientSide());
+				} else {
+					player.displayClientMessage(Component.translatable("entity.luggage.player_doesnt_own").withStyle(ChatFormatting.DARK_RED), true);
+					return InteractionResult.CONSUME;
+				}
+			} else {
+				this.onOpenMenu(player);
+				return InteractionResult.sidedSuccess(this.level().isClientSide());
+			}
+		}
+		return InteractionResult.PASS;
 	}
 
 	@Override
@@ -190,4 +229,11 @@ public class AbstractLuggage extends TamableAnimal {
 		LivingEntity livingentity = this.getOwner();
 		return livingentity != null && this.distanceToSqr(this.getOwner()) >= 1600.0D;
 	}
+
+	public abstract ItemStack createItem();
+
+	public abstract void onOpenMenu(Player player);
+
+	@Override
+	public abstract ItemStack getPickResult();
 }
