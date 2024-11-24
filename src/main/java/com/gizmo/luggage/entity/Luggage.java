@@ -114,8 +114,7 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 			if (!itemstack.isEmpty()) {
 				CompoundTag compoundtag = new CompoundTag();
 				compoundtag.putByte("Slot", (byte) i);
-				itemstack.save(this.level().registryAccess(), compoundtag);
-				listtag.add(compoundtag);
+				listtag.add(itemstack.save(this.level().registryAccess(), compoundtag));
 			}
 		}
 
