@@ -161,24 +161,6 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 		return luggageItem;
 	}
 
-	public void restoreFromStack(@NotNull ItemStack stack) {
-		//im not this stupid, but just in case
-		if (!stack.is(LuggageRegistries.LUGGAGE_ITEM.get())) return;
-
-		if (stack.has(LuggageRegistries.EXTENDED)) {
-			this.setExtendedInventory(true);
-		}
-
-		if (stack.has(DataComponents.CONTAINER)) {
-			stack.get(DataComponents.CONTAINER).copyInto(this.inventory.getItems());
-			if (this.inventory.getContainerSize() > 27) {
-				this.setExtendedInventory(true);
-			}
-		}
-
-		this.fetchCooldown = 20;
-	}
-
 	//------------------------------------------//
 	//            INVENTORY HANDLING            //
 	//------------------------------------------//

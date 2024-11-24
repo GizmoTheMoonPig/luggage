@@ -2,7 +2,7 @@ package com.gizmo.luggage;
 
 import com.gizmo.luggage.entity.EnderLuggage;
 import com.gizmo.luggage.entity.Luggage;
-import com.gizmo.luggage.item.EnderLuggageItem;
+import com.gizmo.luggage.item.AbstractLuggageItem;
 import com.gizmo.luggage.item.LuggageItem;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -28,7 +28,7 @@ public class LuggageRegistries {
 	public static final DeferredHolder<EntityType<?>, EntityType<EnderLuggage>> ENDER_LUGGAGE = ENTITIES.register("ender_luggage", () -> EntityType.Builder.of(EnderLuggage::new, MobCategory.CREATURE).fireImmune().sized(0.75F, 0.75F).build("luggage:ender_luggage"));
 
 	public static final DeferredHolder<Item, Item> LUGGAGE_ITEM = ITEMS.register("luggage", () -> new LuggageItem(new Item.Properties().fireResistant().stacksTo(1)));
-	public static final DeferredHolder<Item, Item> ENDER_LUGGAGE_ITEM = ITEMS.register("ender_luggage", () -> new EnderLuggageItem(new Item.Properties().fireResistant().stacksTo(1)));
+	public static final DeferredHolder<Item, Item> ENDER_LUGGAGE_ITEM = ITEMS.register("ender_luggage", () -> new AbstractLuggageItem<>(ENDER_LUGGAGE, new Item.Properties().fireResistant().stacksTo(1)));
 
 	public static final DeferredHolder<SoundEvent, SoundEvent> LUGGAGE_KILLED = createEvent("entity.luggage.luggage.killed");
 	public static final DeferredHolder<SoundEvent, SoundEvent> LUGGAGE_EAT_FOOD = createEvent("entity.luggage.luggage.eat_food");

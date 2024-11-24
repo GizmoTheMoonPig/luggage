@@ -1,6 +1,7 @@
 package com.gizmo.luggage.item;
 
 import com.gizmo.luggage.LuggageRegistries;
+import com.gizmo.luggage.entity.AbstractLuggage;
 import com.gizmo.luggage.entity.Luggage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -34,10 +35,10 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class LuggageItem extends AbstractLuggageItem {
+public class LuggageItem extends AbstractLuggageItem<Luggage> {
 
 	public LuggageItem(Properties properties) {
-		super(properties);
+		super(LuggageRegistries.LUGGAGE, properties);
 	}
 
 	@Override
@@ -83,8 +84,20 @@ public class LuggageItem extends AbstractLuggageItem {
 	}
 
 	@Override
-	public EntityType<Luggage> getLuggageEntity() {
-		return LuggageRegistries.LUGGAGE.get();
+	public void onLuggagePlaced(ItemStack stack, Luggage luggage) {
+		if (stack.has(LuggageRegistries.EXTENDED)) {
+			luggage.setExtendedInventory(true);
+		}
+
+		if (stack.has(DataComponents.CONTAINER)) {
+			stack.get(DataComponents.CONTAINER).copyInto(luggage.getInventory().getItems());
+			if (luggage.getInventory().getContainerSize() > 27) {
+				luggage.setExtendedInventory(true);
+			}
+		}
+
+		luggage.setFetchCooldown(20);
+		super.onLuggagePlaced(stack, luggage);
 	}
 
 	private Iterable<ItemStack> getContents(ItemStack stack) {
