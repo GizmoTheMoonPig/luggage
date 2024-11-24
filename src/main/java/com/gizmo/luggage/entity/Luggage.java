@@ -176,10 +176,6 @@ public class Luggage extends AbstractLuggage implements ContainerListener {
 			}
 		}
 
-		if (stack.has(DataComponents.CUSTOM_NAME)) {
-			this.setCustomName(stack.getHoverName());
-		}
-
 		this.fetchCooldown = 20;
 	}
 

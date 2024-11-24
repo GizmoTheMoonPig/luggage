@@ -4,6 +4,7 @@ import com.gizmo.luggage.client.LuggageItemRenderer;
 import com.gizmo.luggage.entity.AbstractLuggage;
 import com.gizmo.luggage.entity.Luggage;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -40,6 +41,9 @@ public abstract class AbstractLuggageItem extends Item {
 					entity.tame(player);
 					if (entity instanceof Luggage luggage) {
 						luggage.restoreFromStack(stack);
+					}
+					if (stack.has(DataComponents.CUSTOM_NAME)) {
+						entity.setCustomName(stack.getHoverName());
 					}
 					level.addFreshEntity(entity);
 					if (!player.getAbilities().instabuild) {

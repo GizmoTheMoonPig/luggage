@@ -2,6 +2,7 @@ package com.gizmo.luggage.entity;
 
 import com.gizmo.luggage.LuggageRegistries;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -51,6 +52,10 @@ public class EnderLuggage extends AbstractLuggage {
 				if (this.getOwner() == player) {
 					if (!this.level().isClientSide()) {
 						ItemStack luggageItem = new ItemStack(LuggageRegistries.ENDER_LUGGAGE_ITEM.get());
+						Component nameTag = this.getCustomName();
+						if (nameTag != null && !nameTag.getString().isEmpty()) {
+							luggageItem.set(DataComponents.CUSTOM_NAME, nameTag);
+						}
 						if (player.getInventory().add(luggageItem)) {
 							this.discard();
 							this.playSound(SoundEvents.ITEM_PICKUP, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
@@ -68,7 +73,7 @@ public class EnderLuggage extends AbstractLuggage {
 					this.playSound(SoundEvents.ENDER_CHEST_OPEN, 0.5F, this.getRandom().nextFloat() * 0.1F + 0.9F);
 					this.setSoundCooldown(5);
 				}
-				player.openMenu(new SimpleMenuProvider((id, inventory, cPlayer) -> ChestMenu.threeRows(id, inventory, player.getEnderChestInventory()), this.getTypeName()));
+				player.openMenu(new SimpleMenuProvider((id, inventory, cPlayer) -> ChestMenu.threeRows(id, inventory, player.getEnderChestInventory()), this.getDisplayName()));
 				return InteractionResult.sidedSuccess(this.level().isClientSide());
 			}
 		}
